@@ -19,7 +19,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "prisma db seed",
+    "db:seed": "svelte-kit sync && prisma generate && prisma db seed",
     "db:reset": "prisma migrate reset --force",
     "setup": "bun scripts/setup.ts",
     "prepare": "husky"

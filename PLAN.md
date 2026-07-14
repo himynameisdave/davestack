@@ -1,0 +1,222 @@
+# davestack Build Plan
+
+> Handoff document. Any agent picking up this work: read this file, then `RECON.md`, then the
+> original task spec (Dave's message). Work phase by phase. **Commit after each phase with a
+> conventional-commit message, then STOP for Dave's review.** Do not start the next phase without
+> approval.
+
+## Ground rules (from the spec — non-negotiable)
+
+- Bun for everything. No npm/npx/yarn.
+- Svelte 5 runes only. No `export let`, no legacy stores.
+- Only the approved stack + the flagged deps in `RECON.md` §6. Any other dependency: ask first.
+- Fresh clone must work with **zero credentials**: `bun install && bun run db:push && bun run db:seed && bun run dev`
+  → signup/login/magic-link/passkeys all work, `/admin` reachable as seeded admin. Google button
+  simply doesn't render without creds. Nothing crashes on missing env.
+- Passkeys work on `localhost` with zero config.
+- `bun run test:e2e` passes on a fresh clone, passkey specs included (CDP virtual authenticator).
+- CI green on the initial template commit.
+- Conventional commits.
+- Reference implementations: `../smallreads` (passkeys, oxlint, most patterns), `../invoicyy`
+  (.env.test / test-DB pattern), spec message (everything else). When in doubt, copy smallreads.
+
+## Phase status
+
+- [x] **1. Recon** — done; output is `RECON.md` (comparison, lift list, file tree) + this plan.
+- [ ] **2. Scaffold** — awaiting Dave's answers to the Phase 1 questions below.
+- [ ] 3. Data
+- [ ] 4. Auth
+- [ ] 5. Email
+- [ ] 6. Admin
+- [ ] 7. Analytics
+- [ ] 8. Testing
+- [ ] 9. Hooks + CI
+- [ ] 10. Agent tooling
+- [ ] 11. Docs + setup script + polish
+
+## Open questions for Dave (blocking Phase 2)
+
+1. **oxfmt config doesn't exist in smallreads** (no formatter config anywhere in it). Plan: introduce
+   `oxfmt` fresh with a minimal config matching smallreads' de-facto style (tabs). OK?
+2. **oxlintrc domain pruning**: the smallreads `prefer-readonly-parameter-types` allow-list names 14
+   book-domain types; pruning them, keeping every rule otherwise identical. OK?
+3. **`zod`** (env validation + schemas) — not on the approved list. Include? (Recommended: yes.)
+4. **`sveltekit-rate-limiter`** on auth routes (smallreads-only feature) — include? (Recommended:
+   yes, auth brute-force protection.)
+5. **`sveltekit-superforms`** — recommended AGAINST (plain form actions suffice). Confirm skip?
+6. **Hooks manager**: smallreads uses husky + lint-staged, not lefthook. Spec says match smallreads
+   → husky. Confirm?
+7. **Conventional commits replace the references' emoji-commit convention.** Confirm.
+8. Single-repo features recommended SKIP: i18n/paraglide, PWA/service-worker, release workflow,
+   cron endpoint, admin-subdomain mechanism, layerchart. Confirm skips.
+9. TS 7 (7.0.2) vs references' TS 6 — targeting ^7, will fall back to ^6 if oxlint-tsgolint or
+   svelte-check break, and will report if so. OK?
+
+## Phase checklists
+
+### Phase 2 — Scaffold
+- [ ] `bunx sv create` (SvelteKit minimal, TS) or hand-rolled equivalent; Svelte 5, `"type": "module"`.
+- [ ] adapter-node in `svelte.config.js` (Railway target).
+- [ ] Tailwind v4 via `@tailwindcss/vite`; `src/app.css` CSS-first theme (copy neutral parts of
+      smallreads' app.css structure: OKLCH vars, `@custom-variant dark`).
+- [ ] shadcn-svelte init (`components.json`, baseColor stone or zinc) + components: button, input,
+      card, table, dropdown-menu, dialog, sonner, badge (+ label — inputs need it).
+- [ ] mode-watcher.
+- [ ] `oxlintrc.json` from smallreads, domain types pruned. Lint script verbatim:
+      `oxlint --config oxlintrc.json --deny-warnings --type-aware --tsconfig ./tsconfig.json`.
+- [ ] `.oxfmtrc.json` + `format` / `format:check` scripts.
+- [ ] Full package.json script set (spec list): dev, build, preview, check, lint, lint:fix, format,
+      format:check, test, test:e2e, test:e2e:ui, db:push, db:migrate, db:studio, db:seed, db:reset.
+      dev/build = `svelte-kit sync && prisma generate && vite dev|build` (smallreads).
+- [ ] `engines.bun` + `packageManager` pinned; `.npmrc` engine-strict (smallreads); commit `bun.lock`.
+- [ ] Verify: `bun run check`, `bun run lint`, `bun run format:check`, `bun run build` all green.
+
+### Phase 3 — Data
+- [ ] `docker-compose.yml`: `db` (5432, `davestack`) + `db-test` (5433, `davestack_test`), postgres:17.
+- [ ] `prisma/schema.prisma`: generator `prisma-client` → `src/generated/prisma` (gitignore it);
+      models User (+`isAdmin Boolean @default(false)`), Session, Account, Verification, Passkey —
+      copy smallreads' Better Auth models incl. Passkey exactly; snake_case `@@map` like invoicyy
+      optional — follow smallreads (no map) for lift fidelity.
+- [ ] `prisma.config.ts` (smallreads: dotenv .env.local then .env; migrations path; seed via
+      `bun prisma/seed.ts`; url + directUrl).
+- [ ] `src/lib/server/db.ts`: PrismaPg adapter + globalThis-guarded singleton (smallreads).
+- [ ] `src/lib/server/env.ts`: fail-fast validation at boot (imported by hooks.server.ts). Required:
+      DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL. Optional w/ presence flags: GOOGLE_*,
+      RESEND_API_KEY, PUBLIC_UMAMI_*. Clear thrown message naming the missing var.
+- [ ] `prisma/seed.ts`: admin@example.com (isAdmin, verified, password) + user@example.com. Idempotent
+      (upserts). Password hashing must go through Better Auth's hasher so login actually works —
+      use `auth.api.signUpEmail` or Better Auth's internal scrypt; verify in-phase.
+- [ ] Initial migration committed. `db:reset` = `prisma migrate reset --force`.
+- [ ] `.env.example` (documented) + `.env.test` (committed, ports 5433).
+- [ ] Verify: fresh `docker compose up -d`, `db:push`, `db:seed`, `db:studio` opens.
+
+### Phase 4 — Auth (biggest phase; consider sub-commits)
+- [ ] `src/lib/server/auth/` modular layout per RECON §7: one file per method, `index.ts` composes.
+      Each method file exports a plugin/config fragment; removal = delete file + one import line.
+      Document the removal recipe in README (Phase 11).
+- [ ] Methods: `emailAndPassword` (+ `requireEmailVerification: true`, verification email via email
+      wrapper), `magicLink` (smallreads), Google `socialProviders` **conditional on env presence**
+      (smallreads), `passkey({ rpName, rpID?, origin })` derived from `BETTER_AUTH_URL` (+ optional
+      `PASSKEY_RP_ID` override for multi-domain), `sveltekitCookies(getRequestEvent)`.
+- [ ] `user.additionalFields.isAdmin` (smallreads, `input: false`).
+- [ ] `src/routes/api/auth/[...all]/+server.ts` (smallreads).
+- [ ] `hooks.server.ts`: env assert import → security headers → `auth.api.getSession` → locals →
+      `svelteKitHandler`; `handleError` logs w/ event id, returns generic message. `app.d.ts` from
+      `auth.$Infer.Session`.
+- [ ] Lift `passkey-auth.svelte.ts` + `safe-next.ts` (+ its unit test) from smallreads.
+- [ ] Route groups + guards: `(app)/+layout.server.ts` redirect; `(auth)` pages redirect away when
+      logged in; `(marketing)` public.
+- [ ] Pages (shadcn, not junk-drawer): login (password form + magic-link toggle + Google button
+      [only when enabled — expose via layout data] + passkey button + conditional-UI autofill),
+      signup, forgot-password, reset-password, verify-email.
+- [ ] `(app)/account`: profile basics + passkey management — list (name, deviceType, createdAt,
+      last-used if plugin schema supports; else document), add (prompt for name, don't hardcode),
+      rename (form action, `prisma.passkey.update` scoped to `locals.user.id` if no plugin API),
+      revoke. Server-side form actions.
+- [ ] Recovery composition: passkey-only user → magic link still works (same email) → from account
+      page can add new passkey. Verify manually; e2e in Phase 8.
+- [ ] Verify: all four methods work locally; fresh clone w/o Google env boots, no Google button.
+
+### Phase 5 — Email
+- [ ] `src/lib/server/email/index.ts`: `sendEmail({to, subject, html, text})` with transports:
+      resend (RESEND_API_KEY present + prod), console (dev — pretty-print incl. any links), capture
+      (TEST_MODE — in-memory array + exposed via `api/test/mailbox` endpoint, 404 unless TEST_MODE).
+- [ ] Templates: layout.ts (neutral rebrand of smallreads' `buildEmailLayout`), verify-email,
+      magic-link, reset-password. Escape interpolations.
+- [ ] Wire into auth (Phase 4 stubs point here).
+- [ ] Verify: dev signup logs verification email w/ clickable localhost URL.
+
+### Phase 6 — Admin
+- [ ] `(admin)/admin/+layout.server.ts`: `!locals.user?.isAdmin → error(404)` (404 not 403).
+- [ ] Dashboard `+page.server.ts`: model counts (users/sessions/accounts/passkeys/verifications) via
+      one structured `MODEL_CARDS` list — the documented extension point; recent signups (email,
+      name, methods derived from Account.providerId + passkey presence, verified, createdAt,
+      isAdmin); recent + active session count; app meta (NODE_ENV, git SHA via build-time define or
+      RAILWAY_GIT_COMMIT_SHA, DB host parsed from URL — host only).
+- [ ] Read-only. No forms, no actions.
+- [ ] Admin link in user menu gated on `isAdmin`.
+- [ ] Verify: non-admin 404s, admin renders.
+
+### Phase 7 — Analytics
+- [ ] Root layout: Umami `<script>` only when `PUBLIC_UMAMI_WEBSITE_ID` set AND prod AND route not
+      under `(admin)`.
+- [ ] `src/lib/analytics.ts`: `track(event, data?)` typed, no-ops when `window.umami` absent. Use
+      once: signup completed w/ `{ method }`.
+- [ ] `.env.example`: PUBLIC_UMAMI_WEBSITE_ID, PUBLIC_UMAMI_SRC (default cloud URL).
+
+### Phase 8 — Testing (hard phase; budget accordingly)
+- [ ] Vitest: smallreads pattern (jsdom, colocated tests). Unit-test at minimum: safe-next, env
+      validation, email transport selection, template rendering.
+- [ ] Playwright config: webServer = build + preview (or dev --mode test) against **test DB** (5433,
+      `.env.test`, TEST_MODE=1); global-setup: `prisma db push` + truncate + seed; workers=1 or
+      per-worker DB isolation — keep simple: serial-safe truncation per spec "no ordering deps";
+      retries: CI 1 / local 0; trace on-first-retry; no Umami (env absent in test = already
+      guaranteed).
+- [ ] Fixtures (`tests/e2e/fixtures.ts`): `createUser({ isAdmin })` (direct DB or signup API),
+      `loginAs(user)` (forged signed session cookie — lift smallreads `signCookieValue`),
+      `withVirtualAuthenticator()` (CDP `WebAuthn.enable` + `addVirtualAuthenticator`
+      {protocol ctap2, transport internal, hasResidentKey, hasUserVerification,
+      isUserVerified, automaticPresenceSimulation}), `mailbox()` (poll test mailbox endpoint,
+      extract links/tokens).
+- [ ] The 7 spec files from RECON §7 tree — all green locally + in CI, no external creds.
+- [ ] Chromium-only project is fine (virtual authenticator is CDP/Chromium).
+- [ ] Verify loop: `bun run test && bun run test:e2e` twice in a row (catches state leakage).
+
+### Phase 9 — Hooks + CI
+- [ ] husky + lint-staged. pre-commit (staged only, fast): oxfmt --write + restage, oxlint
+      --deny-warnings, garbage blockers (`.only`/`.skip` in tests, `debugger`, conflict markers,
+      `console.log` outside src/lib/server + scripts + tests, any staged `.env*` except
+      .env.example/.env.test = hard fail). Implement blockers as one small `scripts/check-staged.ts`.
+- [ ] commit-msg: conventional-commit regex script (no commitlint dep).
+- [ ] pre-push: `bun run check && bun run test`. NOT playwright (spec agrees).
+- [ ] Hooks install via `prepare` script (fresh clone protected).
+- [ ] `.github/workflows/ci.yml`: pull_request + push main; concurrency `${{ github.workflow }}-${{ github.ref }}`
+      cancel-in-progress; `oven-sh/setup-bun@v2` pinned to engines version, bun cache; 5 parallel
+      jobs: lint (oxlint + oxfmt --check), typecheck, test, e2e (postgres service, migrate+seed,
+      build, run, upload report/traces on failure), build. **No secrets anywhere.**
+- [ ] PR template checklist (e2e spec, migration, .env.example, admin card).
+- [ ] Extend dependabot.yml: github-actions ecosystem + better-auth group (smallreads).
+- [ ] Document `--no-verify` = emergencies only, CI catches it.
+
+### Phase 10 — Agent tooling
+- [ ] CLAUDE.md: Part 1 PROJECT CONTEXT fill-me-in stub; Part 2 STACK CONVENTIONS as terse rules
+      (spec has the full list — transcribe it, incl. self-verify loop
+      `bun run lint && bun run check && bun run test && bun run test:e2e`, e2e-required rule,
+      extension points, fixture docs). ≤ ~200 lines.
+- [ ] AGENTS.md → one-line pointer to CLAUDE.md (single source of truth; two files drift).
+- [ ] `.claude/commands/`: `/new-model`, `/new-route`, `/ship` — with an honest recommendation to
+      Dave about which earn their keep (current take: /new-model and /new-route encode real
+      multi-file invariants [schema+migration+admin card+e2e; route+guard+e2e] = keep; /ship is
+      mostly the self-verify loop CLAUDE.md already mandates + `gh pr create` = borderline).
+- [ ] `.claude/skills/davestack-e2e/`: Playwright house style, fixtures, WebAuthn virtual
+      authenticator recipes (skill not command: it's knowledge applied while writing any spec, not a
+      discrete flow). Possibly fold conventions into CLAUDE.md instead of a second skill — decide
+      with Dave.
+- [ ] All commands/skills reference the real fixture names from Phase 8.
+
+### Phase 11 — Docs + setup + polish
+- [ ] README per spec's full list. Prominent call-out box: passkey RP ID/origin per environment
+      (localhost zero-config; Railway preview URL; custom domain — what to set: BETTER_AUTH_URL,
+      optional PASSKEY_RP_ID; passkeys are origin-bound, changing domain orphans credentials).
+- [ ] `scripts/setup.ts` (bun): prompt project name → rewrite package.json/app strings; generate
+      BETTER_AUTH_SECRET into .env.local; `docker compose up -d db`; `db:push` + `db:seed`;
+      `bun install` already ran `prepare` (hooks) — verify.
+- [ ] Dockerfile: multi-stage bun build, adapter-node output, `prisma migrate deploy` on boot or in
+      Railway release phase — document choice.
+- [ ] Delete RECON.md + PLAN.md (or move to docs/) — ask Dave.
+- [ ] Final gate: clean clone in a temp dir → spec's fresh-clone commands → manual smoke of all four
+      auth methods + /admin → `bun run test:e2e` green → CI green on GitHub.
+
+## Gotchas already known (don't rediscover)
+
+- smallreads' oxlint allow-list has domain types — prune (RECON §3).
+- smallreads has NO oxfmt, NO handleError, NO env validation, NO passkey rename, NO WebAuthn e2e,
+  NO email dev-mode. All net-new; spec requires them.
+- Better Auth passkey plugin is a separate package `@better-auth/passkey` (smallreads pins exact).
+- Seeded users need Better-Auth-compatible password hashes — don't hand-roll bcrypt.
+- Passkey e2e needs `automaticPresenceSimulation: true` + resident key + user verification for
+  conditional UI flows.
+- e2e webServer must inject BETTER_AUTH_URL matching baseURL or passkey origin checks fail.
+- `PUBLIC_` env vars are baked at build time in SvelteKit static env — use `$env/dynamic/public` if
+  Railway runtime config should win; decide in Phase 7 (Umami) — dynamic is likely right for a
+  template.

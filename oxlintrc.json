@@ -1,0 +1,83 @@
+{
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "pedantic": "warn"
+  },
+  "rules": {
+    "no-explicit-any": "error",
+    "eqeqeq": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-fallthrough": "error",
+    "no-case-declarations": "error",
+    "strict-boolean-expressions": "off",
+    "no-unsafe-assignment": "off",
+    "no-unsafe-type-assertion": "off",
+    "no-unsafe-argument": "off",
+    "no-unsafe-member-access": "off",
+    "no-unsafe-return": "off",
+    "no-unsafe-call": "off",
+    "max-lines-per-function": "off",
+    "max-lines": "off",
+    "require-await": "off",
+    "typescript/require-await": "off",
+    "no-inline-comments": "off",
+    "ban-types": "off",
+    "no-useless-undefined": "warn",
+    "require-module-specifiers": "off",
+    "prefer-code-point": "warn",
+    "prefer-at": "off",
+    "no-array-sort": "warn",
+    "prefer-top-level-await": "off",
+    "return-await": "off",
+    "prefer-nullish-coalescing": "off",
+    "no-underscore-dangle": [
+      "warn",
+      {
+        "allow": ["__APP_VERSION__", "_count", "_avg", "_max", "_min", "_sum", "_all", "as_"]
+      }
+    ],
+    "typescript/prefer-readonly-parameter-types": [
+      "warn",
+      {
+        "ignoreInferredTypes": true,
+        "allow": [
+          { "from": "lib", "name": "Date" },
+          { "from": "lib", "name": "URL" },
+          { "from": "lib", "name": "URLSearchParams" },
+          { "from": "lib", "name": "FormData" },
+          { "from": "lib", "name": "Request" },
+          { "from": "lib", "name": "Response" },
+          { "from": "lib", "name": "Headers" },
+          { "from": "lib", "name": "RegExp" },
+          "RequestEvent",
+          "Page",
+          "APIRequestContext"
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "tests/**/*.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["**/*.svelte"],
+      "rules": {
+        "prefer-const": "off"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "generated/**",
+    "src/generated/**",
+    "node_modules/**",
+    ".svelte-kit/**",
+    "vite.config.ts",
+    "playwright.config.ts"
+  ]
+}

@@ -27,7 +27,8 @@
 
 - [x] **1. Recon** — done; output is `RECON.md` (comparison, lift list, file tree) + this plan.
       Dave reviewed and answered the open questions — decisions recorded below.
-- [ ] **2. Scaffold** — ready to start (do not begin without Dave saying go).
+- [x] **2. Scaffold** — done. SvelteKit+Svelte5+TS+Tailwind4+shadcn+oxlint/oxfmt all green
+      (lint / check / format:check / build). See "Phase 2 outcome" below.
 - [ ] 3. Data
 - [ ] 4. Auth
 - [ ] 5. Email
@@ -56,6 +57,24 @@
 9. **TS 7 if possible** (^7.0.2); fall back to ^6 only if oxlint-tsgolint or svelte-check break,
    and report the breakage.
 10. **Railway confirmed** as default deploy target (adapter-node + Dockerfile); Netlify README-only.
+
+## Phase 2 outcome (2026-07-13) — flags for Dave
+
+- **TS 7 fell back to ^6.** `typescript@7.0.2` installs, and oxlint type-aware (tsgolint) is fine on
+  it, but `svelte-check@4.7.2` crashes at boot (`ConfigLoader` throws — it can't drive the TS7
+  compiler API yet). Reverted to `typescript@^6.0.3` (smallreads' pin). Revisit when svelte-check
+  ships TS7 support.
+- **oxfmt DOES format `.svelte`** (bundled `prettier-plugin-svelte`; needs the `svelte` pkg, which we
+  have). Enabled via `"svelte": true` in `.oxfmtrc.json`, so one formatter owns everything:
+  ts/js/svelte/css/html/json/yaml/md. `.oxfmtrc.json` set to **spaces** (`useTabs:false`, width 2),
+  singleQuote, printWidth 100. PLAN.md/RECON.md are in `ignorePatterns` (handoff docs).
+- **shadcn button tweak:** shadcn-svelte 1.4.1's `button.svelte` ships `href = undefined` which trips
+  `no-useless-undefined` under `--deny-warnings`; changed to `href` (matches smallreads). Only
+  hand-edit to a generated component; noted so a future re-`add` knows to redo it.
+- oxfmt reformatted the pre-existing `dependabot.yml` + `README.md` (quotes/blank line) — both
+  rewritten later anyway (Phases 9/11).
+- Deferred to their phases (not in build/dev scripts yet): `prisma generate` (Phase 3), husky
+  `prepare` hook (Phase 9). Kept out so a Phase-2 clone builds without a schema or hooks present.
 
 ## Phase checklists
 

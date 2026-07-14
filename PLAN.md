@@ -32,8 +32,14 @@
 - [x] **3. Data** — done. Docker Postgres (dev 5432 + test 5433), Prisma 7 schema (Better Auth
       models + isAdmin), init migration applied, zod env validation, client singleton, seed
       (2 users). All gates green. See "Phase 3 outcome" below.
-- [ ] 4. Auth
+- [x] **4. Auth** — done. Better Auth (password + magic link + Google-conditional + passkeys),
+      modular per-method files, hooks (session + security headers + rate limit + handleError),
+      route groups + guards, auth pages, account page w/ passkey mgmt, seed w/ working passwords.
+      Live-smoke-verified. README written (Dave asked). See "Phase 4 outcome". **Passkey WebAuthn
+      e2e deferred to Phase 8 (needs a browser / CDP virtual authenticator).**
 - [ ] 5. Email
+- [x] **(interim) Vitest** — pulled forward from Phase 8 so the lifted `safe-next.test.ts` runs.
+      Minimal `vitest.config.ts`; Phase 8 expands (jsdom projects, e2e, etc.).
 - [ ] 6. Admin
 - [ ] 7. Analytics
 - [ ] 8. Testing
@@ -97,6 +103,37 @@
 - Generated client lives at `src/generated/prisma` (gitignored); imported by `db.ts` as
   `../../generated/prisma/client`. `BETTER_AUTH_URL` in `.env.test` set to `http://localhost:4173`
   (adapter-node preview port) — Phase 8 confirms against the Playwright config.
+
+## Phase 4 outcome (2026-07-14) — live-verified + flags
+
+Smoke-tested against a running dev server (all passed):
+- Seeded `admin@example.com` / `password123` → **200 + session cookie**. Seed hashes with
+  `hashPassword` from `better-auth/crypto` (the default emailAndPassword hasher, no `$app/server`
+  import) and writes a credential Account with `accountId = userId` — confirmed to match a real
+  Better Auth signup's shape.
+- Wrong password → 401. Unverified user login → 403 (requireEmailVerification enforced).
+- Fresh signup → 200, creates unverified credential account; verification email logged to console.
+- Magic link request → 200, link logged to console (dev transport).
+- Login page: passkey button present, **Google button absent** (no GOOGLE env — conditional works),
+  magic-link button present.
+- Guards: `/home`, `/account` while logged out → 303 → `/login?next=…`. Authed `/` → 303 → `/home`
+  (app takes priority). Authed `/home` → 200. Security headers present.
+
+Key decisions / flags:
+- **`auth.api.forgetPassword` → `requestPasswordReset`** (server method; `forgetPassword` is
+  client-only in this Better Auth version).
+- **env prod-hardening moved out of module load.** It threw during `vite build` (SvelteKit's
+  analyse step imports server modules with NODE_ENV=production and no secret). Now
+  `assertProductionReady()` is called from `hooks.server.ts` guarded by `!building` → builds with no
+  secrets (CI-safe), still fails fast at runtime boot.
+- **Minimal email module built here** (`src/lib/server/email/index.ts`): transports = capture
+  (TEST_MODE) / Resend (prod) / console (dev), + 3 senders. **Phase 5 keeps these signatures and
+  swaps in branded templates, escaping, and the `/api/test/mailbox` endpoint.**
+- **Passkey add uses no `authenticatorAttachment`** (allows platform AND security keys, per spec —
+  smallreads hardcoded `'platform'`). Rename is a Prisma form action scoped to the session user
+  (Better Auth exposes no rename API); add/revoke via client + `invalidateAll`.
+- `src/lib/server/form.ts` `field()` helper coerces FormData values to strings (fixes
+  `no-base-to-string` on `File` values feeding zod).
 
 ## Phase checklists
 

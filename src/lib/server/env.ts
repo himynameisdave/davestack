@@ -48,23 +48,26 @@ function loadEnv() {
     throw new Error(`Invalid environment variables:\n${details}`);
   }
 
-  const data = parsed.data;
-
-  if (data.NODE_ENV === 'production') {
-    if (data.BETTER_AUTH_SECRET === DEV_AUTH_SECRET) {
-      throw new Error(
-        'BETTER_AUTH_SECRET is still the dev placeholder. Set a real secret in production (openssl rand -base64 32).',
-      );
-    }
-    if (data.DATABASE_URL === LOCAL_DATABASE_URL) {
-      throw new Error('DATABASE_URL still points at the local Docker database in production.');
-    }
-  }
-
-  return data;
+  return parsed.data;
 }
 
 export const env = loadEnv();
+
+// Production hardening. Kept OUT of loadEnv() so it doesn't fire during
+// `vite build` (SvelteKit's analyse step imports server modules with
+// NODE_ENV=production and no real secrets — the app must build without them).
+// Called once at runtime boot from hooks.server.ts, guarded by `!building`.
+export function assertProductionReady(): void {
+  if (env.NODE_ENV !== 'production') return;
+  if (env.BETTER_AUTH_SECRET === DEV_AUTH_SECRET) {
+    throw new Error(
+      'BETTER_AUTH_SECRET is still the dev placeholder. Set a real secret in production (openssl rand -base64 32).',
+    );
+  }
+  if (env.DATABASE_URL === LOCAL_DATABASE_URL) {
+    throw new Error('DATABASE_URL still points at the local Docker database in production.');
+  }
+}
 
 // Presence flags for optional integrations. Import these instead of re-checking
 // env vars at call sites, so "is Google configured?" lives in exactly one place.

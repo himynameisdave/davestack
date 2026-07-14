@@ -1,13 +1,15 @@
+import { hashPassword } from 'better-auth/crypto';
 import { prisma } from '../src/lib/server/db';
 
-// Seed: one admin + one regular user. Idempotent (upsert by email) so it is safe
-// to re-run. `bun run db:seed` invokes this via prisma.config.ts.
+// Seed: one admin + one regular user, both with a working email+password login.
+// Idempotent (delete-by-email then recreate) so it is safe to re-run.
 //
-// NOTE: password credentials are NOT created here. A working password login needs
-// Better Auth's scrypt hasher, so the auth phase replaces this body with
-// `auth.api.signUpEmail(...)` calls that create the User + credential Account
-// together. Until then these users exist but can only sign in via magic link /
-// passkey once auth is wired.
+// We hash with Better Auth's own `hashPassword` (the default emailAndPassword
+// hasher) and write the credential Account directly, rather than calling
+// auth.api.signUpEmail — that pulls the SvelteKit-only `$app/server` module,
+// which does not resolve in a standalone `bun` script.
+
+const SEED_PASSWORD = 'password123';
 
 const SEED_USERS = [
   { email: 'admin@example.com', name: 'Admin User', isAdmin: true },
@@ -15,19 +17,28 @@ const SEED_USERS = [
 ] as const;
 
 async function main() {
+  const passwordHash = await hashPassword(SEED_PASSWORD);
+
   for (const u of SEED_USERS) {
-    const user = await prisma.user.upsert({
-      where: { email: u.email },
-      update: { name: u.name, isAdmin: u.isAdmin, emailVerified: true },
-      create: {
+    // Better Auth owns user ids, so delete-and-recreate by email instead of
+    // upserting. Cascades clean up the old credential account.
+    await prisma.user.deleteMany({ where: { email: u.email } });
+
+    const userId = crypto.randomUUID();
+    await prisma.user.create({
+      data: { id: userId, email: u.email, name: u.name, emailVerified: true, isAdmin: u.isAdmin },
+    });
+    await prisma.account.create({
+      data: {
         id: crypto.randomUUID(),
-        email: u.email,
-        name: u.name,
-        isAdmin: u.isAdmin,
-        emailVerified: true,
+        accountId: userId,
+        providerId: 'credential',
+        userId,
+        password: passwordHash,
       },
     });
-    console.log(`Seeded ${user.isAdmin ? 'admin' : 'user'}: ${user.email}`);
+
+    console.log(`Seeded ${u.isAdmin ? 'admin' : 'user'}: ${u.email} / ${SEED_PASSWORD}`);
   }
 }
 

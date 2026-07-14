@@ -26,9 +26,19 @@ test.describe('passkeys', () => {
     await expect(page).toHaveURL('/');
 
     // Sign back in with the passkey — the virtual authenticator still holds the
-    // discoverable credential, so the usernameless ceremony succeeds.
+    // discoverable credential, so the ceremony succeeds. Two paths can complete
+    // it: the conditional-UI autofill started on mount (initConditionalMediation),
+    // which the virtual authenticator's automaticPresenceSimulation resolves on its
+    // own, or our explicit button click. Whichever wins navigates to /home and
+    // detaches the button — so we nudge the button but tolerate it already being
+    // gone, and assert the real outcome (signed in, on /home).
     await page.goto('/login');
-    await page.getByRole('button', { name: 'Sign in with a passkey' }).click();
+    await page
+      .getByRole('button', { name: 'Sign in with a passkey' })
+      .click({ timeout: 5000 })
+      .catch(() => {
+        // Button detached because the autofill ceremony already navigated — a pass.
+      });
     await expect(page).toHaveURL(/\/home$/u);
     await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
 

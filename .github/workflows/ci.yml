@@ -1,0 +1,149 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Non-secret defaults so the app boots on a fresh public template with zero
+# configuration. NONE of these are real credentials — do not add secrets here.
+# env.ts requires these three to be present; CI never contacts a real service
+# with them (jobs that need a DB point DATABASE_URL at the postgres service).
+env:
+  BUN_VERSION: 1.3.13
+  BETTER_AUTH_SECRET: ci-not-a-real-secret-safe-to-be-public
+  BETTER_AUTH_URL: http://localhost:4173
+  DATABASE_URL: postgresql://davestack:davestack@localhost:5432/davestack?schema=public
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    # Skip the auto-generated release commit (release.yml already validated it).
+    if: ${{ github.event_name == 'pull_request' || !startsWith(github.event.head_commit.message, '🔖 Release') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      # Type-aware lint needs generated SvelteKit + Prisma types on disk.
+      - run: bunx svelte-kit sync
+      - run: bunx prisma generate
+      - run: bun run lint
+      - run: bun run format:check
+
+  typecheck:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' || !startsWith(github.event.head_commit.message, '🔖 Release') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      # `check` runs svelte-kit sync + prisma generate itself.
+      - run: bun run check
+
+  test:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' || !startsWith(github.event.head_commit.message, '🔖 Release') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      - run: bunx svelte-kit sync
+      - run: bunx prisma generate
+      - run: bun run test
+
+  e2e:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' || !startsWith(github.event.head_commit.message, '🔖 Release') }}
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: davestack
+          POSTGRES_PASSWORD: davestack
+          POSTGRES_DB: davestack_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      # Point the app + Playwright global-setup at the service container. This
+      # overrides the workflow-level DATABASE_URL and the :5433 value in
+      # .env.test (dotenv does not override an already-set env var).
+      NODE_ENV: test
+      TEST_MODE: '1'
+      DATABASE_URL: postgresql://davestack:davestack@localhost:5432/davestack_test?schema=public
+      DIRECT_DATABASE_URL: postgresql://davestack:davestack@localhost:5432/davestack_test?schema=public
+      # Must match the preview server origin or passkey WebAuthn origin checks fail.
+      BETTER_AUTH_URL: http://localhost:4173
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      # global-setup.ts runs `svelte-kit sync` + `prisma db push` + seed against
+      # the test DB, and the webServer builds + previews on :4173. We only need
+      # the browser installed up front.
+      - name: Install Playwright Chromium
+        run: bunx playwright install --with-deps chromium
+      - run: bun run test:e2e
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' || !startsWith(github.event.head_commit.message, '🔖 Release') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      # `build` runs svelte-kit sync + prisma generate itself. env assert is
+      # guarded by SvelteKit's `building` flag, so no DB is contacted here.
+      - run: bun run build

@@ -1,0 +1,5 @@
+# Fast, staged-only gate: oxfmt --write (auto-restaged by lint-staged), a
+# non-type-aware oxlint pass, and the garbage blockers in scripts/check-staged.ts.
+# Bypass with `git commit --no-verify` in EMERGENCIES ONLY — CI re-runs every
+# check (lint, typecheck, test, e2e, build), so a bypassed commit still fails there.
+bunx lint-staged

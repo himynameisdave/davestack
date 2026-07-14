@@ -1,0 +1,30 @@
+node_modules
+.git
+.github
+.svelte-kit
+build
+.output
+
+# Env — never bake secrets into the image (Railway/host injects them at runtime)
+.env
+.env.*
+!.env.example
+
+# Generated Prisma client — the build stage regenerates it
+src/generated
+generated
+
+# Tests & reports
+test-results
+playwright-report
+blob-report
+playwright/.cache
+tests/e2e/.auth
+
+# Local tooling & docs not needed in the image
+.claude
+.husky
+.vscode
+.DS_Store
+PLAN.md
+RECON.md

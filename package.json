@@ -21,6 +21,7 @@
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
     "db:reset": "prisma migrate reset --force",
+    "setup": "bun scripts/setup.ts",
     "prepare": "husky"
   },
   "dependencies": {

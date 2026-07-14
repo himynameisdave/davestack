@@ -16,14 +16,18 @@
 - Passkeys work on `localhost` with zero config.
 - `bun run test:e2e` passes on a fresh clone, passkey specs included (CDP virtual authenticator).
 - CI green on the initial template commit.
-- Conventional commits.
+- **Emoji commits** (Dave's call, matches both references): `{EMOJI} {short imperative description}`,
+  < 72 chars, multi-line body only for huge changes. E.g. `🔐 add passkey management to account page`.
+- `zod` is a first-class citizen of the stack: runtime env validation and all form/action schemas
+  go through zod. Don't hand-roll validation.
 - Reference implementations: `../smallreads` (passkeys, oxlint, most patterns), `../invoicyy`
   (.env.test / test-DB pattern), spec message (everything else). When in doubt, copy smallreads.
 
 ## Phase status
 
 - [x] **1. Recon** — done; output is `RECON.md` (comparison, lift list, file tree) + this plan.
-- [ ] **2. Scaffold** — awaiting Dave's answers to the Phase 1 questions below.
+      Dave reviewed and answered the open questions — decisions recorded below.
+- [ ] **2. Scaffold** — ready to start (do not begin without Dave saying go).
 - [ ] 3. Data
 - [ ] 4. Auth
 - [ ] 5. Email
@@ -34,23 +38,24 @@
 - [ ] 10. Agent tooling
 - [ ] 11. Docs + setup script + polish
 
-## Open questions for Dave (blocking Phase 2)
+## Decisions from Dave's Phase 1 review (2026-07-13) — binding
 
-1. **oxfmt config doesn't exist in smallreads** (no formatter config anywhere in it). Plan: introduce
-   `oxfmt` fresh with a minimal config matching smallreads' de-facto style (tabs). OK?
-2. **oxlintrc domain pruning**: the smallreads `prefer-readonly-parameter-types` allow-list names 14
-   book-domain types; pruning them, keeping every rule otherwise identical. OK?
-3. **`zod`** (env validation + schemas) — not on the approved list. Include? (Recommended: yes.)
-4. **`sveltekit-rate-limiter`** on auth routes (smallreads-only feature) — include? (Recommended:
-   yes, auth brute-force protection.)
-5. **`sveltekit-superforms`** — recommended AGAINST (plain form actions suffice). Confirm skip?
-6. **Hooks manager**: smallreads uses husky + lint-staged, not lefthook. Spec says match smallreads
-   → husky. Confirm?
-7. **Conventional commits replace the references' emoji-commit convention.** Confirm.
-8. Single-repo features recommended SKIP: i18n/paraglide, PWA/service-worker, release workflow,
-   cron endpoint, admin-subdomain mechanism, layerchart. Confirm skips.
-9. TS 7 (7.0.2) vs references' TS 6 — targeting ^7, will fall back to ^6 if oxlint-tsgolint or
-   svelte-check break, and will report if so. OK?
+1. **oxfmt**: introduce fresh (nothing to lift from smallreads). **Spaces, not tabs.**
+2. **oxlintrc**: lift verbatim, prune the 14 book-domain type names, loosen nothing. Approved.
+3. **zod**: approved, **first-class citizen** — env validation + all form/action schemas.
+4. **sveltekit-rate-limiter**: include (auth routes).
+5. **sveltekit-superforms**: skip.
+6. **husky + lint-staged**: confirmed (extended with commit-msg + pre-push).
+7. **EMOJI COMMITS, not conventional commits.** `{EMOJI} {short description}`; multi-line body only
+   for huge changes. commit-msg hook enforces emoji-first. Overrides every earlier "conventional
+   commits" mention in this plan, RECON.md, and the original spec.
+8. Skips confirmed for: i18n/paraglide, cron endpoint, admin-subdomain mechanism, layerchart,
+   superforms. **BUT include: light PWA** (manifest, icons, apple meta, minimal service worker —
+   smallreads pattern, kept small) **and the release workflow** (smallreads `release.yml`: version
+   bump + `🔖 Release vX.Y.Z` commit + tag + GitHub release; CI skips release commits).
+9. **TS 7 if possible** (^7.0.2); fall back to ^6 only if oxlint-tsgolint or svelte-check break,
+   and report the breakage.
+10. **Railway confirmed** as default deploy target (adapter-node + Dockerfile); Netlify README-only.
 
 ## Phase checklists
 
@@ -64,7 +69,8 @@
 - [ ] mode-watcher.
 - [ ] `oxlintrc.json` from smallreads, domain types pruned. Lint script verbatim:
       `oxlint --config oxlintrc.json --deny-warnings --type-aware --tsconfig ./tsconfig.json`.
-- [ ] `.oxfmtrc.json` + `format` / `format:check` scripts.
+- [ ] `.oxfmtrc.json` (**spaces for indentation**, per Dave) + `format` / `format:check` scripts.
+- [ ] Install `zod` now — it's first-class stack (env validation in Phase 3, form schemas in Phase 4).
 - [ ] Full package.json script set (spec list): dev, build, preview, check, lint, lint:fix, format,
       format:check, test, test:e2e, test:e2e:ui, db:push, db:migrate, db:studio, db:seed, db:reset.
       dev/build = `svelte-kit sync && prisma generate && vite dev|build` (smallreads).
@@ -80,7 +86,7 @@
 - [ ] `prisma.config.ts` (smallreads: dotenv .env.local then .env; migrations path; seed via
       `bun prisma/seed.ts`; url + directUrl).
 - [ ] `src/lib/server/db.ts`: PrismaPg adapter + globalThis-guarded singleton (smallreads).
-- [ ] `src/lib/server/env.ts`: fail-fast validation at boot (imported by hooks.server.ts). Required:
+- [ ] `src/lib/server/env.ts`: **zod schema**, fail-fast validation at boot (imported by hooks.server.ts). Required:
       DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL. Optional w/ presence flags: GOOGLE_*,
       RESEND_API_KEY, PUBLIC_UMAMI_*. Clear thrown message naming the missing var.
 - [ ] `prisma/seed.ts`: admin@example.com (isAdmin, verified, password) + user@example.com. Idempotent
@@ -106,6 +112,9 @@
 - [ ] Lift `passkey-auth.svelte.ts` + `safe-next.ts` (+ its unit test) from smallreads.
 - [ ] Route groups + guards: `(app)/+layout.server.ts` redirect; `(auth)` pages redirect away when
       logged in; `(marketing)` public.
+- [ ] `sveltekit-rate-limiter` on auth endpoints in hooks.server.ts (429 + Retry-After, smallreads
+      pattern) — but make sure e2e/test mode isn't throttled (env-gated limits).
+- [ ] All form actions validate input with zod schemas in `src/lib/schemas/` (no superforms).
 - [ ] Pages (shadcn, not junk-drawer): login (password form + magic-link toggle + Google button
       [only when enabled — expose via layout data] + passkey button + conditional-UI autofill),
       signup, forgot-password, reset-password, verify-email.
@@ -167,9 +176,13 @@
       --deny-warnings, garbage blockers (`.only`/`.skip` in tests, `debugger`, conflict markers,
       `console.log` outside src/lib/server + scripts + tests, any staged `.env*` except
       .env.example/.env.test = hard fail). Implement blockers as one small `scripts/check-staged.ts`.
-- [ ] commit-msg: conventional-commit regex script (no commitlint dep).
+- [ ] commit-msg: **emoji-commit** check script (no commitlint dep): first char is an emoji, then a
+      space, then a short description; warn/fail on subject > 72 chars. Allow multi-line body.
 - [ ] pre-push: `bun run check && bun run test`. NOT playwright (spec agrees).
 - [ ] Hooks install via `prepare` script (fresh clone protected).
+- [ ] `release.yml` (smallreads): manual dispatch patch/minor/major (+ optional push-to-main mode),
+      bumps package.json, commits `🔖 Release vX.Y.Z`, tags, `gh release create --generate-notes`.
+      CI jobs skip commits starting with `🔖 Release`.
 - [ ] `.github/workflows/ci.yml`: pull_request + push main; concurrency `${{ github.workflow }}-${{ github.ref }}`
       cancel-in-progress; `oven-sh/setup-bun@v2` pinned to engines version, bun cache; 5 parallel
       jobs: lint (oxlint + oxfmt --check), typecheck, test, e2e (postgres service, migrate+seed,
@@ -188,6 +201,7 @@
       Dave about which earn their keep (current take: /new-model and /new-route encode real
       multi-file invariants [schema+migration+admin card+e2e; route+guard+e2e] = keep; /ship is
       mostly the self-verify loop CLAUDE.md already mandates + `gh pr create` = borderline).
+      /ship and CLAUDE.md commit guidance use emoji-commit format, not conventional commits.
 - [ ] `.claude/skills/davestack-e2e/`: Playwright house style, fixtures, WebAuthn virtual
       authenticator recipes (skill not command: it's knowledge applied while writing any spec, not a
       discrete flow). Possibly fold conventions into CLAUDE.md instead of a second skill — decide
@@ -198,9 +212,12 @@
 - [ ] README per spec's full list. Prominent call-out box: passkey RP ID/origin per environment
       (localhost zero-config; Railway preview URL; custom domain — what to set: BETTER_AUTH_URL,
       optional PASSKEY_RP_ID; passkeys are origin-bound, changing domain orphans credentials).
-- [ ] `scripts/setup.ts` (bun): prompt project name → rewrite package.json/app strings; generate
-      BETTER_AUTH_SECRET into .env.local; `docker compose up -d db`; `db:push` + `db:seed`;
-      `bun install` already ran `prepare` (hooks) — verify.
+- [ ] Light PWA (smallreads pattern, kept small): `static/manifest.webmanifest` + icons +
+      theme-color/apple meta in `app.html` + minimal `src/service-worker.ts`. Must not break e2e
+      (preview serves SW — keep it cache-light, no offline logic beyond app-shell basics).
+- [ ] `scripts/setup.ts` (bun): prompt project name → rewrite package.json/app strings + PWA
+      manifest name; generate BETTER_AUTH_SECRET into .env.local; `docker compose up -d db`;
+      `db:push` + `db:seed`; `bun install` already ran `prepare` (hooks) — verify.
 - [ ] Dockerfile: multi-stage bun build, adapter-node output, `prisma migrate deploy` on boot or in
       Railway release phase — document choice.
 - [ ] Delete RECON.md + PLAN.md (or move to docs/) — ask Dave.

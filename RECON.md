@@ -29,7 +29,7 @@ What all (or both serious) references share, and what the template lifts:
 | CI | GH Actions, `oven-sh/setup-bun@v2`, Postgres service containers, jobs: lint+check / unit / e2e (report artifact on failure) | type-check / e2e w/ postgres service | none | superset per spec (5 jobs) |
 | Deploy | Netlify (adapter-netlify, netlify.toml w/ security headers + `prisma migrate deploy` in prod build) | Netlify (adapter-auto + netlify.toml + scheduled function) | none | **Railway + adapter-node + Dockerfile per spec — net-new, diverges from both references** (see §5) |
 | Dependabot | weekly bun ecosystem, groups better-auth packages | weekly bun | none | smallreads' (with better-auth grouping) |
-| CLAUDE.md | rules-style (think/simplicity/surgical), emoji commits, completion workflow (check→lint→test→e2e) | 10 numbered rules, emoji commits | none | rules style; **conventional commits replace emoji commits per spec** |
+| CLAUDE.md | rules-style (think/simplicity/surgical), emoji commits, completion workflow (check→lint→test→e2e) | 10 numbered rules, emoji commits | none | rules style; **emoji commits kept** (Dave's Phase 1 review — overrides the spec's "conventional commits") |
 
 pool-booker is the outlier (no auth/tests/CI/hooks/lint, SQLite, empty `.claude/`). It contributes only confirmation of: Bun, Svelte 5 forced-runes, Tailwind 4, shadcn-svelte/bits-ui, and the `scripts/*.ts run with bun` convention.
 
@@ -57,26 +57,27 @@ Files to lift, near-verbatim (rebranded, domain bits removed):
 
 - `oxlintrc.json` lifted verbatim from smallreads **except**: the `typescript/prefer-readonly-parameter-types` allow-list contains 14 smallreads domain type names (`GoogleBooks*`, `Book*`, `OL*`, `MergedBookData`, …). Those get pruned; the web-platform entries (`Date`, `URL`, `FormData`, `Request`, `RequestEvent`, `Page`, `APIRequestContext`, …) stay. Also `ignorePatterns` keeps `generated/**`. No rules loosened.
 - Lint invocation lifted verbatim: `oxlint --config oxlintrc.json --deny-warnings --type-aware --tsconfig ./tsconfig.json` (`--deny-warnings` = the "zero warnings" mechanism; `oxlint-tsgolint` powers type-aware rules).
-- **oxfmt: nothing to lift.** smallreads has no formatter config at all (despite an old `bun run format` entry in its `.claude/settings.local.json` allowlist — the script doesn't exist). Template introduces oxfmt fresh (`oxfmt` 0.58.0 on npm) with a minimal config matching the de-facto smallreads style (tabs, single quotes where applicable). Flagged to Dave in the Phase 1 review.
+- **oxfmt: nothing to lift.** smallreads has no formatter config at all (despite an old `bun run format` entry in its `.claude/settings.local.json` allowlist — the script doesn't exist). Template introduces oxfmt fresh (`oxfmt` 0.58.0 on npm), minimal config, **spaces for indentation** (Dave's Phase 1 review — deliberate divergence from smallreads' de-facto tabs).
 
-## 4. Things that appear in only one repo (flagged; ask before including)
+## 4. Things that appear in only one repo (decided in Dave's Phase 1 review)
 
-| Feature | Where | Recommendation |
+| Feature | Where | Decision |
 |---|---|---|
-| `sveltekit-rate-limiter` on auth endpoints (429 + Retry-After in hooks) | smallreads | **Include** — auth brute-force protection is generic, small dep. But it's not on the approved list → Dave decides. |
-| `zod` + `sveltekit-superforms` | smallreads | **zod yes** (cleanest fail-fast env validation + form schemas; tiny). **superforms no** — plain form actions keep the template lean; shadcn inputs work without it. Both off-list → Dave decides. |
-| i18n (inlang/paraglide, en/fr/es) | invoicyy | **Skip.** Heavy, app-specific. |
-| PWA (service worker, manifest, iOS target) | smallreads | **Skip.** App-specific. |
-| Release workflow (auto version bump + GH release) | smallreads | **Skip** by default; easy to add later. |
-| Scheduled cron endpoint + `CRON_SECRET` | invoicyy | **Skip.** Netlify-function-shaped; Railway does cron differently. |
-| Admin on a separate subdomain w/ session bridge + hostname gating | smallreads | **Skip** — spec wants `/admin` route group + 404 guard, which is simpler and portable. |
-| `layerchart` (admin charts) | smallreads | **Skip** — stat cards need no chart lib. |
-| Security response headers (netlify.toml in both Netlify repos) | smallreads+invoicyy | **Include**, but relocated into `hooks.server.ts` since Railway has no netlify.toml equivalent. |
+| `sveltekit-rate-limiter` on auth endpoints (429 + Retry-After in hooks) | smallreads | **Include** (approved). |
+| `zod` | smallreads | **Include — first-class citizen**: env validation + all form/action schemas. |
+| `sveltekit-superforms` | smallreads | **Skip** (approved) — plain form actions. |
+| i18n (inlang/paraglide, en/fr/es) | invoicyy | **Skip** (approved). |
+| PWA (service worker, manifest, iOS target) | smallreads | **Include, light**: manifest + icons + apple meta + minimal service worker. Not the full iOS-first treatment. |
+| Release workflow (auto version bump + GH release) | smallreads | **Include** (smallreads `release.yml`; `🔖 Release vX.Y.Z` commits, CI skips them). |
+| Scheduled cron endpoint + `CRON_SECRET` | invoicyy | **Skip** (approved). |
+| Admin on a separate subdomain w/ session bridge + hostname gating | smallreads | **Skip** (approved) — `/admin` route group + 404 guard instead. |
+| `layerchart` (admin charts) | smallreads | **Skip** (approved). |
+| Security response headers (netlify.toml in both Netlify repos) | smallreads+invoicyy | **Include**, relocated into `hooks.server.ts` (no netlify.toml on Railway). |
 
 ## 5. Divergences from the references worth noting
 
 - **Deploy**: both real references are Netlify. Railway/adapter-node/Dockerfile is net-new per spec. No objection — adapter-node + Docker is more portable and removes the netlify.toml magic; Netlify documented as alternative in README per spec.
-- **Commits**: both references mandate *emoji* commit prefixes in CLAUDE.md. Spec says conventional commits — spec wins; hooks will enforce conventional format.
+- **Commits**: both references mandate *emoji* commit prefixes in CLAUDE.md. Dave's Phase 1 review confirmed **emoji commits win** over the spec's "conventional commits": `{EMOJI} {short description}`, multi-line body only for huge changes. commit-msg hook enforces this format.
 - **Email+password auth**: absent from every reference (smallreads: passkey/magic-link/Google; invoicyy: magic-link/Google). Built fresh on Better Auth `emailAndPassword` + Resend verification.
 - **Runtime env validation**: none anywhere in the references (invoicyy even non-null-asserts Google creds — the exact crash the spec forbids). Net-new `src/lib/server/env.ts`, fail-fast on boot.
 - **TypeScript**: references pin ^6.0.3; TS 7.0.2 is current on npm. Template targets ^7; if `oxlint-tsgolint`/`svelte-check` choke on 7 at scaffold time, fall back to ^6 and flag.
@@ -93,19 +94,20 @@ All are either shadcn-svelte plumbing, Better Auth plumbing, or Prisma plumbing 
 - Lint/type: `oxlint-tsgolint` (type-aware oxlint), `oxfmt`
 - Hooks: `husky`, `lint-staged`
 - Testing: `@testing-library/svelte`, `jsdom` (Vitest env, from smallreads)
-- **Genuinely discretionary (awaiting Dave's call): `zod`, `sveltekit-rate-limiter`** (see §4). `sveltekit-superforms` recommended *against*.
+- Resolved in Phase 1 review: `zod` in (first-class), `sveltekit-rate-limiter` in, `sveltekit-superforms` out (see §4).
 
 ## 7. Proposed template file tree
 
 ```
 davestack/
 ├── .github/
-│   ├── workflows/ci.yml              # 5 jobs: lint / typecheck / test / e2e / build
+│   ├── workflows/ci.yml              # 5 jobs: lint / typecheck / test / e2e / build (skips 🔖 Release commits)
+│   ├── workflows/release.yml         # version bump + 🔖 Release commit + tag + GH release (smallreads)
 │   ├── pull_request_template.md
 │   └── dependabot.yml                # exists; extend w/ github-actions ecosystem + better-auth grouping
 ├── .husky/
 │   ├── pre-commit                    # lint-staged (oxfmt write+restage, oxlint) + garbage blockers
-│   ├── commit-msg                    # conventional-commit regex (hand-rolled, no commitlint dep)
+│   ├── commit-msg                    # emoji-commit check (hand-rolled, no commitlint dep)
 │   └── pre-push                      # svelte-check + vitest
 ├── .claude/
 │   ├── commands/                     # /new-model, /new-route, /ship (final set pending Dave's review)
@@ -116,9 +118,13 @@ davestack/
 │   └── seed.ts                       # 1 admin + 1 regular user
 ├── scripts/
 │   └── setup.ts                      # rename project, gen secrets, boot DB, verify hooks
+├── static/
+│   ├── manifest.webmanifest          # light PWA (icons, apple meta in app.html)
+│   └── icons/…
 ├── src/
 │   ├── app.html / app.css / app.d.ts
-│   ├── hooks.server.ts               # env assert → security headers → session → locals; handleError
+│   ├── service-worker.ts             # minimal (light PWA)
+│   ├── hooks.server.ts               # env assert → security headers → rate limit → session → locals; handleError
 │   ├── lib/
 │   │   ├── analytics.ts              # typed track(), no-ops without Umami
 │   │   ├── client/
@@ -127,6 +133,7 @@ davestack/
 │   │   ├── components/
 │   │   │   ├── ui/…                  # shadcn: button input card table dropdown-menu dialog sonner badge
 │   │   │   └── app-shell/…           # nav + user menu (conditional admin link)
+│   │   ├── schemas/                  # zod form/action schemas (zod = first-class, smallreads pattern)
 │   │   ├── utils.ts                  # cn()
 │   │   └── server/                   # server-only; enforced by SvelteKit + convention in CLAUDE.md
 │   │       ├── env.ts                # fail-fast validation, single source for optional-integration flags

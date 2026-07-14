@@ -37,7 +37,9 @@
       route groups + guards, auth pages, account page w/ passkey mgmt, seed w/ working passwords.
       Live-smoke-verified. README written (Dave asked). See "Phase 4 outcome". **Passkey WebAuthn
       e2e deferred to Phase 8 (needs a browser / CDP virtual authenticator).**
-- [ ] 5. Email
+- [x] **5. Email** — done (background agent). Branded neutral templates (layout + verify/magic/reset),
+      `escapeHtml`, `sendEmail` transports unchanged (capture/Resend/console), `/api/test/mailbox`
+      endpoint (404 unless TEST_MODE), 21 unit tests. Gates green. Sender signatures unchanged.
 - [x] **(interim) Vitest** — pulled forward from Phase 8 so the lifted `safe-next.test.ts` runs.
       Minimal `vitest.config.ts`; Phase 8 expands (jsdom projects, e2e, etc.).
 - [ ] 6. Admin

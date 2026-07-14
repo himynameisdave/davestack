@@ -1,5 +1,8 @@
 import { Resend } from 'resend';
 import { env, features, isTestMode } from '../env';
+import { magicLinkTemplate } from './templates/magic-link';
+import { resetPasswordTemplate } from './templates/reset-password';
+import { verifyEmailTemplate } from './templates/verify-email';
 
 export type OutboundEmail = {
   to: string;
@@ -51,53 +54,17 @@ export async function sendEmail(message: Readonly<OutboundEmail>): Promise<void>
   );
 }
 
-function basicHtml(heading: string, body: string, url: string, cta: string): string {
-  return `<!doctype html><html><body style="font-family:system-ui,sans-serif;line-height:1.6">
-<h1 style="font-size:20px">${heading}</h1>
-<p>${body}</p>
-<p><a href="${url}" style="display:inline-block;padding:12px 20px;background:#0c0a09;color:#fff;border-radius:8px;text-decoration:none">${cta}</a></p>
-<p style="font-size:12px;color:#888">If you didn't request this, you can ignore this email.</p>
-</body></html>`;
-}
-
+// Senders keep these exact signatures — the auth email hooks depend on them.
+// Each builds its message from a branded template (which escapes interpolated
+// values) and defers to sendEmail() for transport selection.
 export async function sendVerificationEmail(to: string, url: string): Promise<void> {
-  await sendEmail({
-    to,
-    subject: 'Verify your email',
-    html: basicHtml(
-      'Verify your email',
-      'Confirm your address to finish signing up.',
-      url,
-      'Verify email',
-    ),
-    text: `Verify your email: ${url}`,
-  });
+  await sendEmail({ to, ...verifyEmailTemplate(url) });
 }
 
 export async function sendMagicLinkEmail(to: string, url: string): Promise<void> {
-  await sendEmail({
-    to,
-    subject: 'Your sign-in link',
-    html: basicHtml(
-      'Sign in',
-      'Click below to sign in. This link expires shortly.',
-      url,
-      'Sign in',
-    ),
-    text: `Sign in: ${url}`,
-  });
+  await sendEmail({ to, ...magicLinkTemplate(url) });
 }
 
 export async function sendResetPasswordEmail(to: string, url: string): Promise<void> {
-  await sendEmail({
-    to,
-    subject: 'Reset your password',
-    html: basicHtml(
-      'Reset your password',
-      'Click below to choose a new password.',
-      url,
-      'Reset password',
-    ),
-    text: `Reset your password: ${url}`,
-  });
+  await sendEmail({ to, ...resetPasswordTemplate(url) });
 }

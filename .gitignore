@@ -8,6 +8,9 @@ node_modules
 /.svelte-kit
 /build
 
+# Claude Code worktrees (transient agent checkouts; keep .claude/commands + skills)
+.claude/worktrees/
+
 # OS
 .DS_Store
 Thumbs.db

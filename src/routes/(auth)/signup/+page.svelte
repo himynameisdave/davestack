@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import { track } from '$lib/analytics';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
@@ -14,6 +15,16 @@
   let { form } = $props();
 
   let submitting = $state(false);
+
+  // Fire the one analytics event exactly once, when signup first succeeds.
+  // `track` no-ops unless Umami is loaded, so this is safe in dev/e2e/SSR.
+  let tracked = $state(false);
+  $effect(() => {
+    if (form?.success && !tracked) {
+      tracked = true;
+      track('signup_completed', { method: 'password' });
+    }
+  });
 </script>
 
 <div class="flex min-h-svh flex-col items-center justify-center px-4 py-10">

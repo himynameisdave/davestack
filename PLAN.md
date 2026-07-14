@@ -46,7 +46,10 @@
       read-only dashboard: MODEL_CARDS extension point, recent signups w/ derived auth-method chips,
       session counts, app meta (DB host only). Admin link in user menu (gated). Independently
       re-verified: build ✅, non-admin/logged-out → 404, admin → 200, zero credential leak.
-- [ ] 7. Analytics
+- [x] **7. Analytics** — done (worktree agent, cherry-picked). Typed `track()` (no-ops without Umami),
+      root-layout Umami injection gated on `PUBLIC_UMAMI_WEBSITE_ID` + prod + not-`/admin`
+      (`$env/dynamic/public`), worked `track('signup_completed', { method })` on signup. Off in
+      dev/e2e. Re-verified green.
 - [ ] 8. Testing
 - [ ] 9. Hooks + CI
 - [ ] 10. Agent tooling

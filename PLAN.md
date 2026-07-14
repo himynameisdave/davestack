@@ -29,7 +29,9 @@
       Dave reviewed and answered the open questions — decisions recorded below.
 - [x] **2. Scaffold** — done. SvelteKit+Svelte5+TS+Tailwind4+shadcn+oxlint/oxfmt all green
       (lint / check / format:check / build). See "Phase 2 outcome" below.
-- [ ] 3. Data
+- [x] **3. Data** — done. Docker Postgres (dev 5432 + test 5433), Prisma 7 schema (Better Auth
+      models + isAdmin), init migration applied, zod env validation, client singleton, seed
+      (2 users). All gates green. See "Phase 3 outcome" below.
 - [ ] 4. Auth
 - [ ] 5. Email
 - [ ] 6. Admin
@@ -75,6 +77,26 @@
   rewritten later anyway (Phases 9/11).
 - Deferred to their phases (not in build/dev scripts yet): `prisma generate` (Phase 3), husky
   `prepare` hook (Phase 9). Kept out so a Phase-2 clone builds without a schema or hooks present.
+
+## Phase 3 outcome (2026-07-14) — flags for Phase 4
+
+- **Seed creates User rows only — no password credentials yet.** A working password login needs
+  Better Auth's scrypt hasher; hand-rolling the Account hash risks a format mismatch that silently
+  breaks login. **Phase 4 must rewrite `prisma/seed.ts`** to create users via `auth.api.signUpEmail`
+  (User + credential Account together), then patch `isAdmin`/`emailVerified`. Because Better Auth
+  owns user IDs, the Phase 4 seed should delete the two seed users by email first, then recreate —
+  the current upsert-by-email would otherwise collide with Better Auth's signup.
+- **Zero-config confirmed:** with no `.env.local`, `db:push`/`migrate`/`seed` all ran off the
+  local-Docker default baked into `env.ts` + `prisma.config.ts`. Fresh clone needs only
+  `docker compose up -d db`.
+- **env.ts reads `process.env`** (not `$env/dynamic/private`) so it works in both SvelteKit and the
+  bun seed script. Dev defaults for DATABASE_URL / BETTER_AUTH_URL / BETTER_AUTH_SECRET; production
+  boot throws if the secret or DB URL is still the local placeholder. `features` (google/resend/umami)
+  and `isTestMode` exported for call sites.
+- **`prisma generate` added to `dev`/`build`/`check`** now that Prisma exists (was deferred in Phase 2).
+- Generated client lives at `src/generated/prisma` (gitignored); imported by `db.ts` as
+  `../../generated/prisma/client`. `BETTER_AUTH_URL` in `.env.test` set to `http://localhost:4173`
+  (adapter-node preview port) — Phase 8 confirms against the Playwright config.
 
 ## Phase checklists
 

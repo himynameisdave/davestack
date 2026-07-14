@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: davestack
+      POSTGRES_PASSWORD: davestack
+      POSTGRES_DB: davestack
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Separate database for the test suite (Vitest + Playwright). Kept on a
+  # distinct port + name so tests never touch dev data. See .env.test.
+  db-test:
+    image: postgres:17
+    restart: unless-stopped
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: davestack
+      POSTGRES_PASSWORD: davestack
+      POSTGRES_DB: davestack_test
+    volumes:
+      - pgdata_test:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+  pgdata_test:

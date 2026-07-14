@@ -32,7 +32,13 @@
               <a href="/account" {...props}>Account</a>
             {/snippet}
           </DropdownMenu.Item>
-          <!-- Admin link (gated on data.user?.isAdmin) is added in the admin phase. -->
+          {#if data.user?.isAdmin}
+            <DropdownMenu.Item>
+              {#snippet child({ props })}
+                <a href="/admin" {...props}>Admin</a>
+              {/snippet}
+            </DropdownMenu.Item>
+          {/if}
           <DropdownMenu.Separator />
           <DropdownMenu.Item variant="destructive" onSelect={signOut}>Sign out</DropdownMenu.Item>
         </DropdownMenu.Content>

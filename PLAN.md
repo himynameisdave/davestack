@@ -42,7 +42,10 @@
       endpoint (404 unless TEST_MODE), 21 unit tests. Gates green. Sender signatures unchanged.
 - [x] **(interim) Vitest** — pulled forward from Phase 8 so the lifted `safe-next.test.ts` runs.
       Minimal `vitest.config.ts`; Phase 8 expands (jsdom projects, e2e, etc.).
-- [ ] 6. Admin
+- [x] **6. Admin** — done (worktree agent, cherry-picked). Guarded `(admin)/admin` (404 not 403),
+      read-only dashboard: MODEL_CARDS extension point, recent signups w/ derived auth-method chips,
+      session counts, app meta (DB host only). Admin link in user menu (gated). Independently
+      re-verified: build ✅, non-admin/logged-out → 404, admin → 200, zero credential leak.
 - [ ] 7. Analytics
 - [ ] 8. Testing
 - [ ] 9. Hooks + CI

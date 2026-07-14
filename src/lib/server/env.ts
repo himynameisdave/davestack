@@ -13,7 +13,7 @@ const LOCAL_DATABASE_URL =
   'postgresql://davestack:davestack@localhost:5432/davestack?schema=public';
 const LOCAL_AUTH_URL = 'http://localhost:5173';
 
-const schema = z.object({
+export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
   // Required (defaulted for local dev)
@@ -39,8 +39,11 @@ const schema = z.object({
   TEST_MODE: z.string().optional(),
 });
 
+// The validated shape. Exported so tests (and callers) can reason about it.
+export type Env = z.infer<typeof envSchema>;
+
 function loadEnv() {
-  const parsed = schema.safeParse(process.env);
+  const parsed = envSchema.safeParse(process.env);
   if (!parsed.success) {
     const details = parsed.error.issues
       .map((issue) => `  - ${issue.path.join('.') || '(root)'}: ${issue.message}`)
@@ -69,12 +72,18 @@ export function assertProductionReady(): void {
   }
 }
 
-// Presence flags for optional integrations. Import these instead of re-checking
-// env vars at call sites, so "is Google configured?" lives in exactly one place.
-export const features = {
-  google: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
-  resend: Boolean(env.RESEND_API_KEY),
-  umami: Boolean(env.PUBLIC_UMAMI_WEBSITE_ID),
-} as const;
+// Presence flags for optional integrations. Import `features` instead of
+// re-checking env vars at call sites, so "is Google configured?" lives in
+// exactly one place. Split out as a pure function so it can be unit-tested
+// against a constructed env without touching process.env.
+export function deriveFeatures(source: Readonly<Env>) {
+  return {
+    google: Boolean(source.GOOGLE_CLIENT_ID && source.GOOGLE_CLIENT_SECRET),
+    resend: Boolean(source.RESEND_API_KEY),
+    umami: Boolean(source.PUBLIC_UMAMI_WEBSITE_ID),
+  } as const;
+}
+
+export const features = deriveFeatures(env);
 
 export const isTestMode = env.TEST_MODE === '1' || env.TEST_MODE === 'true';

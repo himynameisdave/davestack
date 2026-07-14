@@ -50,7 +50,11 @@
       root-layout Umami injection gated on `PUBLIC_UMAMI_WEBSITE_ID` + prod + not-`/admin`
       (`$env/dynamic/public`), worked `track('signup_completed', { method })` on signup. Off in
       dev/e2e. Re-verified green.
-- [ ] 8. Testing
+- [x] **8. Testing** — done (worktree agent, cherry-picked). Playwright (Chromium, preview on 4173,
+      test DB 5433, workers=1), global-setup (push+truncate+seed), fixtures (`createUser`, `loginAs`
+      via real API, `withVirtualAuthenticator` CDP, mailbox pollers), 5 specs / 8 tests incl. both
+      passkey flows. +12 unit tests (33 total). **Independently re-verified by me: `test:e2e` 8/8
+      passing TWICE (deterministic), passkeys included.** `@playwright/test` only new dep.
 - [ ] 9. Hooks + CI
 - [ ] 10. Agent tooling
 - [ ] 11. Docs + setup script + polish

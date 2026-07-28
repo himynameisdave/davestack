@@ -39,17 +39,29 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
   everything incl. `.svelte`, `.md`, `.json`. Indentation is **spaces** (2), single quotes,
   printWidth 100 (`.oxfmtrc.json`).
 
-### TypeScript 7 (native / tsgo)
+### TypeScript — split toolchain (TS6 for Svelte tooling, TS7/tsgo for checking)
 
-- `typescript` is **v7** — the Go-native compiler. The npm package ships only the native `tsc`
-  binary; it has **no JS compiler API** (`import 'typescript'` exposes no `ScriptTarget` etc.).
-- Type checking runs through **`svelte-check-rs`** (`bun run check`), which drives tsgo. Do not
-  reinstall `svelte-check` — it needs the old JS API and crashes under TS 7.
-- Tools that still need the JS API use **`@typescript/typescript6`** (Microsoft's API compat
-  package). `patches/@sveltejs%2Fkit@*.patch` makes SvelteKit's `sync` fall back to it so `$types`
-  load tracing works — **never delete the `patches/` dir or the `patchedDependencies` entry**;
-  without it every route's `PageData` silently degrades to `{}`.
-- Revisit the patch when TS 7.1 restores a stable API and language-tools support it upstream.
+- Root `typescript` is pinned to **^6** for one reason only: SvelteKit's `svelte-kit sync` and
+  the Svelte language-tools import the TypeScript **JS compiler API**, which the TS 7 npm
+  package (Go-native) no longer ships. With root TS7, `sync`'s `$types` load tracing silently
+  degrades — every route's `PageData` becomes `{}`. Do not bump it early; do not patch kit.
+- Actual type checking already runs on **TS 7 native**: `bun run check` uses `svelte-check-rs`,
+  which bundles its own tsgo. Type-aware lint runs Go TS via `oxlint-tsgolint`. vite/vitest
+  transpile with esbuild. Nothing in the repo executes the JS `tsc`.
+- Do not reinstall `svelte-check` — replaced by `svelte-check-rs`.
+
+**Upgrade runbook — flipping Svelte tooling to TS 7** (when upstream lands):
+
+1. Preconditions: TS 7.1+ (stable programmatic API) released, AND `@sveltejs/kit` +
+   svelte language-tools declare TS 7 support (watch sveltejs/language-tools#2733).
+2. Bump root `typescript` to `^7`, and remove the `typescript` major-version ignore rule from
+   `.github/dependabot.yml`.
+3. `rm -rf .svelte-kit && bun run check`, then grep `.svelte-kit/types` for
+   `PageServerData = unknown` — if found, sync silently degraded: abort and repin to 6.
+4. Trap test: plant a type error in a `.ts` file and a `.svelte` template; `bun run check` must
+   report both and exit non-zero. (Checkers here have failed silently before — always trap-test.)
+5. Optionally retire `svelte-check-rs` for official `svelte-check` if it supports TS 7 and is
+   comparably fast. Then run the full self-verify loop.
 
 ### Svelte 5 — runes only
 

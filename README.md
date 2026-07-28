@@ -359,7 +359,7 @@ Route groups: `(marketing)` public · `(auth)` for signed-out flows (redirect aw
 | `bun run dev`          | Dev server                                       |
 | `bun run build`        | Production build (adapter-node)                  |
 | `bun run preview`      | Preview the production build                     |
-| `bun run check`        | Type-check (svelte-check-rs, TS 7 native/tsgo)   |
+| `bun run check`        | Type-check (svelte-check-rs, runs on tsgo)       |
 | `bun run lint`         | oxlint (zero warnings tolerated)                 |
 | `bun run lint:fix`     | oxlint with autofix                              |
 | `bun run format`       | Format with oxfmt                                |

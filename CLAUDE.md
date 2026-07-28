@@ -27,6 +27,10 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 ### Runtime & tooling
 
 - **Bun only.** No `npm` / `npx` / `yarn`. Use `bun run <script>`, `bun install`, `bunx`.
+- **Prefer the Bun runtime over Node** for any script an agent writes or executes (one-off scripts,
+  shebangs, child processes, CI steps) — e.g. `#!/usr/bin/env bun` over `#!/usr/bin/env node`. Only
+  fall back to Node when Bun genuinely can't do the job (a tool/dependency requires the Node runtime
+  specifically, or Bun isn't available in the target environment).
 - Scripts live in `package.json`. The real ones: `dev`, `build`, `preview`, `check`, `lint`,
   `lint:fix`, `format`, `format:check`, `test`, `test:e2e`, `test:e2e:ui`, `db:push`, `db:migrate`,
   `db:studio`, `db:seed`, `db:reset`.

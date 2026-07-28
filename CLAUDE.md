@@ -39,6 +39,18 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
   everything incl. `.svelte`, `.md`, `.json`. Indentation is **spaces** (2), single quotes,
   printWidth 100 (`.oxfmtrc.json`).
 
+### TypeScript 7 (native / tsgo)
+
+- `typescript` is **v7** — the Go-native compiler. The npm package ships only the native `tsc`
+  binary; it has **no JS compiler API** (`import 'typescript'` exposes no `ScriptTarget` etc.).
+- Type checking runs through **`svelte-check-rs`** (`bun run check`), which drives tsgo. Do not
+  reinstall `svelte-check` — it needs the old JS API and crashes under TS 7.
+- Tools that still need the JS API use **`@typescript/typescript6`** (Microsoft's API compat
+  package). `patches/@sveltejs%2Fkit@*.patch` makes SvelteKit's `sync` fall back to it so `$types`
+  load tracing works — **never delete the `patches/` dir or the `patchedDependencies` entry**;
+  without it every route's `PageData` silently degrades to `{}`.
+- Revisit the patch when TS 7.1 restores a stable API and language-tools support it upstream.
+
 ### Svelte 5 — runes only
 
 - Use `$state` / `$props` / `$derived` / `$effect`. **No `export let`**, no `$:` reactive

@@ -51,7 +51,10 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 - Checking runs on the **TS 7 dev preview** (`@typescript/native-preview`, a dated `7.0.0-dev.*`
   nightly — not stable TS 7). `svelte-check-rs` _requires_ it as a peer and spawns
   `node_modules/.bin/tsgo`; it bundles no compiler, so the preview is pinned exactly in
-  `devDependencies`. Type-aware lint runs Go TS via `oxlint-tsgolint`. vite/vitest transpile with
+  `devDependencies`. **Do not drop that pin:** with tsgo missing, `check` prints `tsgo not found`,
+  then reports `0 errors` and **exits 0** — green while checking nothing (verified on
+  `svelte-check-rs@0.11.0`). Type-aware lint runs Go TS via `oxlint-tsgolint` (self-contained,
+  unaffected). vite/vitest transpile with
   **Rolldown (Oxc)** — esbuild is an optional peer of vite 8 and is not installed.
 - Nothing invokes the `tsc` **binary**; `svelte-kit sync` does load the TypeScript JS **library**,
   which is the whole reason for the pin.

@@ -26,5 +26,3 @@ tests/e2e/.auth
 .husky
 .vscode
 .DS_Store
-PLAN.md
-RECON.md

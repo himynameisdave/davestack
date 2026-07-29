@@ -5,5 +5,5 @@
   "printWidth": 100,
   "singleQuote": true,
   "svelte": true,
-  "ignorePatterns": ["PLAN.md", "RECON.md", "src/generated/**"]
+  "ignorePatterns": ["src/generated/**"]
 }

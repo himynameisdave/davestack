@@ -39,6 +39,34 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
   everything incl. `.svelte`, `.md`, `.json`. Indentation is **spaces** (2), single quotes,
   printWidth 100 (`.oxfmtrc.json`).
 
+### TypeScript — split toolchain (TS 6 for Svelte tooling, TS 7 / tsgo for checking)
+
+- Root `typescript` is pinned to **^6** for one reason: `svelte-kit sync` imports the TypeScript
+  **JS compiler API**, which the Go-native TS 7 package no longer ships. Kit declares
+  `typescript: "^5.3.3 || ^6.0.0"` as an _optional_ peer and loads it via a bare
+  `try { await import('typescript') } catch {}` — a failed import is swallowed, `write_all_types`
+  early-returns, and **no `$types.d.ts` is emitted at all**. Kit itself says nothing, but the
+  breakage is not silent: `check` then fails with `Cannot find module './$types'` on every route
+  (~33 errors) plus knock-on implicit-`any`. Do not bump it early; do not patch kit.
+- Checking runs on the **TS 7 dev preview** (`@typescript/native-preview`, a dated `7.0.0-dev.*`
+  nightly — not stable TS 7). `svelte-check-rs` _requires_ it as a peer and spawns
+  `node_modules/.bin/tsgo`; it bundles no compiler, so the preview is pinned exactly in
+  `devDependencies`. **Do not drop that pin:** with tsgo missing, `check` prints `tsgo not found`,
+  then reports `0 errors` and **exits 0** — green while checking nothing (verified on
+  `svelte-check-rs@0.11.0`). Type-aware lint runs Go TS via `oxlint-tsgolint` (self-contained,
+  unaffected). vite/vitest transpile with
+  **Rolldown (Oxc)** — esbuild is an optional peer of vite 8 and is not installed.
+- Nothing invokes the `tsc` **binary**; `svelte-kit sync` does load the TypeScript JS **library**,
+  which is the whole reason for the pin.
+- `svelte-check-rs` ships binaries for darwin-x64/arm64, linux-x64/arm64, win32-x64 **only** — no
+  win32-arm64. Elsewhere `bun run check` and `.husky/pre-push` hard-fail.
+- Do not reinstall `svelte-check` — replaced by `svelte-check-rs`. (Only reconsider at TS 7 flip
+  time, when it would also restore win32-arm64.)
+- **Flipping to TS 7**, once kit's `peerDependencies.typescript` accepts it: bump root
+  `typescript`, drop the dependabot ignore rule and the `@typescript/native-preview` pin, then
+  `rm -rf .svelte-kit && bun run check` — a `Cannot find module './$types'` storm means sync
+  degraded, so repin to 6 rather than "fixing" the imports. Trap-test before believing a green run.
+
 ### Svelte 5 — runes only
 
 - Use `$state` / `$props` / `$derived` / `$effect`. **No `export let`**, no `$:` reactive

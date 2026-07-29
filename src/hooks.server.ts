@@ -4,6 +4,7 @@ import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { auth } from '$lib/server/auth';
 import { checkRateLimit } from '$lib/server/rate-limit';
 import { assertProductionReady } from '$lib/server/env';
+import { logger } from '$lib/log';
 
 // Fail fast at runtime boot if production is misconfigured. Guarded by `!building`
 // so it never fires during `vite build` (which has no real secrets).
@@ -51,8 +52,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 // leaking internals.
 export const handleError: HandleServerError = ({ error, event, status, message }) => {
   const errorId = crypto.randomUUID();
-  // oxlint-disable-next-line eslint/no-console -- server-side error log is this hook's entire job
-  console.error(
+  logger.error(
     `[error ${errorId}] ${event.request.method} ${event.url.pathname} → ${status}`,
     error,
   );

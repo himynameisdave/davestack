@@ -7,7 +7,7 @@
  *   - test focus/skip:  `.only(` / `.skip(` in *.spec.ts / *.test.ts (or .js)
  *   - `debugger` statements
  *   - git conflict markers  (<<<<<<<, =======, >>>>>>>)
- *   - `console.log` outside src/lib/server/**, scripts/**, tests/**
+ *   - `console.log` outside src/lib/log.ts, src/lib/server/**, scripts/**, tests/**
  *   - any staged .env* file  EXCEPT .env.example / .env.test
  *
  * File list: lint-staged passes staged filenames as argv. When invoked with no
@@ -22,8 +22,15 @@ type Violation = { file: string; line: number; message: string };
 
 const CWD = process.cwd();
 
-// Directories where console.log is allowed (server logging, scripts, seeds, tests).
-const CONSOLE_ALLOWED = [/^src\/lib\/server\//u, /^scripts\//u, /^prisma\//u, /^tests\//u];
+// Directories where console.log is allowed (server logging, scripts, seeds, tests), plus
+// src/lib/log.ts — the single sanctioned console seam every other app file logs through.
+const CONSOLE_ALLOWED = [
+  /^src\/lib\/log\.ts$/u,
+  /^src\/lib\/server\//u,
+  /^scripts\//u,
+  /^prisma\//u,
+  /^tests\//u,
+];
 
 // .env files that ARE allowed to be committed.
 const ENV_ALLOWED = new Set(['.env.example', '.env.test']);
@@ -35,6 +42,9 @@ const ENV_FILE = /^\.env(?:$|\.)/u;
 function stagedFiles(): string[] {
   const args = process.argv.slice(2);
   if (args.length > 0) {
+    // `relative()` returns `''` (falsy, not nullish) when `f === CWD`; `||` is the correct
+    // fallback here — `??` would not catch that case.
+    // oxlint-disable-next-line typescript/prefer-nullish-coalescing -- see comment above
     return args.map((f) => relative(CWD, f) || f);
   }
   const out = execSync('git diff --cached --name-only --diff-filter=ACM', { encoding: 'utf8' });
@@ -101,7 +111,7 @@ for (const rawFile of stagedFiles()) {
           file,
           line: n,
           message:
-            'console.log (only allowed in src/lib/server/**, scripts/**, prisma/**, tests/**)',
+            'console.log (only allowed in src/lib/log.ts, src/lib/server/**, scripts/**, prisma/**, tests/**)',
         });
       }
     }

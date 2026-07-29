@@ -16,8 +16,8 @@ updates:
           - 'better-auth'
           - '@better-auth/*'
     ignore:
-      # typescript stays on 6 until SvelteKit/language-tools support the TS 7 native
-      # compiler (see the upgrade runbook in CLAUDE.md). Remove this rule at flip time.
+      # typescript stays on 6 until SvelteKit supports the TS 7 native compiler — see
+      # "TypeScript — split toolchain" in CLAUDE.md. Remove this rule at flip time.
       - dependency-name: 'typescript'
         update-types: ['version-update:semver-major']
 

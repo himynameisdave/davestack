@@ -39,29 +39,30 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
   everything incl. `.svelte`, `.md`, `.json`. Indentation is **spaces** (2), single quotes,
   printWidth 100 (`.oxfmtrc.json`).
 
-### TypeScript — split toolchain (TS6 for Svelte tooling, TS7/tsgo for checking)
+### TypeScript — split toolchain (TS 6 for Svelte tooling, TS 7 / tsgo for checking)
 
-- Root `typescript` is pinned to **^6** for one reason only: SvelteKit's `svelte-kit sync` and
-  the Svelte language-tools import the TypeScript **JS compiler API**, which the TS 7 npm
-  package (Go-native) no longer ships. With root TS7, `sync`'s `$types` load tracing silently
-  degrades — every route's `PageData` becomes `{}`. Do not bump it early; do not patch kit.
-- Actual type checking already runs on **TS 7 native**: `bun run check` uses `svelte-check-rs`,
-  which bundles its own tsgo. Type-aware lint runs Go TS via `oxlint-tsgolint`. vite/vitest
-  transpile with esbuild. Nothing in the repo executes the JS `tsc`.
-- Do not reinstall `svelte-check` — replaced by `svelte-check-rs`.
-
-**Upgrade runbook — flipping Svelte tooling to TS 7** (when upstream lands):
-
-1. Preconditions: TS 7.1+ (stable programmatic API) released, AND `@sveltejs/kit` +
-   svelte language-tools declare TS 7 support (watch sveltejs/language-tools#2733).
-2. Bump root `typescript` to `^7`, and remove the `typescript` major-version ignore rule from
-   `.github/dependabot.yml`.
-3. `rm -rf .svelte-kit && bun run check`, then grep `.svelte-kit/types` for
-   `PageServerData = unknown` — if found, sync silently degraded: abort and repin to 6.
-4. Trap test: plant a type error in a `.ts` file and a `.svelte` template; `bun run check` must
-   report both and exit non-zero. (Checkers here have failed silently before — always trap-test.)
-5. Optionally retire `svelte-check-rs` for official `svelte-check` if it supports TS 7 and is
-   comparably fast. Then run the full self-verify loop.
+- Root `typescript` is pinned to **^6** for one reason: `svelte-kit sync` imports the TypeScript
+  **JS compiler API**, which the Go-native TS 7 package no longer ships. Kit declares
+  `typescript: "^5.3.3 || ^6.0.0"` as an _optional_ peer and loads it via a bare
+  `try { await import('typescript') } catch {}` — a failed import is swallowed, `write_all_types`
+  early-returns, and **no `$types.d.ts` is emitted at all**. Kit itself says nothing, but the
+  breakage is not silent: `check` then fails with `Cannot find module './$types'` on every route
+  (~33 errors) plus knock-on implicit-`any`. Do not bump it early; do not patch kit.
+- Checking runs on the **TS 7 dev preview** (`@typescript/native-preview`, a dated `7.0.0-dev.*`
+  nightly — not stable TS 7). `svelte-check-rs` _requires_ it as a peer and spawns
+  `node_modules/.bin/tsgo`; it bundles no compiler, so the preview is pinned exactly in
+  `devDependencies`. Type-aware lint runs Go TS via `oxlint-tsgolint`. vite/vitest transpile with
+  **Rolldown (Oxc)** — esbuild is an optional peer of vite 8 and is not installed.
+- Nothing invokes the `tsc` **binary**; `svelte-kit sync` does load the TypeScript JS **library**,
+  which is the whole reason for the pin.
+- `svelte-check-rs` ships binaries for darwin-x64/arm64, linux-x64/arm64, win32-x64 **only** — no
+  win32-arm64. Elsewhere `bun run check` and `.husky/pre-push` hard-fail.
+- Do not reinstall `svelte-check` — replaced by `svelte-check-rs`. (Only reconsider at TS 7 flip
+  time, when it would also restore win32-arm64.)
+- **Flipping to TS 7**, once kit's `peerDependencies.typescript` accepts it: bump root
+  `typescript`, drop the dependabot ignore rule and the `@typescript/native-preview` pin, then
+  `rm -rf .svelte-kit && bun run check` — a `Cannot find module './$types'` storm means sync
+  degraded, so repin to 6 rather than "fixing" the imports. Trap-test before believing a green run.
 
 ### Svelte 5 — runes only
 

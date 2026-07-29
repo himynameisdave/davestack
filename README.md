@@ -18,7 +18,7 @@ secrets only for the features you actually turn on.
 | ------------- | ------------------------------------------------------------ |
 | Runtime / PM  | [Bun](https://bun.sh) (never npm/npx/yarn)                   |
 | Framework     | SvelteKit + Svelte 5 (runes only)                            |
-| Language      | TypeScript                                                   |
+| Language      | TypeScript 6 (pinned; type-checked on TS 7 / tsgo)           |
 | Styling       | Tailwind CSS v4 + [shadcn-svelte](https://shadcn-svelte.com) |
 | ORM / DB      | Prisma 7 + PostgreSQL                                        |
 | Auth          | [Better Auth](https://better-auth.com)                       |
@@ -30,7 +30,10 @@ secrets only for the features you actually turn on.
 
 ## Quick start
 
-Requires [Bun](https://bun.sh) ≥ 1.3 and Docker (for local Postgres).
+Requires [Bun](https://bun.sh) ≥ 1.3 and Docker (for local Postgres). `bun run check` runs
+`svelte-check-rs`, which ships native binaries for macOS (x64/arm64), Linux (x64/arm64) and Windows
+x64 — **Windows on ARM is not supported** and both `bun run check` and the pre-push hook will fail
+there.
 
 ```bash
 bun install                 # installs deps (and git hooks via the prepare step)

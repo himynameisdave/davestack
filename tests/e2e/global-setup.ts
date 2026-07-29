@@ -24,7 +24,9 @@ const SEED_USERS = [
 
 export default async function globalSetup(): Promise<void> {
   const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) throw new Error('DATABASE_URL is not set — is .env.test loaded?');
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL is not set — is .env.test loaded?');
+  }
 
   // `svelte-kit sync` writes .svelte-kit/tsconfig.json, which Prisma 7's
   // prisma-client generator reads. Doing it here keeps a *fresh clone*'s first
@@ -47,26 +49,28 @@ export default async function globalSetup(): Promise<void> {
 
     const passwordHash = await hashPassword(SEED_PASSWORD);
 
-    for (const seed of SEED_USERS) {
-      await prisma.user.create({
-        data: {
-          id: seed.id,
-          email: seed.email,
-          name: seed.name,
-          emailVerified: true,
-          isAdmin: seed.isAdmin,
-        },
-      });
-      await prisma.account.create({
-        data: {
-          id: `${seed.id}-credential`,
-          accountId: seed.id,
-          providerId: 'credential',
-          userId: seed.id,
-          password: passwordHash,
-        },
-      });
-    }
+    await Promise.all(
+      SEED_USERS.map(async (seed) => {
+        await prisma.user.create({
+          data: {
+            id: seed.id,
+            email: seed.email,
+            name: seed.name,
+            emailVerified: true,
+            isAdmin: seed.isAdmin,
+          },
+        });
+        await prisma.account.create({
+          data: {
+            id: `${seed.id}-credential`,
+            accountId: seed.id,
+            providerId: 'credential',
+            userId: seed.id,
+            password: passwordHash,
+          },
+        });
+      }),
+    );
   } finally {
     await prisma.$disconnect();
   }

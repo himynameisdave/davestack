@@ -19,7 +19,7 @@ import { readFileSync } from 'node:fs';
 
 const MAX_SUBJECT = 72;
 
-const msgPath = process.argv[2];
+const msgPath = process.argv.at(2);
 if (!msgPath) {
   console.error('✗ check-commit-msg: no commit message file passed');
   process.exit(1);
@@ -60,23 +60,35 @@ if (
   pass();
 }
 
-if (subject.length === 0) fail('empty subject');
+if (subject.length === 0) {
+  fail('empty subject');
+}
 
 // Length check (count code points, so a leading emoji counts as one).
 let length = 0;
-for (const _ of subject) length += 1;
-if (length > MAX_SUBJECT) fail(`subject is ${length} chars (max ${MAX_SUBJECT})`);
+for (const _ of subject) {
+  length += 1;
+}
+if (length > MAX_SUBJECT) {
+  fail(`subject is ${length} chars (max ${MAX_SUBJECT})`);
+}
 
 // Grab the first grapheme cluster (handles ZWJ sequences, flags, skin tones).
 const emojiLike = /\p{Extended_Pictographic}|\p{Regional_Indicator}/u;
 const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
 const first = [...segmenter.segment(subject)][0]?.segment ?? '';
 
-if (!emojiLike.test(first)) fail('must start with an emoji');
+if (!emojiLike.test(first)) {
+  fail('must start with an emoji');
+}
 
 // After the emoji grapheme there must be a single space, then a description.
 const rest = subject.slice(first.length);
-if (!rest.startsWith(' ')) fail('emoji must be followed by a space');
-if (rest.slice(1).trim().length === 0) fail('missing description after the emoji');
+if (!rest.startsWith(' ')) {
+  fail('emoji must be followed by a space');
+}
+if (rest.slice(1).trim().length === 0) {
+  fail('missing description after the emoji');
+}
 
 pass();

@@ -2,13 +2,15 @@ import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import { prisma } from '$lib/server/db';
 import { renamePasskeySchema } from '$lib/schemas/auth';
-import type { Actions, PageServerLoad } from './$types';
+import { type Actions, type PageServerLoad } from './$types';
 
 const profileSchema = z.object({ name: z.string().min(1, 'Name is required').max(100) });
 const revokeSchema = z.object({ id: z.string().min(1) });
 
 export const load: PageServerLoad = async ({ locals }) => {
-  if (!locals.user) redirect(303, '/login');
+  if (!locals.user) {
+    redirect(303, '/login');
+  }
 
   const passkeys = await prisma.passkey.findMany({
     where: { userId: locals.user.id },
@@ -21,7 +23,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
   updateProfile: async ({ request, locals }) => {
-    if (!locals.user) redirect(303, '/login');
+    if (!locals.user) {
+      redirect(303, '/login');
+    }
 
     const data = await request.formData();
     const parsed = profileSchema.safeParse({ name: data.get('name') });
@@ -37,7 +41,9 @@ export const actions: Actions = {
   // straight to Prisma — scoped to the session user's id so nobody can rename
   // someone else's passkey.
   renamePasskey: async ({ request, locals }) => {
-    if (!locals.user) redirect(303, '/login');
+    if (!locals.user) {
+      redirect(303, '/login');
+    }
 
     const data = await request.formData();
     const parsed = renamePasskeySchema.safeParse({ id: data.get('id'), name: data.get('name') });
@@ -56,7 +62,9 @@ export const actions: Actions = {
   },
 
   revokePasskey: async ({ request, locals }) => {
-    if (!locals.user) redirect(303, '/login');
+    if (!locals.user) {
+      redirect(303, '/login');
+    }
 
     const data = await request.formData();
     const parsed = revokeSchema.safeParse({ id: data.get('id') });

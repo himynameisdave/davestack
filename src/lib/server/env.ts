@@ -61,7 +61,9 @@ export const env = loadEnv();
 // NODE_ENV=production and no real secrets — the app must build without them).
 // Called once at runtime boot from hooks.server.ts, guarded by `!building`.
 export function assertProductionReady(): void {
-  if (env.NODE_ENV !== 'production') return;
+  if (env.NODE_ENV !== 'production') {
+    return;
+  }
   if (env.BETTER_AUTH_SECRET === DEV_AUTH_SECRET) {
     throw new Error(
       'BETTER_AUTH_SECRET is still the dev placeholder. Set a real secret in production (openssl rand -base64 32).',

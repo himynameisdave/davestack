@@ -19,7 +19,9 @@
   // runtime config wins instead of the value being baked in at build time.
   onMount(() => {
     const websiteId = env.PUBLIC_UMAMI_WEBSITE_ID;
-    if (!websiteId || dev || page.url.pathname.startsWith('/admin')) return;
+    if (!websiteId || dev || page.url.pathname.startsWith('/admin')) {
+      return;
+    }
 
     const script = document.createElement('script');
     script.src = env.PUBLIC_UMAMI_SRC || 'https://cloud.umami.is/script.js';

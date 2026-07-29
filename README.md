@@ -257,9 +257,11 @@ Any change that touches auth or adds/changes a route ships with a Playwright spe
 
 ## Code quality: git hooks & CI
 
-Lint and format are **oxlint + oxfmt** (not ESLint/Prettier). oxfmt owns everything including
-`.svelte`, `.md`, and `.json`; indentation is **2 spaces**, single quotes, printWidth 100
-(`.oxfmtrc.json`).
+Lint and format are **oxlint + oxfmt** (not ESLint/Prettier). Lint rules come from
+[`@himynameisdave/oxlint-config`](https://github.com/himynameisdave/oxlint-config), extended in
+`oxlint.config.ts` with a handful of justified project-local deltas. oxfmt owns everything
+including `.svelte`, `.md`, and `.json`; indentation is **2 spaces**, single quotes, printWidth
+100 (`.oxfmtrc.json`).
 
 Git hooks are installed by `bun install` (the `prepare` step runs Husky):
 

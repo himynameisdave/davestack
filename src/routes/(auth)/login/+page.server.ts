@@ -5,14 +5,12 @@ import { features } from '$lib/server/env';
 import { field } from '$lib/server/form';
 import { loginSchema } from '$lib/schemas/auth';
 import { safeNext } from '$lib/safe-next';
-import type { Actions, PageServerLoad } from './$types';
+import { type Actions, type PageServerLoad } from './$types';
 
-export const load: PageServerLoad = ({ url }) => {
-  return {
-    googleEnabled: features.google,
-    postSignInRedirect: safeNext(url.searchParams.get('next'), '/home'),
-  };
-};
+export const load: PageServerLoad = ({ url }) => ({
+  googleEnabled: features.google,
+  postSignInRedirect: safeNext(url.searchParams.get('next'), '/home'),
+});
 
 export const actions: Actions = {
   default: async ({ request, url }) => {
@@ -29,11 +27,11 @@ export const actions: Actions = {
         body: { email: parsed.data.email, password: parsed.data.password },
         headers: request.headers,
       });
-    } catch (err) {
-      if (err instanceof APIError) {
-        return fail(400, { email, error: err.message || 'Invalid email or password' });
+    } catch (error) {
+      if (error instanceof APIError) {
+        return fail(400, { email, error: error.message || 'Invalid email or password' });
       }
-      throw err;
+      throw error;
     }
 
     return redirect(303, safeNext(url.searchParams.get('next'), '/home'));

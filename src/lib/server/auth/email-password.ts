@@ -1,4 +1,4 @@
-import type { BetterAuthOptions } from 'better-auth';
+import { type BetterAuthOptions } from 'better-auth';
 import { sendResetPasswordEmail, sendVerificationEmail } from '../email';
 
 // Email + password with mandatory email verification. To remove this method,

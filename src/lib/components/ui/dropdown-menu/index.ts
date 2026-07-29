@@ -1,54 +1,44 @@
-import Root from './dropdown-menu.svelte';
-import Sub from './dropdown-menu-sub.svelte';
-import CheckboxGroup from './dropdown-menu-checkbox-group.svelte';
-import CheckboxItem from './dropdown-menu-checkbox-item.svelte';
-import Content from './dropdown-menu-content.svelte';
-import Group from './dropdown-menu-group.svelte';
-import Item from './dropdown-menu-item.svelte';
-import Label from './dropdown-menu-label.svelte';
-import RadioGroup from './dropdown-menu-radio-group.svelte';
-import RadioItem from './dropdown-menu-radio-item.svelte';
-import Separator from './dropdown-menu-separator.svelte';
-import Shortcut from './dropdown-menu-shortcut.svelte';
-import Trigger from './dropdown-menu-trigger.svelte';
-import SubContent from './dropdown-menu-sub-content.svelte';
-import SubTrigger from './dropdown-menu-sub-trigger.svelte';
-import GroupHeading from './dropdown-menu-group-heading.svelte';
-import Portal from './dropdown-menu-portal.svelte';
-
+export { default as Root, default as DropdownMenu } from './dropdown-menu.svelte';
+export { default as Sub, default as DropdownMenuSub } from './dropdown-menu-sub.svelte';
 export {
-  CheckboxGroup,
-  CheckboxItem,
-  Content,
-  Portal,
-  Root as DropdownMenu,
-  CheckboxGroup as DropdownMenuCheckboxGroup,
-  CheckboxItem as DropdownMenuCheckboxItem,
-  Content as DropdownMenuContent,
-  Portal as DropdownMenuPortal,
-  Group as DropdownMenuGroup,
-  Item as DropdownMenuItem,
-  Label as DropdownMenuLabel,
-  RadioGroup as DropdownMenuRadioGroup,
-  RadioItem as DropdownMenuRadioItem,
-  Separator as DropdownMenuSeparator,
-  Shortcut as DropdownMenuShortcut,
-  Sub as DropdownMenuSub,
-  SubContent as DropdownMenuSubContent,
-  SubTrigger as DropdownMenuSubTrigger,
-  Trigger as DropdownMenuTrigger,
-  GroupHeading as DropdownMenuGroupHeading,
-  Group,
-  GroupHeading,
-  Item,
-  Label,
-  RadioGroup,
-  RadioItem,
-  Root,
-  Separator,
-  Shortcut,
-  Sub,
-  SubContent,
-  SubTrigger,
-  Trigger,
-};
+  default as CheckboxGroup,
+  default as DropdownMenuCheckboxGroup,
+} from './dropdown-menu-checkbox-group.svelte';
+export {
+  default as CheckboxItem,
+  default as DropdownMenuCheckboxItem,
+} from './dropdown-menu-checkbox-item.svelte';
+export { default as Content, default as DropdownMenuContent } from './dropdown-menu-content.svelte';
+export { default as Group, default as DropdownMenuGroup } from './dropdown-menu-group.svelte';
+export { default as Item, default as DropdownMenuItem } from './dropdown-menu-item.svelte';
+export { default as Label, default as DropdownMenuLabel } from './dropdown-menu-label.svelte';
+export {
+  default as RadioGroup,
+  default as DropdownMenuRadioGroup,
+} from './dropdown-menu-radio-group.svelte';
+export {
+  default as RadioItem,
+  default as DropdownMenuRadioItem,
+} from './dropdown-menu-radio-item.svelte';
+export {
+  default as Separator,
+  default as DropdownMenuSeparator,
+} from './dropdown-menu-separator.svelte';
+export {
+  default as Shortcut,
+  default as DropdownMenuShortcut,
+} from './dropdown-menu-shortcut.svelte';
+export { default as Trigger, default as DropdownMenuTrigger } from './dropdown-menu-trigger.svelte';
+export {
+  default as SubContent,
+  default as DropdownMenuSubContent,
+} from './dropdown-menu-sub-content.svelte';
+export {
+  default as SubTrigger,
+  default as DropdownMenuSubTrigger,
+} from './dropdown-menu-sub-trigger.svelte';
+export {
+  default as GroupHeading,
+  default as DropdownMenuGroupHeading,
+} from './dropdown-menu-group-heading.svelte';
+export { default as Portal, default as DropdownMenuPortal } from './dropdown-menu-portal.svelte';

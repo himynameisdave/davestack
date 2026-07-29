@@ -17,7 +17,7 @@
 
 import { build, files, version } from '$service-worker';
 
-const sw = self as unknown as ServiceWorkerGlobalScope;
+const sw = globalThis as unknown as ServiceWorkerGlobalScope;
 const CACHE_NAME = `davestack-cache-${version}`;
 
 // Content-hashed build output + static files: safe to serve cache-first because
@@ -38,7 +38,9 @@ sw.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
-      await Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)));
+      await Promise.all(
+        keys.filter((key) => key !== CACHE_NAME).map(async (key) => caches.delete(key)),
+      );
     })(),
   );
 });
@@ -49,8 +51,12 @@ sw.addEventListener('fetch', (event) => {
 
   // Only ever serve immutable, same-origin build/static assets from cache.
   // Everything else (navigations, /api, POSTs, auth) passes straight through.
-  if (request.method !== 'GET' || url.origin !== sw.location.origin) return;
-  if (!PRECACHE_SET.has(url.pathname)) return;
+  if (request.method !== 'GET' || url.origin !== sw.location.origin) {
+    return;
+  }
+  if (!PRECACHE_SET.has(url.pathname)) {
+    return;
+  }
 
   event.respondWith(
     (async () => {

@@ -3,7 +3,7 @@ import { APIError } from 'better-auth/api';
 import { auth } from '$lib/server/auth';
 import { field } from '$lib/server/form';
 import { forgotPasswordSchema } from '$lib/schemas/auth';
-import type { Actions } from './$types';
+import { type Actions } from './$types';
 
 export const actions: Actions = {
   default: async ({ request }) => {
@@ -20,11 +20,11 @@ export const actions: Actions = {
         body: { email: parsed.data.email, redirectTo: '/reset-password' },
         headers: request.headers,
       });
-    } catch (err) {
+    } catch (error) {
       // Swallow APIErrors so we never reveal whether an email is registered
       // (user-enumeration guard). Real bugs still surface.
-      if (!(err instanceof APIError)) {
-        throw err;
+      if (!(error instanceof APIError)) {
+        throw error;
       }
     }
 

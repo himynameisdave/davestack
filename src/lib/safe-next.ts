@@ -4,10 +4,20 @@
  * user to a URL derived from untrusted input without passing it through this.
  */
 export function safeNext(next: string | null, fallback: string): string {
-  if (!next) return fallback;
-  if (!next.startsWith('/')) return fallback;
-  if (next.startsWith('//')) return fallback;
-  if (next.includes('\\')) return fallback;
-  if (next.startsWith('/api/')) return fallback;
+  if (!next) {
+    return fallback;
+  }
+  if (!next.startsWith('/')) {
+    return fallback;
+  }
+  if (next.startsWith('//')) {
+    return fallback;
+  }
+  if (next.includes('\\')) {
+    return fallback;
+  }
+  if (next.startsWith('/api/')) {
+    return fallback;
+  }
   return next;
 }

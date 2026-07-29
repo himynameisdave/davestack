@@ -1,4 +1,4 @@
-import type { Handle, HandleServerError } from '@sveltejs/kit';
+import { type Handle, type HandleServerError } from '@sveltejs/kit';
 import { building } from '$app/environment';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { auth } from '$lib/server/auth';
@@ -25,10 +25,10 @@ const SECURITY_HEADERS: Record<string, string> = {
 export const handle: Handle = async ({ event, resolve }) => {
   const { limited, retryAfter } = await checkRateLimit(event);
   if (limited) {
-    return new Response(JSON.stringify({ error: 'Too many requests' }), {
-      status: 429,
-      headers: { 'Content-Type': 'application/json', 'Retry-After': String(retryAfter ?? 60) },
-    });
+    return Response.json(
+      { error: 'Too many requests' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter ?? 60) } },
+    );
   }
 
   // Populate locals for server load functions / guards. Reads the session from
@@ -51,6 +51,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 // leaking internals.
 export const handleError: HandleServerError = ({ error, event, status, message }) => {
   const errorId = crypto.randomUUID();
+  // oxlint-disable-next-line eslint/no-console -- server-side error log is this hook's entire job
   console.error(
     `[error ${errorId}] ${event.request.method} ${event.url.pathname} → ${status}`,
     error,

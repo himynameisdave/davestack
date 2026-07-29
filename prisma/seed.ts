@@ -19,36 +19,36 @@ const SEED_USERS = [
 async function main() {
   const passwordHash = await hashPassword(SEED_PASSWORD);
 
-  for (const u of SEED_USERS) {
-    // Better Auth owns user ids, so delete-and-recreate by email instead of
-    // upserting. Cascades clean up the old credential account.
-    await prisma.user.deleteMany({ where: { email: u.email } });
+  await Promise.all(
+    SEED_USERS.map(async (u) => {
+      // Better Auth owns user ids, so delete-and-recreate by email instead of
+      // upserting. Cascades clean up the old credential account.
+      await prisma.user.deleteMany({ where: { email: u.email } });
 
-    const userId = crypto.randomUUID();
-    await prisma.user.create({
-      data: { id: userId, email: u.email, name: u.name, emailVerified: true, isAdmin: u.isAdmin },
-    });
-    await prisma.account.create({
-      data: {
-        id: crypto.randomUUID(),
-        accountId: userId,
-        providerId: 'credential',
-        userId,
-        password: passwordHash,
-      },
-    });
+      const userId = crypto.randomUUID();
+      await prisma.user.create({
+        data: { id: userId, email: u.email, name: u.name, emailVerified: true, isAdmin: u.isAdmin },
+      });
+      await prisma.account.create({
+        data: {
+          id: crypto.randomUUID(),
+          accountId: userId,
+          providerId: 'credential',
+          userId,
+          password: passwordHash,
+        },
+      });
 
-    console.log(`Seeded ${u.isAdmin ? 'admin' : 'user'}: ${u.email} / ${SEED_PASSWORD}`);
-  }
+      console.log(`Seeded ${u.isAdmin ? 'admin' : 'user'}: ${u.email} / ${SEED_PASSWORD}`);
+    }),
+  );
 }
 
-main()
-  .then(async () => {
-    await prisma.$disconnect();
-    process.exit(0);
-  })
-  .catch(async (error) => {
-    console.error(error);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+try {
+  await main();
+} catch (error) {
+  console.error(error);
+  process.exitCode = 1;
+} finally {
+  await prisma.$disconnect();
+}

@@ -37,7 +37,7 @@ describe('deriveFeatures', () => {
   const base = envSchema.parse({});
 
   it('reports every integration off when nothing is configured', () => {
-    expect(deriveFeatures(base)).toEqual({ google: false, resend: false, umami: false });
+    expect(deriveFeatures(base)).toStrictEqual({ google: false, resend: false, umami: false });
   });
 
   it('requires BOTH Google vars before Google is considered configured', () => {
@@ -59,11 +59,11 @@ describe('deriveFeatures', () => {
 describe('module exports', () => {
   it('validates process.env at import without throwing', () => {
     expect(env.NODE_ENV).toBeDefined();
-    expect(features).toEqual({
+    expect(features).toStrictEqual({
       google: expect.any(Boolean),
       resend: expect.any(Boolean),
       umami: expect.any(Boolean),
     });
-    expect(typeof isTestMode).toBe('boolean');
+    expect(isTestMode).toBeTypeOf('boolean');
   });
 });

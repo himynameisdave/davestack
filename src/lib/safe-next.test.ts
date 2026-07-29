@@ -23,8 +23,8 @@ describe('safeNext', () => {
   });
 
   it('returns fallback for paths with backslashes', () => {
-    expect(safeNext('/\\evil.com', fallback)).toBe(fallback);
-    expect(safeNext('/foo\\bar', fallback)).toBe(fallback);
+    expect(safeNext(String.raw`/\evil.com`, fallback)).toBe(fallback);
+    expect(safeNext(String.raw`/foo\bar`, fallback)).toBe(fallback);
   });
 
   it('returns fallback for /api/ paths', () => {

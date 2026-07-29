@@ -35,9 +35,13 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
   `lint:fix`, `format`, `format:check`, `test`, `test:e2e`, `test:e2e:ui`, `db:push`, `db:migrate`,
   `db:studio`, `db:seed`, `db:reset`.
 - **Lint/format is oxlint + oxfmt**, not ESLint/Prettier. `bun run lint` runs
-  `oxlint --deny-warnings --type-aware`; `bun run format` / `format:check` run oxfmt. oxfmt owns
-  everything incl. `.svelte`, `.md`, `.json`. Indentation is **spaces** (2), single quotes,
-  printWidth 100 (`.oxfmtrc.json`).
+  `oxlint -c oxlint.config.ts --deny-warnings --type-aware`; `bun run format` / `format:check` run
+  oxfmt. oxfmt owns everything incl. `.svelte`, `.md`, `.json`. Indentation is **spaces** (2),
+  single quotes, printWidth 100 (`.oxfmtrc.json`).
+- **Lint rules come from `@himynameisdave/oxlint-config`** (extended in `oxlint.config.ts`).
+  Don't re-enable rules the shared config decides; project-local deltas live in
+  `oxlint.config.ts` and each carries a justification comment (rule-pair conflicts,
+  Prisma/SvelteKit allowlists, CLI-script console/exit, Playwright-vs-vitest override).
 
 ### TypeScript — split toolchain (TS 6 for Svelte tooling, TS 7 / tsgo for checking)
 

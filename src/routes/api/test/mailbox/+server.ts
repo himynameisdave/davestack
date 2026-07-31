@@ -1,5 +1,5 @@
 import { error, json } from '@sveltejs/kit';
-import { type RequestHandler } from './$types';
+import type { RequestHandler } from './$types';
 import { testMailbox } from '$lib/server/email';
 import { isTestMode } from '$lib/server/env';
 

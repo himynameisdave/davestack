@@ -1,6 +1,6 @@
 import { env } from '$lib/server/env';
 import { prisma } from '$lib/server/db';
-import { type PageServerLoad } from './$types';
+import type { PageServerLoad } from './$types';
 
 // ─── Model count cards — THE EXTENSION POINT ──────────────────────────────
 // To add a model card, append one entry here: a stable `key`, a display `label`,

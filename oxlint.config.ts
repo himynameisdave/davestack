@@ -4,13 +4,6 @@ import config from '@himynameisdave/oxlint-config';
 export default defineConfig({
   extends: [config],
   rules: {
-    // Conflicts with import/consistent-type-specifier-style prefer-inline (also from the shared
-    // config): for an all-type import, one rule demands `import type { A }` and the other
-    // `import { type A }`. Inline style wins here, so the top-level-demanding rule goes off.
-    'typescript/no-import-type-side-effects': 'off',
-    // Conflicts with vitest/valid-title (also from the shared config): one demands
-    // `describe(fn, ...)`, the other rejects any non-string title. String titles win.
-    'vitest/prefer-describe-function-title': 'off',
     // Bundler define (__APP_VERSION__) and Prisma aggregate keys (_count, ...) use underscores.
     'eslint/no-underscore-dangle': [
       'error',

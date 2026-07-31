@@ -35,7 +35,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@himynameisdave/oxlint-config": "~1.0.0",
+    "@himynameisdave/oxlint-config": "~1.1.0",
     "@internationalized/date": "^3.12.0",
     "@lucide/svelte": "^1.24.0",
     "@playwright/test": "^1.61.1",

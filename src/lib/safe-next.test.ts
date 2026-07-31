@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { safeNext } from './safe-next';
 
-describe('safeNext', () => {
+describe(safeNext, () => {
   const fallback = '/home';
 
   it('returns fallback for null', () => {

@@ -7,7 +7,7 @@ import { verifyEmailTemplate } from './verify-email';
 
 const YEAR = new Date().getFullYear();
 
-describe('escapeHtml', () => {
+describe(escapeHtml, () => {
   it('escapes the five HTML-significant characters', () => {
     expect(escapeHtml('<')).toBe('&lt;');
     expect(escapeHtml('>')).toBe('&gt;');
@@ -25,7 +25,7 @@ describe('escapeHtml', () => {
   });
 });
 
-describe('buildEmailLayout', () => {
+describe(buildEmailLayout, () => {
   it('wraps content in the neutral davestack shell', () => {
     const html = buildEmailLayout('<p data-marker>inner</p>');
     expect(html).toContain('<p data-marker>inner</p>');

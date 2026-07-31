@@ -2,7 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import { prisma } from '$lib/server/db';
 import { renamePasskeySchema } from '$lib/schemas/auth';
-import { type Actions, type PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 const profileSchema = z.object({ name: z.string().min(1, 'Name is required').max(100) });
 const revokeSchema = z.object({ id: z.string().min(1) });

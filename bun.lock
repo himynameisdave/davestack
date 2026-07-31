@@ -15,7 +15,7 @@
         "zod": "^4.4.3",
       },
       "devDependencies": {
-        "@himynameisdave/oxlint-config": "~1.0.0",
+        "@himynameisdave/oxlint-config": "~1.1.0",
         "@internationalized/date": "^3.12.0",
         "@lucide/svelte": "^1.24.0",
         "@playwright/test": "^1.61.1",
@@ -125,7 +125,7 @@
 
     "@hexagon/base64": ["@hexagon/base64@1.1.28", "", {}, "sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw=="],
 
-    "@himynameisdave/oxlint-config": ["@himynameisdave/oxlint-config@1.0.0", "", { "peerDependencies": { "oxlint": ">=1.76.0 <2", "oxlint-tsgolint": ">=7.0.2001" }, "optionalPeers": ["oxlint-tsgolint"] }, "sha512-HHyTZ0+bVubCrBzoygNBL9sXnmrBAUBKbd502JhF4MW3CNG2t8vRy9v/+a/6uT2+5YuodsQ/o79Z5mbvtV/o6A=="],
+    "@himynameisdave/oxlint-config": ["@himynameisdave/oxlint-config@1.1.0", "", { "peerDependencies": { "oxlint": ">=1.76.0 <2", "oxlint-tsgolint": ">=7.0.2001" }, "optionalPeers": ["oxlint-tsgolint"] }, "sha512-MvaYZWr3wjpTSlHuNxT46Sq5rKxQ3R616wWGEy9vnENbroMNywDhe7Af7windpwY6ejcHTVBJlpPxStBok90tg=="],
 
     "@hono/node-server": ["@hono/node-server@1.19.11", "", { "peerDependencies": { "hono": "^4" } }, "sha512-dr8/3zEaB+p0D2n/IUrlPF1HZm586qgJNXK1a9fhg/PzdtkK7Ksd5l312tJX2yBuALqDYBlG20QEbayqPyxn+g=="],
 

@@ -2,7 +2,7 @@
   import { Dialog as DialogPrimitive } from 'bits-ui';
   import DialogPortal from './dialog-portal.svelte';
   import DialogOverlay from './dialog-overlay.svelte';
-  import { type Snippet, type ComponentProps } from 'svelte';
+  import type { Snippet, ComponentProps } from 'svelte';
   import { cn, type WithoutChildrenOrChild } from '$lib/utils.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import XIcon from '@lucide/svelte/icons/x';

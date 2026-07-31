@@ -1,4 +1,4 @@
-import { type Handle, type HandleServerError } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { building } from '$app/environment';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { auth } from '$lib/server/auth';

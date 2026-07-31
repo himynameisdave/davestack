@@ -1,5 +1,5 @@
 import { RetryAfterRateLimiter } from 'sveltekit-rate-limiter/server';
-import { type RequestEvent } from '@sveltejs/kit';
+import type { RequestEvent } from '@sveltejs/kit';
 import { isTestMode } from './env';
 
 export type TierName = 'auth' | 'form' | 'general';

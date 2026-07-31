@@ -5,6 +5,9 @@ import { deriveFeatures, envSchema, env, features, isTestMode } from './env';
 // derivation as pure functions (constructed inputs, never process.env) so they
 // are deterministic regardless of the shell the suite runs in.
 
+// envSchema is a Zod schema object, not a function, so passing it as the title argument
+// below fails vitest's type overload — the title stays a string here.
+// oxlint-disable-next-line vitest/prefer-describe-function-title
 describe('envSchema', () => {
   it('parses an empty object by applying local-dev defaults', () => {
     const parsed = envSchema.parse({});
@@ -33,7 +36,7 @@ describe('envSchema', () => {
   });
 });
 
-describe('deriveFeatures', () => {
+describe(deriveFeatures, () => {
   const base = envSchema.parse({});
 
   it('reports every integration off when nothing is configured', () => {

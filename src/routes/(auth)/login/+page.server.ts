@@ -5,7 +5,7 @@ import { features } from '$lib/server/env';
 import { field } from '$lib/server/form';
 import { loginSchema } from '$lib/schemas/auth';
 import { safeNext } from '$lib/safe-next';
-import { type Actions, type PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = ({ url }) => ({
   googleEnabled: features.google,

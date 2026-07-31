@@ -10,9 +10,15 @@ export type TierName = 'auth' | 'form' | 'general';
  * tiers (e.g. 'search', 'write') as the app grows.
  */
 export function resolveLimiterKey(pathname: string, method: string): TierName | null {
-  if (pathname.startsWith('/api/auth/')) return 'auth';
-  if (pathname.startsWith('/api/')) return 'general';
-  if (method === 'POST') return 'form';
+  if (pathname.startsWith('/api/auth/')) {
+    return 'auth';
+  }
+  if (pathname.startsWith('/api/')) {
+    return 'general';
+  }
+  if (method === 'POST') {
+    return 'form';
+  }
   return null;
 }
 
@@ -27,12 +33,18 @@ export async function checkRateLimit(
 ): Promise<{ limited: boolean; retryAfter?: number }> {
   // Never throttle the test suite — e2e drives auth endpoints deterministically
   // and would otherwise trip the limiter and go flaky.
-  if (isTestMode) return { limited: false };
+  if (isTestMode) {
+    return { limited: false };
+  }
 
   const tierName = resolveLimiterKey(event.url.pathname, event.request.method);
-  if (!tierName) return { limited: false };
+  if (!tierName) {
+    return { limited: false };
+  }
 
   const status = await limiters[tierName].check(event);
-  if (status.limited) return { limited: true, retryAfter: status.retryAfter };
+  if (status.limited) {
+    return { limited: true, retryAfter: status.retryAfter };
+  }
   return { limited: false };
 }

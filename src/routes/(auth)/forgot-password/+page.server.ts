@@ -20,11 +20,11 @@ export const actions: Actions = {
         body: { email: parsed.data.email, redirectTo: '/reset-password' },
         headers: request.headers,
       });
-    } catch (err) {
+    } catch (error) {
       // Swallow APIErrors so we never reveal whether an email is registered
       // (user-enumeration guard). Real bugs still surface.
-      if (!(err instanceof APIError)) {
-        throw err;
+      if (!(error instanceof APIError)) {
+        throw error;
       }
     }
 

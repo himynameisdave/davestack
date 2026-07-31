@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { safeNext } from './safe-next';
 
-describe('safeNext', () => {
+describe(safeNext, () => {
   const fallback = '/home';
 
   it('returns fallback for null', () => {
@@ -23,8 +23,8 @@ describe('safeNext', () => {
   });
 
   it('returns fallback for paths with backslashes', () => {
-    expect(safeNext('/\\evil.com', fallback)).toBe(fallback);
-    expect(safeNext('/foo\\bar', fallback)).toBe(fallback);
+    expect(safeNext(String.raw`/\evil.com`, fallback)).toBe(fallback);
+    expect(safeNext(String.raw`/foo\bar`, fallback)).toBe(fallback);
   });
 
   it('returns fallback for /api/ paths', () => {

@@ -16,23 +16,26 @@ export function createPasskeyAuth(redirect: string | (() => string)) {
   const resolveRedirect = (): string => (typeof redirect === 'function' ? redirect() : redirect);
   let passkeyLoading = $state(false);
   let conditionalPasskeyAvailable = $state(false);
-  let error = $state('');
+  let errorMessage = $state('');
 
   async function handlePasskeySignIn({ autoFill = false } = {}) {
-    if (!autoFill && passkeyLoading) return;
+    if (!autoFill && passkeyLoading) {
+      return;
+    }
 
     if (!autoFill) {
       passkeyLoading = true;
-      error = '';
+      errorMessage = '';
     }
 
     let result;
     try {
       result = await authClient.signIn.passkey({ autoFill });
-    } catch (err) {
-      console.error('[passkey] sign-in error:', err);
+    } catch (error) {
+      // oxlint-disable-next-line eslint/no-console -- client-side diagnostics for a flow with no server log
+      console.error('[passkey] sign-in error:', error);
       if (!autoFill) {
-        error = 'Could not sign in with passkey. Please try again.';
+        errorMessage = 'Could not sign in with passkey. Please try again.';
         passkeyLoading = false;
       }
       return;
@@ -47,29 +50,38 @@ export function createPasskeyAuth(redirect: string | (() => string)) {
       // Silent-cancel: don't surface an error when the user simply dismisses the
       // autofill sheet — that is a normal interaction, not a failure.
       if (!autoFill || !cancelled) {
-        error = result.error.message ?? 'Could not sign in with passkey. Please try again.';
+        errorMessage = result.error.message ?? 'Could not sign in with passkey. Please try again.';
       }
 
-      if (!autoFill) passkeyLoading = false;
+      if (!autoFill) {
+        passkeyLoading = false;
+      }
       return;
     }
 
-    window.location.href = resolveRedirect();
+    globalThis.location.href = resolveRedirect();
   }
 
   async function initConditionalMediation() {
-    if (typeof PublicKeyCredential === 'undefined') return;
-    if (typeof PublicKeyCredential.isConditionalMediationAvailable !== 'function') return;
+    if (typeof PublicKeyCredential === 'undefined') {
+      return;
+    }
+    if (typeof PublicKeyCredential.isConditionalMediationAvailable !== 'function') {
+      return;
+    }
 
     try {
       conditionalPasskeyAvailable = await PublicKeyCredential.isConditionalMediationAvailable();
-    } catch (err) {
-      console.error('[passkey] conditional mediation check failed:', err);
+    } catch (error) {
+      // oxlint-disable-next-line eslint/no-console -- client-side diagnostics for a flow with no server log
+      console.error('[passkey] conditional mediation check failed:', error);
       conditionalPasskeyAvailable = false;
       return;
     }
 
-    if (!conditionalPasskeyAvailable) return;
+    if (!conditionalPasskeyAvailable) {
+      return;
+    }
     await handlePasskeySignIn({ autoFill: true });
   }
 
@@ -78,8 +90,8 @@ export function createPasskeyAuth(redirect: string | (() => string)) {
       provider: 'google',
       callbackURL: resolveRedirect(),
     });
-    if (result?.error) {
-      error = result.error.message ?? 'Could not sign in with Google. Please try again.';
+    if (result.error) {
+      errorMessage = result.error.message ?? 'Could not sign in with Google. Please try again.';
     }
   }
 
@@ -91,10 +103,10 @@ export function createPasskeyAuth(redirect: string | (() => string)) {
       return conditionalPasskeyAvailable;
     },
     get error() {
-      return error;
+      return errorMessage;
     },
     set error(value: string) {
-      error = value;
+      errorMessage = value;
     },
     handlePasskeySignIn,
     initConditionalMediation,

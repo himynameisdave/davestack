@@ -7,7 +7,7 @@
 
   async function signOut() {
     await authClient.signOut();
-    window.location.href = '/';
+    globalThis.location.href = '/';
   }
 </script>
 

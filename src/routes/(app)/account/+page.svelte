@@ -28,7 +28,9 @@
   }
 
   async function handleAddPasskey() {
-    if (addingPasskey) return;
+    if (addingPasskey) {
+      return;
+    }
     const name = newPasskeyName.trim() || 'My passkey';
     addingPasskey = true;
 
@@ -37,8 +39,9 @@
       // No authenticatorAttachment: allow platform authenticators AND roaming
       // security keys.
       result = await authClient.passkey.addPasskey({ name });
-    } catch (err) {
-      console.error('[account] addPasskey threw:', err);
+    } catch (error) {
+      // oxlint-disable-next-line eslint/no-console -- client-side diagnostics for a flow with no server log
+      console.error('[account] addPasskey threw:', error);
       toast.error('Could not add passkey. Please try again.');
       addingPasskey = false;
       return;

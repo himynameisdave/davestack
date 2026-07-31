@@ -145,23 +145,29 @@ export async function getLatestEmail(
   request: APIRequestContext,
   to: string,
 ): Promise<CapturedEmail> {
+  // oxlint-disable eslint/no-await-in-loop -- polling: each probe must complete before the next
   for (let attempt = 0; attempt < 40; attempt++) {
     const response = await request.get(`/api/test/mailbox?to=${encodeURIComponent(to)}`);
     if (response.ok()) {
       const emails = (await response.json()) as CapturedEmail[];
-      if (emails.length > 0 && emails[0]) return emails[0];
+      if (emails.length > 0 && emails[0]) {
+        return emails[0];
+      }
     }
     await new Promise((resolve) => {
       setTimeout(resolve, 250);
     });
   }
+  // oxlint-enable eslint/no-await-in-loop
   throw new Error(`No email captured for ${to} after polling the test mailbox.`);
 }
 
 /** Pull the first absolute URL out of an email's plain-text body. */
 export function extractLink(email: Readonly<CapturedEmail>): string {
-  const match = email.text.match(/https?:\/\/[^\s"<>]+/u);
-  if (!match) throw new Error(`No link found in email "${email.subject}".`);
+  const match = /https?:\/\/[^\s"<>]+/u.exec(email.text);
+  if (!match) {
+    throw new Error(`No link found in email "${email.subject}".`);
+  }
   return match[0];
 }
 

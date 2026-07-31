@@ -8,11 +8,11 @@ import type { PageServerLoad } from './$types';
 // card per entry automatically — nothing else to touch. Keep these to cheap
 // aggregate COUNT()s and app-agnostic so the template stays generic.
 const MODEL_CARDS = [
-  { key: 'users', label: 'Users', count: () => prisma.user.count() },
-  { key: 'sessions', label: 'Sessions', count: () => prisma.session.count() },
-  { key: 'accounts', label: 'Accounts', count: () => prisma.account.count() },
-  { key: 'passkeys', label: 'Passkeys', count: () => prisma.passkey.count() },
-  { key: 'verifications', label: 'Verifications', count: () => prisma.verification.count() },
+  { key: 'users', label: 'Users', count: async () => prisma.user.count() },
+  { key: 'sessions', label: 'Sessions', count: async () => prisma.session.count() },
+  { key: 'accounts', label: 'Accounts', count: async () => prisma.account.count() },
+  { key: 'passkeys', label: 'Passkeys', count: async () => prisma.passkey.count() },
+  { key: 'verifications', label: 'Verifications', count: async () => prisma.verification.count() },
 ] as const;
 
 // Better Auth records the sign-in method as data, not a dedicated column:
@@ -32,7 +32,9 @@ function deriveMethods(providerIds: readonly string[], passkeyCount: number): st
   const methods = providerIds.map((id) =>
     id === CREDENTIAL_PROVIDER ? 'Password' : titleCase(id),
   );
-  if (passkeyCount > 0) methods.push('Passkey');
+  if (passkeyCount > 0) {
+    methods.push('Passkey');
+  }
   return methods;
 }
 
@@ -49,7 +51,7 @@ export const load: PageServerLoad = async () => {
   const now = new Date();
 
   const [counts, recentUsers, sessionTotal, sessionActive, recentSessions] = await Promise.all([
-    Promise.all(MODEL_CARDS.map((card) => card.count())),
+    Promise.all(MODEL_CARDS.map(async (card) => card.count())),
     prisma.user.findMany({
       take: 10,
       orderBy: { createdAt: 'desc' },

@@ -4,14 +4,13 @@ import { auth } from '$lib/server/auth';
 import { resetPasswordSchema } from '$lib/schemas/auth';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = ({ url }) => {
+export const load: PageServerLoad = ({ url }) =>
   // Better Auth appends ?token=... to the reset link. `error=INVALID_TOKEN`
   // arrives when the link is bad/expired.
-  return {
+  ({
     token: url.searchParams.get('token') ?? '',
     linkError: url.searchParams.get('error'),
-  };
-};
+  });
 
 export const actions: Actions = {
   default: async ({ request }) => {
@@ -30,11 +29,11 @@ export const actions: Actions = {
         body: { newPassword: parsed.data.password, token: parsed.data.token },
         headers: request.headers,
       });
-    } catch (err) {
-      if (err instanceof APIError) {
-        return fail(400, { error: err.message || 'This reset link is invalid or has expired.' });
+    } catch (error) {
+      if (error instanceof APIError) {
+        return fail(400, { error: error.message || 'This reset link is invalid or has expired.' });
       }
-      throw err;
+      throw error;
     }
 
     return redirect(303, '/login?reset=success');

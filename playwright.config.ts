@@ -11,7 +11,7 @@ const BASE_URL = process.env.BETTER_AUTH_URL ?? `http://localhost:${PORT}`;
 export default defineConfig({
   testDir: 'tests/e2e',
   globalSetup: './tests/e2e/global-setup.ts',
-  forbidOnly: !!process.env.CI,
+  forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   // workers: 1 — the test mailbox is a single in-memory array on the server and
   // all specs share one Postgres DB. A template favours deterministic, easy-to-

@@ -10,7 +10,9 @@ import { isTestMode } from '$lib/server/env';
 // GET /api/test/mailbox           → every captured email, newest first
 // GET /api/test/mailbox?to=<addr> → only emails addressed to <addr>
 export const GET: RequestHandler = ({ url }) => {
-  if (!isTestMode) error(404);
+  if (!isTestMode) {
+    error(404);
+  }
 
   const to = url.searchParams.get('to');
   const matches = to === null ? testMailbox : testMailbox.filter((message) => message.to === to);
@@ -22,7 +24,9 @@ export const GET: RequestHandler = ({ url }) => {
 
 // DELETE /api/test/mailbox → clear the outbox (reset between e2e specs).
 export const DELETE: RequestHandler = () => {
-  if (!isTestMode) error(404);
+  if (!isTestMode) {
+    error(404);
+  }
 
   testMailbox.length = 0;
   return json({ cleared: true });

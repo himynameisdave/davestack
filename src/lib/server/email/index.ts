@@ -49,6 +49,7 @@ export async function sendEmail(message: Readonly<OutboundEmail>): Promise<void>
   }
 
   const indentedText = message.text.replaceAll('\n', '\n   ');
+  // oxlint-disable-next-line eslint/no-console -- the console IS the local-dev mailbox when Resend is not configured
   console.log(
     `\n📧 [email] to=${message.to}\n   subject: ${message.subject}\n   ${indentedText}\n`,
   );

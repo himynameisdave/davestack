@@ -27,11 +27,11 @@ export const actions: Actions = {
         },
         headers: request.headers,
       });
-    } catch (err) {
-      if (err instanceof APIError) {
-        return fail(400, { name, email, error: err.message || 'Could not create your account' });
+    } catch (error) {
+      if (error instanceof APIError) {
+        return fail(400, { name, email, error: error.message || 'Could not create your account' });
       }
-      throw err;
+      throw error;
     }
 
     return { success: true, email: parsed.data.email };

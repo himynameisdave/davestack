@@ -22,26 +22,30 @@ type Violation = { file: string; line: number; message: string };
 
 const CWD = process.cwd();
 
-// Directories where console.log is allowed (server logging, scripts, tests).
-const CONSOLE_ALLOWED = [/^src\/lib\/server\//u, /^scripts\//u, /^tests\//u];
+// Directories where console.log is allowed (server logging, scripts, seeds, tests).
+const CONSOLE_ALLOWED = [/^src\/lib\/server\//u, /^scripts\//u, /^prisma\//u, /^tests\//u];
 
 // .env files that ARE allowed to be committed.
 const ENV_ALLOWED = new Set(['.env.example', '.env.test']);
 
-const CODE_EXT = /\.(ts|tsx|js|jsx|mjs|cjs|svelte)$/u;
-const TEST_FILE = /\.(spec|test)\.(ts|tsx|js|jsx|mjs|cjs)$/u;
-const ENV_FILE = /^\.env($|\.)/u;
+const CODE_EXT = /\.(?:ts|tsx|js|jsx|mjs|cjs|svelte)$/u;
+const TEST_FILE = /\.(?:spec|test)\.(?:ts|tsx|js|jsx|mjs|cjs)$/u;
+const ENV_FILE = /^\.env(?:$|\.)/u;
 
 function stagedFiles(): string[] {
   const args = process.argv.slice(2);
-  if (args.length > 0) return args.map((f) => relative(CWD, f) || f);
+  if (args.length > 0) {
+    return args.map((f) => relative(CWD, f) || f);
+  }
   const out = execSync('git diff --cached --name-only --diff-filter=ACM', { encoding: 'utf8' });
   return out.split('\n').filter(Boolean);
 }
 
 function readText(file: string): string | null {
   try {
-    if (!statSync(file).isFile()) return null;
+    if (!statSync(file).isFile()) {
+      return null;
+    }
     return readFileSync(file, 'utf8');
   } catch {
     return null;
@@ -70,23 +74,25 @@ for (const rawFile of stagedFiles()) {
   }
 
   const text = readText(rawFile);
-  if (text === null) continue;
+  if (text === null) {
+    continue;
+  }
   const lines = text.split('\n');
   const isCode = CODE_EXT.test(file);
   const isTest = TEST_FILE.test(file);
   const consoleAllowed = CONSOLE_ALLOWED.some((re) => re.test(file));
 
-  lines.forEach((line, i) => {
+  for (const [i, line] of lines.entries()) {
     const n = i + 1;
 
     // Conflict markers — any text file.
-    if (/^<{7}(\s|$)/u.test(line) || /^={7}$/u.test(line) || /^>{7}(\s|$)/u.test(line)) {
+    if (/^<{7}(?:\s|$)/u.test(line) || /^={7}$/u.test(line) || /^>{7}(?:\s|$)/u.test(line)) {
       violations.push({ file, line: n, message: 'git conflict marker' });
     }
 
     if (isCode) {
       // `debugger` statement.
-      if (/(^|[\s;{}])debugger\s*(;|$)/u.test(line)) {
+      if (/(?:^|[\s;{}])debugger\s*(?:;|$)/u.test(line)) {
         violations.push({ file, line: n, message: '`debugger` statement' });
       }
       // console.log outside allowed dirs.
@@ -94,16 +100,17 @@ for (const rawFile of stagedFiles()) {
         violations.push({
           file,
           line: n,
-          message: 'console.log (only allowed in src/lib/server/**, scripts/**, tests/**)',
+          message:
+            'console.log (only allowed in src/lib/server/**, scripts/**, prisma/**, tests/**)',
         });
       }
     }
 
     // Focused / skipped tests.
-    if (isTest && /\.(only|skip)\s*\(/u.test(line)) {
+    if (isTest && /\.(?:only|skip)\s*\(/u.test(line)) {
       violations.push({ file, line: n, message: 'focused/skipped test (.only / .skip)' });
     }
-  });
+  }
 }
 
 if (violations.length > 0) {

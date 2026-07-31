@@ -27,13 +27,17 @@ function log(msg: string) {
 }
 
 async function ask(question: string, fallback = ''): Promise<string> {
-  if (!process.stdin.isTTY) return fallback;
-  const answer = (await rl.question(question)).trim();
+  if (!process.stdin.isTTY) {
+    return fallback;
+  }
+  const raw = await rl.question(question);
+  const answer = raw.trim();
   return answer || fallback;
 }
 
 async function confirm(question: string): Promise<boolean> {
-  const answer = (await ask(`${question} [y/N] `)).toLowerCase();
+  const raw = await ask(`${question} [y/N] `);
+  const answer = raw.toLowerCase();
   return answer === 'y' || answer === 'yes';
 }
 
@@ -59,9 +63,13 @@ function write(path: string, content: string): void {
 // Replace the exact display string in a file, only if present (keeps re-runs safe).
 function replaceInFile(path: string, from: string, to: string): boolean {
   const full = join(ROOT, path);
-  if (!existsSync(full)) return false;
+  if (!existsSync(full)) {
+    return false;
+  }
   const before = readFileSync(full, 'utf8');
-  if (!before.includes(from)) return false;
+  if (!before.includes(from)) {
+    return false;
+  }
   writeFileSync(full, before.replaceAll(from, to));
   return true;
 }
@@ -92,9 +100,13 @@ function rebrand(displayName: string): void {
   // Visible wordmark in the UI.
   let uiHits = 0;
   for (const file of BRAND_FILES) {
-    if (replaceInFile(file, '>davestack<', `>${displayName}<`)) uiHits += 1;
+    if (replaceInFile(file, '>davestack<', `>${displayName}<`)) {
+      uiHits += 1;
+    }
   }
-  if (uiHits > 0) log(`  · app wordmark → "${displayName}" (${uiHits} file(s))`);
+  if (uiHits > 0) {
+    log(`  · app wordmark → "${displayName}" (${uiHits} file(s))`);
+  }
 
   // <title> + apple web-app title in app.html.
   const titleHit = replaceInFile(
@@ -103,7 +115,9 @@ function rebrand(displayName: string): void {
     `<title>${displayName}</title>`,
   );
   replaceInFile('src/app.html', 'content="davestack"', `content="${displayName}"`);
-  if (titleHit) log(`  · document <title> → "${displayName}"`);
+  if (titleHit) {
+    log(`  · document <title> → "${displayName}"`);
+  }
 
   // PWA manifest name + short_name.
   const manifestPath = 'static/manifest.webmanifest';
@@ -183,8 +197,10 @@ async function main(): Promise<void> {
   rl.close();
 }
 
-main().catch((error: unknown) => {
+try {
+  await main();
+} catch (error) {
   console.error(error);
   rl.close();
   process.exit(1);
-});
+}

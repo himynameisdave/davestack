@@ -1,4 +1,5 @@
 import { PASSKEY_ERROR_CODES } from '@better-auth/passkey/client';
+import { logger } from '$lib/log';
 import { authClient } from './auth';
 
 /**
@@ -32,8 +33,7 @@ export function createPasskeyAuth(redirect: string | (() => string)) {
     try {
       result = await authClient.signIn.passkey({ autoFill });
     } catch (error) {
-      // oxlint-disable-next-line eslint/no-console -- client-side diagnostics for a flow with no server log
-      console.error('[passkey] sign-in error:', error);
+      logger.error('[passkey] sign-in error:', error);
       if (!autoFill) {
         errorMessage = 'Could not sign in with passkey. Please try again.';
         passkeyLoading = false;
@@ -73,8 +73,7 @@ export function createPasskeyAuth(redirect: string | (() => string)) {
     try {
       conditionalPasskeyAvailable = await PublicKeyCredential.isConditionalMediationAvailable();
     } catch (error) {
-      // oxlint-disable-next-line eslint/no-console -- client-side diagnostics for a flow with no server log
-      console.error('[passkey] conditional mediation check failed:', error);
+      logger.error('[passkey] conditional mediation check failed:', error);
       conditionalPasskeyAvailable = false;
       return;
     }

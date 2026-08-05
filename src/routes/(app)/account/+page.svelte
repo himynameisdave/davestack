@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms';
   import { invalidateAll } from '$app/navigation';
   import { toast } from 'svelte-sonner';
+  import { logger } from '$lib/log';
   import { authClient } from '$lib/client/auth';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
@@ -40,8 +41,7 @@
       // security keys.
       result = await authClient.passkey.addPasskey({ name });
     } catch (error) {
-      // oxlint-disable-next-line eslint/no-console -- client-side diagnostics for a flow with no server log
-      console.error('[account] addPasskey threw:', error);
+      logger.error('[account] addPasskey threw:', error);
       toast.error('Could not add passkey. Please try again.');
       addingPasskey = false;
       return;

@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { logger } from '$lib/log';
 import { env, features, isTestMode } from '../env';
 import { magicLinkTemplate } from './templates/magic-link';
 import { resetPasswordTemplate } from './templates/reset-password';
@@ -48,9 +49,9 @@ export async function sendEmail(message: Readonly<OutboundEmail>): Promise<void>
     return;
   }
 
+  // The console IS the local-dev mailbox when Resend is not configured.
   const indentedText = message.text.replaceAll('\n', '\n   ');
-  // oxlint-disable-next-line eslint/no-console -- the console IS the local-dev mailbox when Resend is not configured
-  console.log(
+  logger.info(
     `\n📧 [email] to=${message.to}\n   subject: ${message.subject}\n   ${indentedText}\n`,
   );
 }

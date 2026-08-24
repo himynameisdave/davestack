@@ -14,7 +14,7 @@ concurrency:
 # env.ts requires these three to be present; CI never contacts a real service
 # with them (jobs that need a DB point DATABASE_URL at the postgres service).
 env:
-  BUN_VERSION: 1.3.13
+  BUN_VERSION: 1.4.0
   BETTER_AUTH_SECRET: ci-not-a-real-secret-safe-to-be-public
   BETTER_AUTH_URL: http://localhost:4173
   DATABASE_URL: postgresql://davestack:davestack@localhost:5432/davestack?schema=public

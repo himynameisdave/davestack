@@ -1,4 +1,5 @@
 import { redirect } from '@sveltejs/kit';
+
 import type { LayoutServerLoad } from './$types';
 
 // Server-side guard for the whole authed area. Client code never decides access —

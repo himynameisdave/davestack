@@ -1,24 +1,11 @@
 <script lang="ts">
+  import { Badge } from '$lib/components/ui/badge';
   // Read-only admin dashboard. This is a WINDOW, not a control panel: strictly
   // NO forms, NO actions, NO edit/delete/impersonate controls. It only observes
   // data. If you need to mutate something, build that surface elsewhere and keep
   // this one observe-only.
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-  } from '$lib/components/ui/card';
-  import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from '$lib/components/ui/table';
-  import { Badge } from '$lib/components/ui/badge';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
 
   let { data } = $props();
 
@@ -112,7 +99,10 @@
                 <TableRow>
                   <TableCell class="font-medium">
                     {signup.email}
-                    {#if signup.isAdmin}<Badge variant="secondary" class="ml-1">Admin</Badge>{/if}
+                    {#if signup.isAdmin}<Badge
+                        variant="secondary"
+                        class="ml-1">Admin</Badge
+                      >{/if}
                   </TableCell>
                   <TableCell>{signup.name}</TableCell>
                   <TableCell>

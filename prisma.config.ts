@@ -11,8 +11,7 @@ dotenv.config();
 // Fallback to the local Docker Compose database so a fresh clone can run
 // `bun run db:push` / `bun run db:migrate` with zero config. Mirrors the default
 // in src/lib/server/env.ts. Production sets DATABASE_URL explicitly.
-const LOCAL_DATABASE_URL =
-  'postgresql://davestack:davestack@localhost:5432/davestack?schema=public';
+const LOCAL_DATABASE_URL = 'postgresql://davestack:davestack@localhost:5432/davestack?schema=public';
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',

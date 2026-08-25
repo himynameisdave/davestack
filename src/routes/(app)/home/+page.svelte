@@ -1,12 +1,6 @@
 <script lang="ts">
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-  } from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 
   let { data } = $props();
 </script>
@@ -23,7 +17,10 @@
       <CardDescription>This is the authenticated area. Build your app here.</CardDescription>
     </CardHeader>
     <CardContent>
-      <Button href="/account" variant="outline">Manage account &amp; passkeys</Button>
+      <Button
+        href="/account"
+        variant="outline">Manage account &amp; passkeys</Button
+      >
     </CardContent>
   </Card>
 </div>

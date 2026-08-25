@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+
 import { createUser, loginAs, withVirtualAuthenticator } from './fixtures';
 
 // These specs drive a real WebAuthn ceremony through a CDP virtual authenticator

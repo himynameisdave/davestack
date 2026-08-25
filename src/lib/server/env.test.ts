@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { deriveFeatures, envSchema, env, features, isTestMode } from './env';
 
 // Unit tests for the zod env layer. We exercise the schema and the feature
@@ -45,9 +46,7 @@ describe(deriveFeatures, () => {
 
   it('requires BOTH Google vars before Google is considered configured', () => {
     expect(deriveFeatures({ ...base, GOOGLE_CLIENT_ID: 'id' }).google).toBe(false);
-    expect(
-      deriveFeatures({ ...base, GOOGLE_CLIENT_ID: 'id', GOOGLE_CLIENT_SECRET: 'secret' }).google,
-    ).toBe(true);
+    expect(deriveFeatures({ ...base, GOOGLE_CLIENT_ID: 'id', GOOGLE_CLIENT_SECRET: 'secret' }).google).toBe(true);
   });
 
   it('reflects Resend presence', () => {

@@ -1,4 +1,5 @@
 import { passkey } from '@better-auth/passkey';
+
 import { env } from '../env';
 
 // Passkeys (WebAuthn). The Relying Party ID + origin derive from BETTER_AUTH_URL

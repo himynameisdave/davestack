@@ -1,4 +1,5 @@
 import { defineConfig, mergeConfig } from 'vitest/config';
+
 import viteConfig from './vite.config';
 
 // Unit tests (Vitest). Colocated as src/**/*.test.ts. The e2e suite (Playwright)

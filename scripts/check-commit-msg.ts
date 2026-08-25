@@ -1,19 +1,22 @@
 #!/usr/bin/env bun
 /**
- * commit-msg hook. Enforces davestack's emoji-commit convention with zero deps
+ * Commit-msg hook. Enforces davestack's emoji-commit convention with zero deps
  * (no commitlint). The subject line must be:
  *
- *     {emoji} {short imperative description}
+ * ```
+ * {emoji} {short imperative description}
+ * ```
  *
- * i.e. start with a single emoji grapheme, then one space, then a non-empty
+ * I.e. start with a single emoji grapheme, then one space, then a non-empty
  * description. Subject must be <= 72 characters. The body (lines after the
  * subject) is never inspected.
  *
  * Exceptions (passed through unchecked):
- *   - Merge commits          ("Merge ...")
- *   - Revert commits         ("Revert ...")
- *   - Release commits        ("🔖 Release vX.Y.Z")  ← made by release.yml
- *   - fixup!/squash! commits (rebase autosquash)
+ *
+ * - Merge commits ("Merge ...")
+ * - Revert commits ("Revert ...")
+ * - Release commits ("🔖 Release vX.Y.Z") ← made by release.yml
+ * - Fixup!/squash! commits (rebase autosquash)
  */
 import { readFileSync } from 'node:fs';
 
@@ -43,19 +46,17 @@ function fail(reason: string): never {
   console.error(`  subject: "${subject}"\n`);
   console.error('  davestack uses emoji commits: {emoji} {short description}');
   console.error('  e.g.  ✨ add passkey management to account page');
-  console.error(
-    `  Subject must start with an emoji + space, then text, and be <= ${MAX_SUBJECT} chars.\n`,
-  );
+  console.error(`  Subject must start with an emoji + space, then text, and be <= ${MAX_SUBJECT} chars.\n`);
   process.exit(1);
 }
 
 // --- Allowed pass-throughs ---
 if (
-  subject.startsWith('Merge ') ||
-  subject.startsWith('Revert ') ||
-  subject.startsWith('fixup! ') ||
-  subject.startsWith('squash! ') ||
-  /^🔖 Release v\d+\.\d+\.\d+$/u.test(subject)
+  subject.startsWith('Merge ')
+  || subject.startsWith('Revert ')
+  || subject.startsWith('fixup! ')
+  || subject.startsWith('squash! ')
+  || /^🔖 Release v\d+\.\d+\.\d+$/u.test(subject)
 ) {
   pass();
 }

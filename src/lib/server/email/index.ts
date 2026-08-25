@@ -1,5 +1,7 @@
 import { Resend } from 'resend';
+
 import { logger } from '$lib/log';
+
 import { env, features, isTestMode } from '../env';
 import { magicLinkTemplate } from './templates/magic-link';
 import { resetPasswordTemplate } from './templates/reset-password';
@@ -21,9 +23,10 @@ const DEFAULT_FROM = 'davestack <onboarding@resend.dev>';
 
 /**
  * Transport selection:
- * - TEST_MODE       → capture into testMailbox (asserted by e2e), never sent
- * - Resend + prod   → real send via Resend
- * - otherwise (dev) → pretty-print to the console so links are clickable locally
+ *
+ * - TEST_MODE → capture into testMailbox (asserted by e2e), never sent
+ * - Resend + prod → real send via Resend
+ * - Otherwise (dev) → pretty-print to the console so links are clickable locally
  *
  * This is the seam the email phase builds on: it swaps the plain-text bodies
  * below for branded templates but keeps these sender signatures stable.
@@ -51,9 +54,7 @@ export async function sendEmail(message: Readonly<OutboundEmail>): Promise<void>
 
   // The console IS the local-dev mailbox when Resend is not configured.
   const indentedText = message.text.replaceAll('\n', '\n   ');
-  logger.info(
-    `\n📧 [email] to=${message.to}\n   subject: ${message.subject}\n   ${indentedText}\n`,
-  );
+  logger.info(`\n📧 [email] to=${message.to}\n   subject: ${message.subject}\n   ${indentedText}\n`);
 }
 
 // Senders keep these exact signatures — the auth email hooks depend on them.

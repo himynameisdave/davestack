@@ -1,6 +1,7 @@
 import { type APIRequestContext, type Page, expect } from '@playwright/test';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { hashPassword } from 'better-auth/crypto';
+
 import { PrismaClient } from '../../src/generated/prisma/client';
 
 // Reusable e2e helpers. These are the building blocks every spec composes, and
@@ -17,8 +18,7 @@ import { PrismaClient } from '../../src/generated/prisma/client';
 // Fixtures talk to the same test DB the app does. Falls back to the .env.test
 // value so it works even if a worker didn't inherit the loaded env.
 const DATABASE_URL =
-  process.env.DATABASE_URL ??
-  'postgresql://davestack:davestack@localhost:5433/davestack_test?schema=public';
+  process.env.DATABASE_URL ?? 'postgresql://davestack:davestack@localhost:5433/davestack_test?schema=public';
 
 const adapter = new PrismaPg({ connectionString: DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -141,10 +141,7 @@ export type CapturedEmail = {
  * newest one. Email sending is awaited inside the auth actions, but we poll
  * anyway so timing is never a source of flake.
  */
-export async function getLatestEmail(
-  request: APIRequestContext,
-  to: string,
-): Promise<CapturedEmail> {
+export async function getLatestEmail(request: APIRequestContext, to: string): Promise<CapturedEmail> {
   // oxlint-disable eslint/no-await-in-loop -- polling: each probe must complete before the next
   for (let attempt = 0; attempt < 40; attempt++) {
     const response = await request.get(`/api/test/mailbox?to=${encodeURIComponent(to)}`);

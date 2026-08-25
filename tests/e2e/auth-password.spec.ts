@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+
 import { extractLink, getLatestEmail } from './fixtures';
 
 test('signup → verify email → password login → /home', async ({ page }) => {

@@ -1,5 +1,6 @@
-import { PrismaClient } from '../../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+
+import { PrismaClient } from '../../generated/prisma/client';
 import { env } from './env';
 
 // Prisma 7 uses driver adapters. PrismaPg talks to Postgres over `pg`.

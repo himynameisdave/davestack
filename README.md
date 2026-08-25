@@ -30,7 +30,7 @@ secrets only for the features you actually turn on.
 
 ## Quick start
 
-Requires [Bun](https://bun.sh) ≥ 1.3 and Docker (for local Postgres). `bun run check` runs
+Requires [Bun](https://bun.sh) ≥ 1.4 and Docker (for local Postgres). `bun run check` runs
 `svelte-check-rs`, which ships native binaries for macOS (x64/arm64), Linux (x64/arm64) and Windows
 x64 — **Windows on ARM is not supported** and both `bun run check` and the pre-push hook will fail
 there.

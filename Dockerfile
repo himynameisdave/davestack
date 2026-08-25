@@ -6,7 +6,7 @@
 # Install the full dependency set once (the build needs dev deps; the runtime
 # keeps them because `prisma migrate deploy` on boot needs the Prisma CLI, which
 # is a devDependency).
-FROM oven/bun:1.3 AS deps
+FROM oven/bun:1.4 AS deps
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
@@ -15,7 +15,7 @@ RUN bun install --frozen-lockfile
 # `bun run build` runs `svelte-kit sync && prisma generate && vite build`, so the
 # Prisma client is generated into src/generated/prisma and the adapter-node
 # server is emitted to /app/build.
-FROM oven/bun:1.3 AS build
+FROM oven/bun:1.4 AS build
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules
@@ -26,7 +26,7 @@ RUN bun run build
 # adapter-node output is a plain Node/JS server; Bun runs it directly. Ships the
 # build output, the generated Prisma client, the migrations, and node_modules
 # (the Prisma CLI included, for the boot-time migration).
-FROM oven/bun:1.3 AS runtime
+FROM oven/bun:1.4 AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000

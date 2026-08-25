@@ -4,4 +4,7 @@
   let { open = $bindable(false), ...restProps }: DropdownMenuPrimitive.RootProps = $props();
 </script>
 
-<DropdownMenuPrimitive.Root bind:open {...restProps} />
+<DropdownMenuPrimitive.Root
+  bind:open
+  {...restProps}
+/>

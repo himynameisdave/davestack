@@ -1,10 +1,12 @@
 <script lang="ts">
   import '../app.css';
+
+  import { ModeWatcher } from 'mode-watcher';
   import { onMount } from 'svelte';
+
   import { dev } from '$app/environment';
   import { page } from '$app/state';
   import { env } from '$env/dynamic/public';
-  import { ModeWatcher } from 'mode-watcher';
   import { Toaster } from '$lib/components/ui/sonner';
 
   let { children } = $props();

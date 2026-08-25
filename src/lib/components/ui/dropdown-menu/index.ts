@@ -16,18 +16,9 @@ export {
   default as RadioGroup,
   default as DropdownMenuRadioGroup,
 } from './dropdown-menu-radio-group.svelte';
-export {
-  default as RadioItem,
-  default as DropdownMenuRadioItem,
-} from './dropdown-menu-radio-item.svelte';
-export {
-  default as Separator,
-  default as DropdownMenuSeparator,
-} from './dropdown-menu-separator.svelte';
-export {
-  default as Shortcut,
-  default as DropdownMenuShortcut,
-} from './dropdown-menu-shortcut.svelte';
+export { default as RadioItem, default as DropdownMenuRadioItem } from './dropdown-menu-radio-item.svelte';
+export { default as Separator, default as DropdownMenuSeparator } from './dropdown-menu-separator.svelte';
+export { default as Shortcut, default as DropdownMenuShortcut } from './dropdown-menu-shortcut.svelte';
 export { default as Trigger, default as DropdownMenuTrigger } from './dropdown-menu-trigger.svelte';
 export {
   default as SubContent,

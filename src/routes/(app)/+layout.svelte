@@ -14,33 +14,52 @@
 <div class="flex min-h-svh flex-col">
   <header class="border-b">
     <nav class="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-      <a href="/home" class="font-bold tracking-tight">davestack</a>
+      <a
+        href="/home"
+        class="font-bold tracking-tight">davestack</a
+      >
 
       <DropdownMenu.Root>
         <DropdownMenu.Trigger>
           {#snippet child({ props })}
-            <Button variant="ghost" size="sm" {...props}>
+            <Button
+              variant="ghost"
+              size="sm"
+              {...props}
+            >
               {data.user?.name ?? data.user?.email ?? 'Account'}
             </Button>
           {/snippet}
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="end" class="w-56">
+        <DropdownMenu.Content
+          align="end"
+          class="w-56"
+        >
           <DropdownMenu.Label class="truncate">{data.user?.email}</DropdownMenu.Label>
           <DropdownMenu.Separator />
           <DropdownMenu.Item>
             {#snippet child({ props })}
-              <a href="/account" {...props}>Account</a>
+              <a
+                href="/account"
+                {...props}>Account</a
+              >
             {/snippet}
           </DropdownMenu.Item>
           {#if data.user?.isAdmin}
             <DropdownMenu.Item>
               {#snippet child({ props })}
-                <a href="/admin" {...props}>Admin</a>
+                <a
+                  href="/admin"
+                  {...props}>Admin</a
+                >
               {/snippet}
             </DropdownMenu.Item>
           {/if}
           <DropdownMenu.Separator />
-          <DropdownMenu.Item variant="destructive" onSelect={signOut}>Sign out</DropdownMenu.Item>
+          <DropdownMenu.Item
+            variant="destructive"
+            onSelect={signOut}>Sign out</DropdownMenu.Item
+          >
         </DropdownMenu.Content>
       </DropdownMenu.Root>
     </nav>

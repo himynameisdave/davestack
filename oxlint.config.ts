@@ -1,5 +1,5 @@
-import { defineConfig } from 'oxlint';
 import config from '@himynameisdave/oxlint-config';
+import { defineConfig } from 'oxlint';
 
 export default defineConfig({
   extends: [config],

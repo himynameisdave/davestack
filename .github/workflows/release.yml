@@ -44,7 +44,7 @@ jobs:
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v${NEW_VERSION}" >> "$GITHUB_OUTPUT"
 
-          # Write with 2-space indent + trailing newline to match .oxfmtrc.json,
+          # Write with 2-space indent + trailing newline to match oxfmt.config.ts,
           # so the release commit stays format-clean.
           bun -e "
           const f = Bun.file('package.json');

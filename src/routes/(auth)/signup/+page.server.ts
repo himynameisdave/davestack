@@ -1,8 +1,10 @@
 import { fail } from '@sveltejs/kit';
 import { APIError } from 'better-auth/api';
+
+import { signupSchema } from '$lib/schemas/auth';
 import { auth } from '$lib/server/auth';
 import { field } from '$lib/server/form';
-import { signupSchema } from '$lib/schemas/auth';
+
 import type { Actions } from './$types';
 
 export const actions: Actions = {

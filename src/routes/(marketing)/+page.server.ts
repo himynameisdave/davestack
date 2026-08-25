@@ -1,4 +1,5 @@
 import { redirect } from '@sveltejs/kit';
+
 import type { PageServerLoad } from './$types';
 
 // The app takes priority: a signed-in user hitting `/` goes straight into the

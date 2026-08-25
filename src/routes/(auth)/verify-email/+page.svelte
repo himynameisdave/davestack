@@ -2,13 +2,7 @@
   import { page } from '$app/state';
   import { authClient } from '$lib/client/auth';
   import { Button } from '$lib/components/ui/button';
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-  } from '$lib/components/ui/card';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 
   const email = $derived(page.url.searchParams.get('email') ?? '');
 
@@ -41,7 +35,10 @@
 <div class="flex min-h-svh flex-col items-center justify-center px-4 py-10">
   <div class="w-full max-w-sm">
     <div class="mb-8 text-center">
-      <a href="/" class="text-2xl font-bold tracking-tight">davestack</a>
+      <a
+        href="/"
+        class="text-2xl font-bold tracking-tight">davestack</a
+      >
     </div>
 
     <Card>
@@ -50,7 +47,7 @@
         <CardDescription>Check your inbox to activate your account</CardDescription>
       </CardHeader>
       <CardContent class="space-y-4 text-center">
-        <p class="text-muted-foreground text-sm">
+        <p class="text-sm text-muted-foreground">
           {#if email}
             We sent a verification link to <strong>{email}</strong>. Click it, then sign in.
           {:else}
@@ -61,16 +58,25 @@
         {#if sent}
           <p class="text-sm font-medium">Verification email resent.</p>
         {:else}
-          <Button onclick={resend} disabled={sending} variant="outline" class="w-full">
+          <Button
+            onclick={resend}
+            disabled={sending}
+            variant="outline"
+            class="w-full"
+          >
             {sending ? 'Resending…' : 'Resend verification email'}
           </Button>
         {/if}
 
         {#if error}
-          <p class="text-destructive text-sm">{error}</p>
+          <p class="text-sm text-destructive">{error}</p>
         {/if}
 
-        <Button href="/login" variant="ghost" class="w-full">Back to sign in</Button>
+        <Button
+          href="/login"
+          variant="ghost"
+          class="w-full">Back to sign in</Button
+        >
       </CardContent>
     </Card>
   </div>

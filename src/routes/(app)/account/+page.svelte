@@ -1,20 +1,15 @@
 <script lang="ts">
+  import { toast } from 'svelte-sonner';
+
   import { enhance } from '$app/forms';
   import { invalidateAll } from '$app/navigation';
-  import { toast } from 'svelte-sonner';
-  import { logger } from '$lib/log';
   import { authClient } from '$lib/client/auth';
+  import { Badge } from '$lib/components/ui/badge';
   import { Button } from '$lib/components/ui/button';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
-  import { Badge } from '$lib/components/ui/badge';
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-  } from '$lib/components/ui/card';
+  import { logger } from '$lib/log';
 
   let { data } = $props();
 
@@ -73,7 +68,7 @@
 <div class="mx-auto max-w-lg space-y-6">
   <div>
     <h1 class="text-2xl font-bold tracking-tight">Account</h1>
-    <p class="text-muted-foreground mt-1">Manage your profile and passkeys.</p>
+    <p class="mt-1 text-muted-foreground">Manage your profile and passkeys.</p>
   </div>
 
   <!-- Profile -->
@@ -96,7 +91,12 @@
       >
         <div class="space-y-2">
           <Label for="name">Name</Label>
-          <Input id="name" name="name" value={data.user?.name ?? ''} required />
+          <Input
+            id="name"
+            name="name"
+            value={data.user?.name ?? ''}
+            required
+          />
         </div>
         <Button type="submit">Save changes</Button>
       </form>
@@ -128,13 +128,16 @@
             disabled={addingPasskey}
           />
         </div>
-        <Button type="submit" disabled={addingPasskey}>
+        <Button
+          type="submit"
+          disabled={addingPasskey}
+        >
           {addingPasskey ? 'Waiting…' : 'Add passkey'}
         </Button>
       </form>
 
       {#if data.passkeys.length === 0}
-        <p class="text-muted-foreground text-sm">No passkeys yet. Add one above.</p>
+        <p class="text-sm text-muted-foreground">No passkeys yet. Add one above.</p>
       {:else}
         <ul class="space-y-2">
           {#each data.passkeys as passkey (passkey.id)}
@@ -155,9 +158,21 @@
                       }
                     }}
                 >
-                  <input type="hidden" name="id" value={passkey.id} />
-                  <Input name="name" bind:value={renameValue} required class="flex-1" />
-                  <Button type="submit" size="sm">Save</Button>
+                  <input
+                    type="hidden"
+                    name="id"
+                    value={passkey.id}
+                  />
+                  <Input
+                    name="name"
+                    bind:value={renameValue}
+                    required
+                    class="flex-1"
+                  />
+                  <Button
+                    type="submit"
+                    size="sm">Save</Button
+                  >
                   <Button
                     type="button"
                     size="sm"
@@ -171,10 +186,15 @@
                 <div class="flex items-start justify-between gap-4">
                   <div class="min-w-0">
                     <p class="truncate text-sm font-medium">{passkey.name ?? 'Passkey'}</p>
-                    <p class="text-muted-foreground text-xs">
+                    <p class="text-xs text-muted-foreground">
                       Added {formatDate(passkey.createdAt)}
-                      <Badge variant="secondary" class="ml-1">{passkey.deviceType}</Badge>
-                      {#if passkey.backedUp}<Badge variant="outline" class="ml-1">Synced</Badge
+                      <Badge
+                        variant="secondary"
+                        class="ml-1">{passkey.deviceType}</Badge
+                      >
+                      {#if passkey.backedUp}<Badge
+                          variant="outline"
+                          class="ml-1">Synced</Badge
                         >{/if}
                     </p>
                   </div>
@@ -194,12 +214,19 @@
                         async ({ result, update }) => {
                           await update();
                           if (result.type === 'success') toast.success('Passkey removed');
-                          else if (result.type === 'failure')
-                            toast.error('Could not remove passkey');
+                          else if (result.type === 'failure') toast.error('Could not remove passkey');
                         }}
                     >
-                      <input type="hidden" name="id" value={passkey.id} />
-                      <Button type="submit" size="sm" variant="outline">Remove</Button>
+                      <input
+                        type="hidden"
+                        name="id"
+                        value={passkey.id}
+                      />
+                      <Button
+                        type="submit"
+                        size="sm"
+                        variant="outline">Remove</Button
+                      >
                     </form>
                   </div>
                 </div>
@@ -211,5 +238,5 @@
     </CardContent>
   </Card>
 
-  <p class="text-muted-foreground text-center text-xs">v{__APP_VERSION__}</p>
+  <p class="text-center text-xs text-muted-foreground">v{__APP_VERSION__}</p>
 </div>

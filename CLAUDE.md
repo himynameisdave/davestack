@@ -37,7 +37,11 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 - **Lint/format is oxlint + oxfmt**, not ESLint/Prettier. `bun run lint` runs
   `oxlint -c oxlint.config.ts --deny-warnings --type-aware`; `bun run format` / `format:check` run
   oxfmt. oxfmt owns everything incl. `.svelte`, `.md`, `.json`. Indentation is **spaces** (2),
-  single quotes, printWidth 100 (`.oxfmtrc.json`).
+  single quotes, printWidth 109 (`oxfmt.config.ts`).
+- **Format rules come from `@himynameisdave/oxfmt-config`** (spread in `oxfmt.config.ts` — oxfmt has
+  no `extends`). Project-local deltas only: `ignorePatterns` for the generated Prisma client and the
+  Tailwind v4 `stylesheet` path. Don't restate options the shared config already decides. `oxfmt`
+  itself is pinned `^0.65.0` — the shared config's peer floor.
 - **Lint rules come from `@himynameisdave/oxlint-config`** (extended in `oxlint.config.ts`).
   Don't re-enable rules the shared config decides; project-local deltas live in
   `oxlint.config.ts` and each carries a justification comment (rule-pair conflicts,

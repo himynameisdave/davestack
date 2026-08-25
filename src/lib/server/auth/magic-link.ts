@@ -1,4 +1,5 @@
 import { magicLink } from 'better-auth/plugins';
+
 import { sendMagicLinkEmail } from '../email';
 
 const MAGIC_LINK_EXPIRES_IN_SECONDS = 60 * 10; // 10 minutes

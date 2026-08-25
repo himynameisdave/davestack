@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+
 import { createUser, extractLink, getLatestEmail } from './fixtures';
 
 test('request a magic link from /login and use it to sign in', async ({ page }) => {

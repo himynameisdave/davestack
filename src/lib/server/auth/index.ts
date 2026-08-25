@@ -1,12 +1,14 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
+
 import { getRequestEvent } from '$app/server';
+
 import { prisma } from '../db';
 import { env } from '../env';
 import { emailAndPassword, emailVerification } from './email-password';
-import { magicLinkPlugin } from './magic-link';
 import { socialProviders } from './google';
+import { magicLinkPlugin } from './magic-link';
 import { passkeyPlugin } from './passkey';
 
 // Better Auth assembly. Each login method lives in its own file in this folder so

@@ -1,4 +1,5 @@
 import { hashPassword } from 'better-auth/crypto';
+
 import { prisma } from '../src/lib/server/db';
 
 // Seed: one admin + one regular user, both with a working email+password login.

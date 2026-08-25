@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+
 import { createUser, loginAs } from './fixtures';
 
 test.describe('auth guards', () => {

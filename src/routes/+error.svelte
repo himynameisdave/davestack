@@ -3,9 +3,7 @@
   import { Button } from '$lib/components/ui/button';
 </script>
 
-<main
-  class="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-4 px-6 text-center"
->
+<main class="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-4 px-6 text-center">
   <p class="text-muted-foreground text-6xl font-bold">{page.status}</p>
   <h1 class="text-2xl font-semibold">
     {page.error?.message ?? 'Something went wrong'}

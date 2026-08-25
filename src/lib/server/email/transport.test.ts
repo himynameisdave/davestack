@@ -1,12 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+
 import { isTestMode } from '../env';
-import {
-  sendEmail,
-  sendMagicLinkEmail,
-  sendResetPasswordEmail,
-  sendVerificationEmail,
-  testMailbox,
-} from './index';
+import { sendEmail, sendMagicLinkEmail, sendResetPasswordEmail, sendVerificationEmail, testMailbox } from './index';
 
 // Transport selection is env-gated at module load. The Vitest suite runs with
 // TEST_MODE=1 (see vitest.config.ts), so the capture transport is active and we

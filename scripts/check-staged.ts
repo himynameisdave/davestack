@@ -4,11 +4,11 @@
  * something that should never land in history. Runs as the final lint-staged
  * step. Blockers:
  *
- *   - test focus/skip:  `.only(` / `.skip(` in *.spec.ts / *.test.ts (or .js)
- *   - `debugger` statements
- *   - git conflict markers  (<<<<<<<, =======, >>>>>>>)
- *   - `console.log` outside src/lib/log.ts, src/lib/server/**, scripts/**, tests/**
- *   - any staged .env* file  EXCEPT .env.example / .env.test
+ * - Test focus/skip: `.only(` / `.skip(` in *.spec.ts / *.test.ts (or .js)
+ * - `debugger` statements
+ * - Git conflict markers (<<<<<<<, =======, >>>>>>>)
+ * - `console.log` outside src/lib/log.ts, src/lib/server/**, scripts/**, tests/**
+ * - Any staged .env* file EXCEPT .env.example / .env.test
  *
  * File list: lint-staged passes staged filenames as argv. When invoked with no
  * args (e.g. by hand) it reads the staged list itself, so `bun scripts/check-staged.ts`

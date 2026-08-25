@@ -1,15 +1,9 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { Button } from '$lib/components/ui/button';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-  } from '$lib/components/ui/card';
 
   let { data, form } = $props();
 
@@ -21,7 +15,10 @@
 <div class="flex min-h-svh flex-col items-center justify-center px-4 py-10">
   <div class="w-full max-w-sm">
     <div class="mb-8 text-center">
-      <a href="/" class="text-2xl font-bold tracking-tight">davestack</a>
+      <a
+        href="/"
+        class="text-2xl font-bold tracking-tight">davestack</a
+      >
     </div>
 
     <Card>
@@ -35,7 +32,11 @@
             <p class="text-destructive text-sm">
               This reset link is invalid or has expired. Request a new one.
             </p>
-            <Button href="/forgot-password" variant="outline" class="w-full">
+            <Button
+              href="/forgot-password"
+              variant="outline"
+              class="w-full"
+            >
               Request a new link
             </Button>
           </div>
@@ -51,7 +52,11 @@
               };
             }}
           >
-            <input type="hidden" name="token" value={data.token} />
+            <input
+              type="hidden"
+              name="token"
+              value={data.token}
+            />
             <div class="space-y-2">
               <Label for="password">New password</Label>
               <Input
@@ -69,7 +74,11 @@
               <p class="text-destructive text-sm">{form.error}</p>
             {/if}
 
-            <Button type="submit" class="w-full" disabled={submitting}>
+            <Button
+              type="submit"
+              class="w-full"
+              disabled={submitting}
+            >
               {submitting ? 'Updating…' : 'Update password'}
             </Button>
           </form>

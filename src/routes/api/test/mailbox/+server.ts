@@ -1,7 +1,9 @@
 import { error, json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
+
 import { testMailbox } from '$lib/server/email';
 import { isTestMode } from '$lib/server/env';
+
+import type { RequestHandler } from './$types';
 
 // Test-only view onto the in-memory outbox. Guarded so it exists ONLY under
 // TEST_MODE — in dev/prod it 404s (the mailbox is never populated there anyway).

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { escapeHtml } from './escape';
 import { buildEmailLayout } from './layout';
 import { magicLinkTemplate } from './magic-link';

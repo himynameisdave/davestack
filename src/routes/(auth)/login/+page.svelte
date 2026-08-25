@@ -1,18 +1,13 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
+
   import { enhance } from '$app/forms';
   import { authClient } from '$lib/client/auth';
   import { createPasskeyAuth } from '$lib/client/passkey-auth.svelte';
   import { Button } from '$lib/components/ui/button';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-  } from '$lib/components/ui/card';
 
   let { data, form } = $props();
 
@@ -55,7 +50,10 @@
 <div class="flex min-h-svh flex-col items-center justify-center px-4 py-10">
   <div class="w-full max-w-sm">
     <div class="mb-8 text-center">
-      <a href="/" class="text-2xl font-bold tracking-tight">davestack</a>
+      <a
+        href="/"
+        class="text-2xl font-bold tracking-tight">davestack</a
+      >
     </div>
 
     <Card>
@@ -70,7 +68,10 @@
             <p class="text-muted-foreground text-sm">
               We sent a magic link to <strong>{email}</strong>. Click it to sign in.
             </p>
-            <Button variant="ghost" onclick={() => (magicLinkSent = false)}>
+            <Button
+              variant="ghost"
+              onclick={() => (magicLinkSent = false)}
+            >
               Use a different method
             </Button>
           </div>
@@ -128,7 +129,10 @@
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
                   <Label for="password">Password</Label>
-                  <a href="/forgot-password" class="text-muted-foreground text-xs hover:underline">
+                  <a
+                    href="/forgot-password"
+                    class="text-muted-foreground text-xs hover:underline"
+                  >
                     Forgot password?
                   </a>
                 </div>
@@ -141,7 +145,11 @@
                   disabled={busy}
                 />
               </div>
-              <Button type="submit" class="w-full" disabled={busy}>
+              <Button
+                type="submit"
+                class="w-full"
+                disabled={busy}
+              >
                 {passwordSubmitting ? 'Signing in…' : 'Sign in'}
               </Button>
             </form>
@@ -165,7 +173,11 @@
                   onclick={passkey.handleGoogle}
                   disabled={busy}
                 >
-                  <svg class="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg
+                    class="mr-2 h-4 w-4"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
                     <path
                       fill="currentColor"
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
@@ -201,7 +213,10 @@
 
     <p class="text-muted-foreground mt-4 text-center text-sm">
       Don't have an account?
-      <a href="/signup" class="text-primary hover:underline">Sign up</a>
+      <a
+        href="/signup"
+        class="text-primary hover:underline">Sign up</a
+      >
     </p>
   </div>
 </div>

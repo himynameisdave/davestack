@@ -1,6 +1,6 @@
-import { createAuthClient } from 'better-auth/svelte';
-import { magicLinkClient } from 'better-auth/client/plugins';
 import { passkeyClient } from '@better-auth/passkey/client';
+import { magicLinkClient } from 'better-auth/client/plugins';
+import { createAuthClient } from 'better-auth/svelte';
 
 // Client-side Better Auth. Plugins mirror the server plugins that need a client
 // counterpart (magic link, passkey). Email+password and Google need no client

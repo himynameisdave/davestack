@@ -1,5 +1,6 @@
-import { env } from '$lib/server/env';
 import { prisma } from '$lib/server/db';
+import { env } from '$lib/server/env';
+
 import type { PageServerLoad } from './$types';
 
 // ─── Model count cards — THE EXTENSION POINT ──────────────────────────────
@@ -29,9 +30,7 @@ function titleCase(value: string): string {
 }
 
 function deriveMethods(providerIds: readonly string[], passkeyCount: number): string[] {
-  const methods = providerIds.map((id) =>
-    id === CREDENTIAL_PROVIDER ? 'Password' : titleCase(id),
-  );
+  const methods = providerIds.map((id) => (id === CREDENTIAL_PROVIDER ? 'Password' : titleCase(id)));
   if (passkeyCount > 0) {
     methods.push('Passkey');
   }

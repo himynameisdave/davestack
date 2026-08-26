@@ -1,10 +1,12 @@
-import type { Handle, HandleServerError } from '@sveltejs/kit';
-import { building } from '$app/environment';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
-import { auth } from '$lib/server/auth';
-import { checkRateLimit } from '$lib/server/rate-limit';
-import { assertProductionReady } from '$lib/server/env';
+
+import { building } from '$app/environment';
 import { logger } from '$lib/log';
+import { auth } from '$lib/server/auth';
+import { assertProductionReady } from '$lib/server/env';
+import { checkRateLimit } from '$lib/server/rate-limit';
+
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 
 // Fail fast at runtime boot if production is misconfigured. Guarded by `!building`
 // so it never fires during `vite build` (which has no real secrets).
@@ -52,10 +54,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 // leaking internals.
 export const handleError: HandleServerError = ({ error, event, status, message }) => {
   const errorId = crypto.randomUUID();
-  logger.error(
-    `[error ${errorId}] ${event.request.method} ${event.url.pathname} → ${status}`,
-    error,
-  );
+  logger.error(`[error ${errorId}] ${event.request.method} ${event.url.pathname} → ${status}`, error);
   return {
     message: status < 500 ? message : 'Something went wrong on our end. Please try again.',
     errorId,

@@ -1,24 +1,11 @@
 <script lang="ts">
+  import { Badge } from '$lib/components/ui/badge';
   // Read-only admin dashboard. This is a WINDOW, not a control panel: strictly
   // NO forms, NO actions, NO edit/delete/impersonate controls. It only observes
   // data. If you need to mutate something, build that surface elsewhere and keep
   // this one observe-only.
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-  } from '$lib/components/ui/card';
-  import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from '$lib/components/ui/table';
-  import { Badge } from '$lib/components/ui/badge';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
 
   let { data } = $props();
 
@@ -31,7 +18,7 @@
 <div class="space-y-8">
   <div>
     <h1 class="text-2xl font-bold tracking-tight">Admin</h1>
-    <p class="text-muted-foreground mt-1">A read-only overview of your application's data.</p>
+    <p class="mt-1 text-muted-foreground">A read-only overview of your application's data.</p>
   </div>
 
   <!-- Model counts (extension point lives in +page.server.ts: MODEL_CARDS) -->
@@ -56,11 +43,11 @@
       <CardContent class="flex gap-10">
         <div>
           <p class="text-3xl font-bold tabular-nums">{data.sessions.active}</p>
-          <p class="text-muted-foreground text-sm">Active</p>
+          <p class="text-sm text-muted-foreground">Active</p>
         </div>
         <div>
           <p class="text-3xl font-bold tabular-nums">{data.sessions.total}</p>
-          <p class="text-muted-foreground text-sm">Total</p>
+          <p class="text-sm text-muted-foreground">Total</p>
         </div>
       </CardContent>
     </Card>
@@ -94,7 +81,7 @@
     </CardHeader>
     <CardContent>
       {#if data.recentSignups.length === 0}
-        <p class="text-muted-foreground text-sm">No users yet.</p>
+        <p class="text-sm text-muted-foreground">No users yet.</p>
       {:else}
         <div class="overflow-x-auto">
           <Table>
@@ -112,7 +99,10 @@
                 <TableRow>
                   <TableCell class="font-medium">
                     {signup.email}
-                    {#if signup.isAdmin}<Badge variant="secondary" class="ml-1">Admin</Badge>{/if}
+                    {#if signup.isAdmin}<Badge
+                        variant="secondary"
+                        class="ml-1">Admin</Badge
+                      >{/if}
                   </TableCell>
                   <TableCell>{signup.name}</TableCell>
                   <TableCell>
@@ -133,7 +123,7 @@
                       <Badge variant="outline">Pending</Badge>
                     {/if}
                   </TableCell>
-                  <TableCell class="text-muted-foreground whitespace-nowrap">
+                  <TableCell class="whitespace-nowrap text-muted-foreground">
                     {formatDateTime(signup.createdAt)}
                   </TableCell>
                 </TableRow>
@@ -167,10 +157,10 @@
               {#each data.sessions.recent as session (session.id)}
                 <TableRow>
                   <TableCell class="font-medium">{session.email}</TableCell>
-                  <TableCell class="text-muted-foreground whitespace-nowrap">
+                  <TableCell class="whitespace-nowrap text-muted-foreground">
                     {formatDateTime(session.createdAt)}
                   </TableCell>
-                  <TableCell class="text-muted-foreground whitespace-nowrap">
+                  <TableCell class="whitespace-nowrap text-muted-foreground">
                     {formatDateTime(session.expiresAt)}
                   </TableCell>
                   <TableCell>

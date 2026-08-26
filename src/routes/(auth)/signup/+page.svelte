@@ -2,15 +2,9 @@
   import { enhance } from '$app/forms';
   import { track } from '$lib/analytics';
   import { Button } from '$lib/components/ui/button';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-  } from '$lib/components/ui/card';
 
   let { form } = $props();
 
@@ -30,7 +24,10 @@
 <div class="flex min-h-svh flex-col items-center justify-center px-4 py-10">
   <div class="w-full max-w-sm">
     <div class="mb-8 text-center">
-      <a href="/" class="text-2xl font-bold tracking-tight">davestack</a>
+      <a
+        href="/"
+        class="text-2xl font-bold tracking-tight">davestack</a
+      >
     </div>
 
     <Card>
@@ -42,11 +39,15 @@
         {#if form?.success}
           <div class="space-y-4 text-center">
             <p class="font-medium">Verify your email</p>
-            <p class="text-muted-foreground text-sm">
-              We sent a verification link to <strong>{form.email}</strong>. Click it to activate
-              your account, then sign in.
+            <p class="text-sm text-muted-foreground">
+              We sent a verification link to <strong>{form.email}</strong>. Click it to activate your
+              account, then sign in.
             </p>
-            <Button href="/login" variant="outline" class="w-full">Back to sign in</Button>
+            <Button
+              href="/login"
+              variant="outline"
+              class="w-full">Back to sign in</Button
+            >
           </div>
         {:else}
           <form
@@ -95,14 +96,18 @@
                 required
                 disabled={submitting}
               />
-              <p class="text-muted-foreground text-xs">At least 8 characters.</p>
+              <p class="text-xs text-muted-foreground">At least 8 characters.</p>
             </div>
 
             {#if form?.error}
-              <p class="text-destructive text-sm">{form.error}</p>
+              <p class="text-sm text-destructive">{form.error}</p>
             {/if}
 
-            <Button type="submit" class="w-full" disabled={submitting}>
+            <Button
+              type="submit"
+              class="w-full"
+              disabled={submitting}
+            >
               {submitting ? 'Creating account…' : 'Create account'}
             </Button>
           </form>
@@ -110,9 +115,12 @@
       </CardContent>
     </Card>
 
-    <p class="text-muted-foreground mt-4 text-center text-sm">
+    <p class="mt-4 text-center text-sm text-muted-foreground">
       Already have an account?
-      <a href="/login" class="text-primary hover:underline">Sign in</a>
+      <a
+        href="/login"
+        class="text-primary hover:underline">Sign in</a
+      >
     </p>
   </div>
 </div>

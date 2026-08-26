@@ -1,4 +1,5 @@
 import { execSync } from 'node:child_process';
+
 import { PrismaPg } from '@prisma/adapter-pg';
 import { hashPassword } from 'better-auth/crypto';
 import dotenv from 'dotenv';

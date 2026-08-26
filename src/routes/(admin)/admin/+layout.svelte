@@ -8,10 +8,17 @@
   <header class="border-b">
     <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
       <div class="flex items-center gap-2">
-        <a href="/home" class="font-bold tracking-tight">davestack</a>
-        <span class="text-muted-foreground text-sm">/ admin</span>
+        <a
+          href="/home"
+          class="font-bold tracking-tight">davestack</a
+        >
+        <span class="text-sm text-muted-foreground">/ admin</span>
       </div>
-      <Button href="/home" variant="ghost" size="sm">Back to app</Button>
+      <Button
+        href="/home"
+        variant="ghost"
+        size="sm">Back to app</Button
+      >
     </nav>
   </header>
 

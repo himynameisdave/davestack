@@ -3,12 +3,13 @@
  * Interactive first-run setup for a fresh clone of the davestack template.
  *
  * Run it once, right after `bun install`, with `bun run setup`. It:
- *   1. asks for your project name and rewrites the template's branding
- *      (package.json name, the <title>, the PWA manifest, the visible app name);
- *   2. creates `.env.local` with a freshly generated BETTER_AUTH_SECRET
- *      (never clobbers an existing one without asking);
- *   3. brings up the local Postgres, pushes the schema, and seeds it;
- *   4. checks that the git hooks were installed by `bun install`'s prepare step.
+ *
+ * 1. Asks for your project name and rewrites the template's branding (package.json name, the <title>, the PWA
+ *    manifest, the visible app name);
+ * 2. Creates `.env.local` with a freshly generated BETTER_AUTH_SECRET (never clobbers an existing one without
+ *    asking);
+ * 3. Brings up the local Postgres, pushes the schema, and seeds it;
+ * 4. Checks that the git hooks were installed by `bun install`'s prepare step.
  *
  * It is idempotent and safe to re-run: already-renamed branding is left alone and
  * an existing `.env.local` is only touched with your confirmation.
@@ -138,9 +139,7 @@ function ensureEnvSecret(overwrite: boolean): void {
   }
   const secret = randomBytes(32).toString('base64');
   // Start from the documented .env.example so every knob is present + commented.
-  const base = existsSync(join(ROOT, '.env.example'))
-    ? read('.env.example')
-    : 'BETTER_AUTH_SECRET=\n';
+  const base = existsSync(join(ROOT, '.env.example')) ? read('.env.example') : 'BETTER_AUTH_SECRET=\n';
   const withSecret = base.replace(/^BETTER_AUTH_SECRET=.*$/mu, `BETTER_AUTH_SECRET="${secret}"`);
   write('.env.local', withSecret);
   log('  · .env.local written with a fresh BETTER_AUTH_SECRET.');
@@ -188,9 +187,7 @@ async function main(): Promise<void> {
   if (existsSync(join(ROOT, '.husky/_'))) {
     log('  · Husky hooks installed (bun install ran the prepare step). ✓');
   } else {
-    log(
-      '  ⚠ .husky/_ is missing — hooks are NOT installed. Run `bun install` (it runs `prepare`).',
-    );
+    log('  ⚠ .husky/_ is missing — hooks are NOT installed. Run `bun install` (it runs `prepare`).');
   }
 
   log('\nDone. Start the dev server with:  bun run dev');

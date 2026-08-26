@@ -4,4 +4,7 @@
   let { open = $bindable(false), ...restProps }: DialogPrimitive.RootProps = $props();
 </script>
 
-<DialogPrimitive.Root bind:open {...restProps} />
+<DialogPrimitive.Root
+  bind:open
+  {...restProps}
+/>

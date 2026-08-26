@@ -9,8 +9,7 @@ import { z } from 'zod';
 // booting with the dev secret or the local DB URL is a hard failure.
 
 const DEV_AUTH_SECRET = 'dev-secret-change-me-before-deploying';
-const LOCAL_DATABASE_URL =
-  'postgresql://davestack:davestack@localhost:5432/davestack?schema=public';
+const LOCAL_DATABASE_URL = 'postgresql://davestack:davestack@localhost:5432/davestack?schema=public';
 const LOCAL_AUTH_URL = 'http://localhost:5173';
 
 export const envSchema = z.object({

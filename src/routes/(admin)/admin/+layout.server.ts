@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit';
+
 import type { LayoutServerLoad } from './$types';
 
 // Guard for the whole admin area. A non-admin (or logged-out) visitor gets a

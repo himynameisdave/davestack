@@ -42,7 +42,7 @@
         "prisma": "^7.8.0",
         "svelte": "^5.56.9",
         "svelte-check-rs": "^0.11.0",
-        "svelte-sonner": "^1.1.1",
+        "svelte-sonner": "^1.2.1",
         "tailwind-merge": "^3.4.0",
         "tailwind-variants": "^3.3.1",
         "tailwindcss": "^4.3.0",
@@ -910,7 +910,7 @@
 
     "svelte-check-rs": ["svelte-check-rs@0.11.0", "", { "optionalDependencies": { "@svelte-check-rs/darwin-arm64": "0.11.0", "@svelte-check-rs/darwin-x64": "0.11.0", "@svelte-check-rs/linux-arm64": "0.11.0", "@svelte-check-rs/linux-x64": "0.11.0", "@svelte-check-rs/win32-x64": "0.11.0" }, "peerDependencies": { "@typescript/native-preview": ">=7.0.0-dev.20260707.2" }, "bin": { "svelte-check-rs": "bin/svelte-check-rs.js" } }, "sha512-bqMxNWBwKwb79QSAtfHkn1ka25hTgjJ3bxSaf3sEg5UX3KAFgDaQAS4aK6OSxjCSa78RUH6s0K0hhiyqSu2zmA=="],
 
-    "svelte-sonner": ["svelte-sonner@1.1.1", "", { "dependencies": { "runed": "^0.28.0" }, "peerDependencies": { "svelte": "^5.0.0" } }, "sha512-5cd3p7wa4cq0NsqslMwdlPb7x1JglEZ/GKrLePWNr5bCxR1nagAVrY01FRFrXfUGs41miLt3C327+8XJo5BzZw=="],
+    "svelte-sonner": ["svelte-sonner@1.2.1", "", { "dependencies": { "runed": "^0.28.0" }, "peerDependencies": { "svelte": "^5.0.0" } }, "sha512-N00LOWb60fjKXULbpngku+7E9Krb16KpNq4/Eax5Vu7o1Dpbca55QpaLPsB+yp82JIEdFhfJuv5cVXLoe0ZtVA=="],
 
     "svelte-toolbelt": ["svelte-toolbelt@0.10.6", "", { "dependencies": { "clsx": "^2.1.1", "runed": "^0.35.1", "style-to-object": "^1.0.8" }, "peerDependencies": { "svelte": "^5.30.2" } }, "sha512-YWuX+RE+CnWYx09yseAe4ZVMM7e7GRFZM6OYWpBKOb++s+SQ8RBIMMe+Bs/CznBMc0QPLjr+vDBxTAkozXsFXQ=="],
 

@@ -18,7 +18,7 @@
         "@himynameisdave/oxfmt-config": "~1.0.0",
         "@himynameisdave/oxlint-config": "~1.1.0",
         "@internationalized/date": "^3.12.3",
-        "@lucide/svelte": "^1.24.0",
+        "@lucide/svelte": "^1.38.0",
         "@playwright/test": "^1.62.1",
         "@sveltejs/adapter-node": "^5.5.7",
         "@sveltejs/kit": "^2.70.3",
@@ -122,7 +122,7 @@
 
     "@levischuck/tiny-cbor": ["@levischuck/tiny-cbor@0.2.11", "", {}, "sha512-llBRm4dT4Z89aRsm6u2oEZ8tfwL/2l6BwpZ7JcyieouniDECM5AqNgr/y08zalEIvW3RSK4upYyybDcmjXqAow=="],
 
-    "@lucide/svelte": ["@lucide/svelte@1.24.0", "", { "peerDependencies": { "svelte": "^5" } }, "sha512-yXwewA7ANQ5hfaSDrvsecosWjZn5RglzeXUZRSnxeANBskpNwblOkEJTqD0ujDdNKIKL8E9eVc2U/P3ziJr7OA=="],
+    "@lucide/svelte": ["@lucide/svelte@1.38.0", "", { "peerDependencies": { "svelte": "^5" } }, "sha512-x7pHfNAqArsjCbxgMxWoGEM25AXY1vl7P9ooGvY/DxbzNGK6vrfsFFoSw4yyv1ajfHY2jGBgi7lbSExya15ABA=="],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.6", "", { "dependencies": { "@tybys/wasm-util": "^0.10.3" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" } }, "sha512-ZLv/JdUfkvOy9eCnnBaGfiO+XimbjebAeO+MRQqD/B+FR1tnRN0tpKSJHRbE8sFfS6aqsXZ67TQjfwfsxULVbg=="],
 

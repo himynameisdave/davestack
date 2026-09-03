@@ -20,6 +20,16 @@ updates:
         patterns:
           - 'prisma'
           - '@prisma/*'
+      # oxlint and its shared config should move together to stay compatible.
+      oxlint:
+        patterns:
+          - 'oxlint'
+          - '@himynameisdave/oxlint-config'
+      # oxfmt and its shared config should move together to stay compatible.
+      oxfmt:
+        patterns:
+          - 'oxfmt'
+          - '@himynameisdave/oxfmt-config'
     ignore:
       # typescript stays on 6 until SvelteKit supports the TS 7 native compiler — see
       # "TypeScript — split toolchain" in CLAUDE.md. Remove this rule at flip time.

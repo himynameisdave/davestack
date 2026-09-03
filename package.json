@@ -27,7 +27,7 @@
   "dependencies": {
     "@better-auth/passkey": "^1.6.29",
     "@prisma/adapter-pg": "^7.10.0",
-    "@prisma/client": "^7.9.1",
+    "@prisma/client": "^7.10.0",
     "better-auth": "^1.6.29",
     "pg": "^8.22.0",
     "resend": "^6.18.1",

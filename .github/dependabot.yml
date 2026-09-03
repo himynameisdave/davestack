@@ -15,6 +15,11 @@ updates:
         patterns:
           - 'better-auth'
           - '@better-auth/*'
+      # Prisma CLI, client, and adapters must move together to stay compatible.
+      prisma:
+        patterns:
+          - 'prisma'
+          - '@prisma/*'
     ignore:
       # typescript stays on 6 until SvelteKit supports the TS 7 native compiler — see
       # "TypeScript — split toolchain" in CLAUDE.md. Remove this rule at flip time.

@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@himynameisdave/oxfmt-config": "~1.0.0",
-    "@himynameisdave/oxlint-config": "~1.1.0",
+    "@himynameisdave/oxlint-config": "~1.2.0",
     "@internationalized/date": "^3.12.3",
     "@lucide/svelte": "^1.38.0",
     "@playwright/test": "^1.62.1",
@@ -57,7 +57,7 @@
     "lint-staged": "^17.4.1",
     "mode-watcher": "^1.1.0",
     "oxfmt": "^0.65.0",
-    "oxlint": "^1.79.0",
+    "oxlint": "^1.80.0",
     "oxlint-tsgolint": "^7.0.2001",
     "prisma": "^7.10.0",
     "svelte": "^5.56.9",

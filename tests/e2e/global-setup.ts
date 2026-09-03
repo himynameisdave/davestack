@@ -5,7 +5,9 @@ import { hashPassword } from 'better-auth/crypto';
 import dotenv from 'dotenv';
 
 // Playwright global setup. Runs once, before the webServer starts:
-//   1. sync the schema to the test DB (:5433) and (re)generate the client
+//   1. reset the test DB (:5433) to the current schema and (re)generate the client
+//      (--force-reset: a required column added later, e.g. Account.issuer, can't be
+//      pushed over existing rows, and the DB is wiped in step 2 anyway)
 //   2. wipe every table
 //   3. seed a deterministic admin + regular user, each with a working
 //      email+password login (Better Auth's own hasher + a credential Account)
@@ -35,7 +37,7 @@ export default async function globalSetup(): Promise<void> {
   const run = (command: string) =>
     execSync(command, { stdio: 'pipe', env: { ...process.env, DATABASE_URL: databaseUrl } });
   run('bunx svelte-kit sync');
-  run('bunx prisma db push --accept-data-loss');
+  run('bunx prisma db push --force-reset');
 
   // Import the client only after `db push` has generated it (fresh-clone safe).
   const { PrismaClient } = await import('../../src/generated/prisma/client');
@@ -66,6 +68,7 @@ export default async function globalSetup(): Promise<void> {
             id: `${seed.id}-credential`,
             accountId: seed.id,
             providerId: 'credential',
+            issuer: 'local:credential',
             userId: seed.id,
             password: passwordHash,
           },

@@ -35,6 +35,7 @@ async function main() {
           id: crypto.randomUUID(),
           accountId: userId,
           providerId: 'credential',
+          issuer: 'local:credential',
           userId,
           password: passwordHash,
         },

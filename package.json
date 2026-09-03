@@ -59,7 +59,7 @@
     "oxfmt": "^0.65.0",
     "oxlint": "^1.79.0",
     "oxlint-tsgolint": "^7.0.2001",
-    "prisma": "^7.8.0",
+    "prisma": "^7.10.0",
     "svelte": "^5.56.9",
     "svelte-check-rs": "^0.11.0",
     "svelte-sonner": "^1.2.1",

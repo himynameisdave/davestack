@@ -15,7 +15,7 @@ updates:
         patterns:
           - 'better-auth'
           - '@better-auth/*'
-      # Prisma CLI, client, and adapters must move together to stay compatible.
+      # Prisma CLI, client, and adapters should move together to stay compatible.
       prisma:
         patterns:
           - 'prisma'

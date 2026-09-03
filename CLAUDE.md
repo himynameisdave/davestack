@@ -147,6 +147,23 @@ bun run lint && bun run check && bun run test && bun run test:e2e
 Requires Docker Postgres up (dev `:5432`, test `:5433`) — `docker compose up -d`. `test:e2e`
 builds + previews on `:4173` against the test DB.
 
+### Unit & component tests — Vitest
+
+- `vitest.config.ts` defines two projects: **`server`** (node environment — everything under
+  `src/**/*.test.ts`) and **`client`** (`happy-dom` + `resolve.conditions: ['browser']` — only
+  `src/**/*.svelte.test.ts`). The split exists because SvelteKit's vite plugin otherwise compiles
+  Svelte components for the server runtime, which throws on `mount()` in tests.
+- **Component tests are a real, supported option** — not dead scaffolding. Name the file
+  `*.svelte.test.ts`, render with `@testing-library/svelte`, assert with `@testing-library/jest-dom`
+  matchers (`toHaveValue`, `toBeDisabled`, `toHaveAttribute`, etc. — wired up globally via
+  `src/vitest-setup-client.ts`, referenced from the `client` project's `setupFiles`). Reach for one
+  when a component has real branching logic (which element renders, prop-driven state, attribute
+  passthrough) — not to assert Tailwind class strings, which is brittle and duplicates what e2e
+  already covers in a real browser. See `src/lib/components/ui/input/input.svelte.test.ts` for the
+  pattern.
+- Plain logic (schemas, server utils, email templates) stays a `*.test.ts` in the `server` project —
+  no DOM, no rendering, faster.
+
 ### e2e is required
 
 - **Any change that touches auth or adds/changes a route ships with a Playwright spec.** New model →

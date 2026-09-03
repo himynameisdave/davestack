@@ -242,7 +242,18 @@ The self-verify loop before calling any change done:
 bun run lint && bun run check && bun run test && bun run test:e2e
 ```
 
-- **Unit tests** (Vitest) are colocated with the code they cover.
+- **Unit tests** (Vitest) are colocated with the code they cover, as `*.test.ts`. Vitest runs two
+  projects: `server` (node environment, everything else) and `client` (`happy-dom` + resolve
+  condition `browser`, for `*.svelte.test.ts` only) — SvelteKit's vite plugin otherwise compiles
+  Svelte components for the server runtime, which breaks `mount()` in tests.
+- **Component tests** are a real option, not just scaffolding: name the file `*.svelte.test.ts`,
+  render with `@testing-library/svelte`, assert with `@testing-library/jest-dom` matchers (wired up
+  in [`src/vitest-setup-client.ts`](./src/vitest-setup-client.ts)). Worth it for components with
+  actual branching logic (which element/attrs render, prop-driven state, passthrough of arbitrary
+  attributes) — not for asserting Tailwind class strings, that's brittle and duplicates what the
+  browser/e2e suite already proves. See
+  [`src/lib/components/ui/input/input.svelte.test.ts`](./src/lib/components/ui/input/input.svelte.test.ts)
+  for the pattern.
 - **e2e** (Playwright) builds the app and previews it on `:4173` against the **test database**
   (`db-test` on `:5433`, config in [`.env.test`](./.env.test)) with `TEST_MODE=1`. Global setup
   pushes the schema, truncates, and seeds. Fixtures in

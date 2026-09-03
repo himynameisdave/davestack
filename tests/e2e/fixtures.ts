@@ -60,6 +60,7 @@ export async function createUser(
       id: `${id}-credential`,
       accountId: id,
       providerId: 'credential',
+      issuer: 'local:credential',
       userId: id,
       password: await hashPassword(password),
     },

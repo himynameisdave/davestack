@@ -37,7 +37,7 @@
   "devDependencies": {
     "@himynameisdave/oxfmt-config": "~1.0.0",
     "@himynameisdave/oxlint-config": "~1.2.0",
-    "@internationalized/date": "^3.12.3",
+    "@internationalized/date": "^3.12.4",
     "@lucide/svelte": "^1.38.0",
     "@playwright/test": "^1.62.1",
     "@sveltejs/adapter-node": "^5.5.7",

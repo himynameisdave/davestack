@@ -17,7 +17,7 @@
       "devDependencies": {
         "@himynameisdave/oxfmt-config": "~1.0.0",
         "@himynameisdave/oxlint-config": "~1.2.0",
-        "@internationalized/date": "^3.12.3",
+        "@internationalized/date": "^3.12.4",
         "@lucide/svelte": "^1.38.0",
         "@playwright/test": "^1.62.1",
         "@sveltejs/adapter-node": "^5.5.7",
@@ -100,7 +100,7 @@
 
     "@himynameisdave/oxlint-config": ["@himynameisdave/oxlint-config@1.2.0", "", { "peerDependencies": { "oxlint": ">=1.78.0 <2", "oxlint-tsgolint": ">=7.0.2001" }, "optionalPeers": ["oxlint-tsgolint"] }, "sha512-QG7wb0jcmjUx4bSsYQ1XwPP9qQcvNHC9jjJ/Ix8yuz08OW9WhAQNcU0JrOXAy7nFhPGHDjSdBL3AGTXAAxG5ug=="],
 
-    "@internationalized/date": ["@internationalized/date@3.12.3", "", { "dependencies": { "@swc/helpers": "^0.5.0" } }, "sha512-fuLX+3ZKLsxI73y8b01EG/WjHb6gE6weCqlfawPO27kBWGMh9G1yH6Csv1uU7/cac9H2GHmOMt6CjmuQ1aia4Q=="],
+    "@internationalized/date": ["@internationalized/date@3.12.4", "", { "dependencies": { "@swc/helpers": "^0.5.0" } }, "sha512-M1dEn4c1U1HsSlaVR8upZtSqvXrTkHDfv18H01uCSJyjVLDxnBR38v/fMxecmlwXKR4i9HeZcmgQAPE6A+aGJQ=="],
 
     "@isaacs/ttlcache": ["@isaacs/ttlcache@1.4.1", "", {}, "sha512-RQgQ4uQ+pLbqXfOmieB91ejmLwvSgv9nLx6sT6sD83s7umBypgg+OIBOBbEUiJXrfpnp9j0mRhYYdzp9uqq3lA=="],
 

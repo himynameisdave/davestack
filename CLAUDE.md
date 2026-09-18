@@ -56,22 +56,25 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
   early-returns, and **no `$types.d.ts` is emitted at all**. Kit itself says nothing, but the
   breakage is not silent: `check` then fails with `Cannot find module './$types'` on every route
   (~33 errors) plus knock-on implicit-`any`. Do not bump it early; do not patch kit.
-- Checking runs on the **TS 7 dev preview** (`@typescript/native-preview`, a dated `7.0.0-dev.*`
-  nightly — not stable TS 7). `svelte-check-rs` _requires_ it as a peer and spawns
-  `node_modules/.bin/tsgo`; it bundles no compiler, so the preview is pinned exactly in
-  `devDependencies`. **Do not drop that pin:** with tsgo missing, `check` prints `tsgo not found`,
-  then reports `0 errors` and **exits 0** — green while checking nothing (verified on
-  `svelte-check-rs@0.11.0`). Type-aware lint runs Go TS via `oxlint-tsgolint` (self-contained,
-  unaffected). vite/vitest transpile with
-  **Rolldown (Oxc)** — esbuild is an optional peer of vite 8 and is not installed.
+- Checking runs on **TS 7 stable** via official `svelte-check --tsgo-experimental-api`. TS 7 is
+  installed under the npm alias `@typescript/native` (`npm:typescript@^7`) so it can sit next to
+  the TS 6 `typescript` — that alias name is the one svelte-check looks up first (then
+  `@typescript/native-preview`). Don't rename it. Type-aware lint runs Go TS via
+  `oxlint-tsgolint` (self-contained, unaffected). vite/vitest transpile with **Rolldown (Oxc)** —
+  esbuild is an optional peer of vite 8 and is not installed.
+- **`check` goes through `scripts/check.ts`, not `svelte-check` directly.** svelte-check's CLI
+  catches every thrown error, prints `svelte-check failed`, and **exits 0** — so a missing TS 7
+  alias or a broken tsconfig is green while checking nothing (verified on `svelte-check@4.7.6`;
+  upstream master still does this). The wrapper greps stderr for that line and exits 1. Drop the
+  wrapper only once upstream exits non-zero from that catch. Trap-test after any svelte-check
+  bump: `mv node_modules/@typescript/native /tmp/x && bun run check; echo $?` must print `1`.
+- `--tsgo-experimental-api` is marked experimental upstream (may change between minors). Editor
+  / LSP tsgo support is not there yet — the VS Code Svelte extension still checks on TS 6. Expected;
+  don't "fix" it.
 - Nothing invokes the `tsc` **binary**; `svelte-kit sync` does load the TypeScript JS **library**,
   which is the whole reason for the pin.
-- `svelte-check-rs` ships binaries for darwin-x64/arm64, linux-x64/arm64, win32-x64 **only** — no
-  win32-arm64. Elsewhere `bun run check` and `.husky/pre-push` hard-fail.
-- Do not reinstall `svelte-check` — replaced by `svelte-check-rs`. (Only reconsider at TS 7 flip
-  time, when it would also restore win32-arm64.)
-- **Flipping to TS 7**, once kit's `peerDependencies.typescript` accepts it: bump root
-  `typescript`, drop the dependabot ignore rule and the `@typescript/native-preview` pin, then
+- **Flipping root `typescript` to 7**, once kit's `peerDependencies.typescript` accepts it: bump
+  root `typescript`, drop the dependabot ignore rule and the `@typescript/native` alias, then
   `rm -rf .svelte-kit && bun run check` — a `Cannot find module './$types'` storm means sync
   degraded, so repin to 6 rather than "fixing" the imports. Trap-test before believing a green run.
 

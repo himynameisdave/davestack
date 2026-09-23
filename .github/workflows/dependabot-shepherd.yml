@@ -1,0 +1,198 @@
+name: Dependabot shepherd
+
+# Daily: for every open Dependabot PR — rebase it if it's behind, wait for CI, have Codex review
+# the change against this codebase, and merge it when the deterministic policy says it's safe.
+# Everything else is reported in the job summary and as a comment on the PR.
+#
+# The mechanics live in scripts/dependabot-shepherd/ (Bun); Codex only produces a verdict. It runs
+# in a read-only sandbox with no network and no GitHub token — the checkout below never persists
+# credentials, and the merge/comment steps are the only ones handed a write token.
+#
+# Secrets (Settings → Secrets and variables → Actions) — pick ONE Codex auth:
+#   OPENAI_API_KEY         Codex billed to an OpenAI API key. Simplest and stateless.
+#   CODEX_AUTH_JSON        Codex on your ChatGPT plan: the contents of ~/.codex/auth.json after
+#                          `codex login` on your machine. Refresh tokens ROTATE, so also set:
+#   CODEX_AUTH_SYNC_TOKEN  fine-grained PAT scoped to this repo with "Secrets: read and write", used
+#                          only to write the refreshed auth.json back into CODEX_AUTH_JSON.
+# Optional:
+#   SHEPHERD_GITHUB_TOKEN  PAT / GitHub App token with contents + pull-requests write. Merges made
+#                          with the default GITHUB_TOKEN never trigger other workflows, so main's
+#                          post-merge CI only runs if this is set. Also makes the `@dependabot
+#                          rebase` comment come from that identity.
+#
+# Knobs are in `env:` below. Add the `shepherd:skip` label to a PR to keep the bot off it.
+
+on:
+  schedule:
+    - cron: '17 9 * * *' # daily, 09:17 UTC (off the top-of-hour rush)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Review and report only — never comment, rebase, or merge
+        type: boolean
+        default: false
+      pr:
+        description: Only shepherd this PR number (blank = every open Dependabot PR)
+        type: string
+        default: ''
+
+# One shepherd at a time: two runs merging in parallel would race each other's rebases.
+concurrency:
+  group: dependabot-shepherd
+  cancel-in-progress: false
+
+permissions: {}
+
+env:
+  BUN_VERSION: 1.4.0
+  # ── Policy ──
+  MAX_AUTO_MERGE: minor # patch | minor | major — the highest semver bump the bot may merge alone
+  MERGE_METHOD: squash # squash | merge | rebase
+  SKIP_LABEL: shepherd:skip
+  REBASE_WAIT_MINUTES: '10' # how long to wait for Dependabot to push after `@dependabot rebase`
+  CI_WAIT_MINUTES: '30' # how long to wait for checks on the (new) head
+  # ── Codex ──
+  CODEX_VERSION: latest # pin once you've seen a version behave (bun install -g @openai/codex@…)
+  CODEX_MODEL: '' # blank = Codex's default
+  CODEX_REASONING_EFFORT: high
+  CODEX_TIMEOUT_MINUTES: '20'
+  # ── Run inputs ──
+  DRY_RUN: ${{ inputs.dry_run == true }}
+  TARGET_PR: ${{ inputs.pr }}
+
+jobs:
+  discover:
+    name: Find open Dependabot PRs
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      prs: ${{ steps.discover.outputs.prs }}
+      count: ${{ steps.discover.outputs.count }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - id: discover
+        run: bun scripts/dependabot-shepherd/main.ts discover
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+
+  shepherd:
+    name: 'PR #${{ matrix.pr }}'
+    needs: discover
+    if: needs.discover.outputs.count != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write # gh pr merge, delete the merged branch
+      pull-requests: write # @dependabot rebase / verdict comments
+    strategy:
+      max-parallel: 1 # sequential: each PR sees the base branch as the previous merge left it
+      fail-fast: false
+      matrix:
+        pr: ${{ fromJSON(needs.discover.outputs.prs) }}
+    env:
+      GH_REPO: ${{ github.repository }}
+      SHEPHERD_DIR: ${{ runner.temp }}/shepherd
+      CODEX_HOME: ${{ runner.temp }}/codex-home
+      PR_CHECKOUT: ${{ github.workspace }}/pr
+      HAS_API_KEY: ${{ secrets.OPENAI_API_KEY != '' }}
+      HAS_AUTH_JSON: ${{ secrets.CODEX_AUTH_JSON != '' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Rebase if behind, then wait for CI
+        id: sync
+        run: bun scripts/dependabot-shepherd/main.ts sync --pr "$PR"
+        env:
+          PR: ${{ matrix.pr }}
+          GH_TOKEN: ${{ secrets.SHEPHERD_GITHUB_TOKEN || github.token }}
+
+      - name: Check out the PR head
+        if: steps.sync.outputs.status == 'ready'
+        uses: actions/checkout@v7
+        with:
+          ref: refs/pull/${{ matrix.pr }}/head
+          path: pr
+          persist-credentials: false
+
+      - name: Gather the review packet
+        if: steps.sync.outputs.status == 'ready'
+        run: bun scripts/dependabot-shepherd/main.ts prepare --pr "$PR"
+        env:
+          PR: ${{ matrix.pr }}
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Install Codex CLI
+        if: steps.sync.outputs.status == 'ready'
+        run: |
+          bun install -g "@openai/codex@${CODEX_VERSION}"
+          codex --version
+
+      - name: Seed Codex auth from the ChatGPT login
+        if: steps.sync.outputs.status == 'ready' && env.HAS_API_KEY != 'true' && env.HAS_AUTH_JSON == 'true'
+        env:
+          CODEX_AUTH_JSON: ${{ secrets.CODEX_AUTH_JSON }}
+        run: |
+          mkdir -p "$CODEX_HOME"
+          printf '%s' "$CODEX_AUTH_JSON" > "$CODEX_HOME/auth.json"
+          chmod 600 "$CODEX_HOME/auth.json"
+          jq -e 'type == "object"' "$CODEX_HOME/auth.json" > /dev/null \
+            || { echo "::error::CODEX_AUTH_JSON is not a JSON object"; exit 1; }
+
+      - name: Review with Codex
+        if: steps.sync.outputs.status == 'ready'
+        run: bun scripts/dependabot-shepherd/main.ts review --pr "$PR"
+        env:
+          PR: ${{ matrix.pr }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CODEX_AUTH_SYNC_TOKEN: ${{ secrets.CODEX_AUTH_SYNC_TOKEN }}
+
+      - name: Merge or explain
+        if: steps.sync.outputs.status == 'ready'
+        run: bun scripts/dependabot-shepherd/main.ts decide --pr "$PR"
+        env:
+          PR: ${{ matrix.pr }}
+          GH_TOKEN: ${{ secrets.SHEPHERD_GITHUB_TOKEN || github.token }}
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: shepherd-result-${{ matrix.pr }}
+          path: ${{ runner.temp }}/shepherd/results/
+          retention-days: 7
+          if-no-files-found: warn
+
+  report:
+    name: Report
+    needs: [discover, shepherd]
+    if: always() && needs.discover.result == 'success' && needs.discover.outputs.count != '0'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: shepherd-result-*
+          path: results
+          merge-multiple: true
+      - run: bun scripts/dependabot-shepherd/main.ts report --dir results
+        env:
+          GH_REPO: ${{ github.repository }}

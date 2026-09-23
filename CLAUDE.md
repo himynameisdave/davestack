@@ -136,6 +136,15 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
   forms/actions/mutations on the admin dashboard.
 - **Modular auth files** in `src/lib/server/auth/` — add/remove a login method as one file.
 
+### Dependency updates — the Dependabot shepherd
+
+- `.github/workflows/dependabot-shepherd.yml` runs daily: rebases open Dependabot PRs, has Codex
+  review them (prompt in `.github/dependabot-shepherd/prompt.md`), and merges the ones a
+  deterministic policy in `scripts/dependabot-shepherd/` accepts (≤ `MAX_AUTO_MERGE`, CI green,
+  Codex says merge). Majors always wait for a human. Label a PR `shepherd:skip` to opt it out.
+- Codex runs read-only, with no network and no GitHub token — keep it that way. Anything with side
+  effects belongs in `main.ts`, and anything pure belongs in `lib.ts` with a test in `lib.test.ts`.
+
 ### Commits — emoji format (NOT conventional commits)
 
 - `{EMOJI} {short imperative}`, ≤ 72 chars. E.g. `🔐 add passkey management to account page`.

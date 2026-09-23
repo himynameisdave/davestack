@@ -33,6 +33,7 @@ updates:
     ignore:
       # typescript stays on 6 until SvelteKit supports the TS 7 native compiler — see
       # "TypeScript — split toolchain" in CLAUDE.md. Remove this rule at flip time.
+      # (TS 7 for `svelte-check` lives under the `@typescript/native` alias, which is free to bump.)
       - dependency-name: 'typescript'
         update-types: ['version-update:semver-major']
 

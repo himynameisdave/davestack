@@ -6,11 +6,12 @@ import { authClient } from './auth';
 
 /**
  * Reusable passkey sign-in state machine (Svelte 5 runes). Handles:
- * - explicit "Sign in with a passkey" clicks
- * - conditional-UI / autofill where the browser supports it (silent, no error
- * toast when the user dismisses the sheet)
- * - graceful degradation where WebAuthn or conditional mediation is unavailable
- * - the Google button, so the login page has one place for "other" sign-in.
+ *
+ * - Explicit "Sign in with a passkey" clicks
+ * - Conditional-UI / autofill where the browser supports it (silent, no error toast when the user dismisses
+ *   the sheet)
+ * - Graceful degradation where WebAuthn or conditional mediation is unavailable
+ * - The Google button, so the login page has one place for "other" sign-in.
  *
  * `redirect` may be a static string or a getter (so callers can pass a $derived
  * value that tracks the current `next` query param).

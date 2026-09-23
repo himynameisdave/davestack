@@ -297,6 +297,38 @@ CI ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) runs lint, typeche
 anywhere**. A release workflow ([`release.yml`](./.github/workflows/release.yml)) does a manual
 version bump → `🔖 Release vX.Y.Z` commit → tag → GitHub release; CI skips those release commits.
 
+### Dependabot shepherd
+
+[`dependabot-shepherd.yml`](./.github/workflows/dependabot-shepherd.yml) runs daily (and on demand
+via **Run workflow**, with a `dry_run` switch) and walks every open Dependabot PR, oldest first:
+
+1. **Rebase** — if the PR is behind `main` it comments `@dependabot rebase` (`@dependabot recreate`
+   when conflicting) and waits for Dependabot's push, then waits for CI on the new head.
+2. **Review** — [Codex](https://developers.openai.com/codex) reads the release notes, changelog, and
+   upstream source diff, greps this codebase for anything the change touches, and returns a
+   schema-constrained verdict (`merge`/`skip`, risk, confidence, findings). It runs in a read-only
+   sandbox with no network and no GitHub token. The prompt is
+   [`.github/dependabot-shepherd/prompt.md`](./.github/dependabot-shepherd/prompt.md).
+3. **Merge or explain** — a deterministic policy in
+   [`scripts/dependabot-shepherd/`](./scripts/dependabot-shepherd/) merges only when Codex says
+   `merge`, risk isn't high, confidence isn't low, CI is green, the branch is up to date, and the bump
+   is within the `MAX_AUTO_MERGE` ceiling (`minor` by default — majors always wait for a human).
+   Everything else gets a comment on the PR saying why, plus a row in the run's job summary.
+
+Setup is secrets-only. Pick one Codex login:
+
+| Secret                  | Purpose                                                                                                                                                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OPENAI_API_KEY`        | Codex billed to an API key. Simplest and stateless.                                                                                                                                                           |
+| `CODEX_AUTH_JSON`       | Codex on your ChatGPT plan: run `codex login` locally and paste the contents of `~/.codex/auth.json`. Refresh tokens rotate, so pair it with the sync token below or the secret goes stale after a few days.  |
+| `CODEX_AUTH_SYNC_TOKEN` | Fine-grained PAT scoped to this repo with **Secrets: read and write**. Lets a run write the refreshed `auth.json` back into `CODEX_AUTH_JSON`.                                                                |
+| `SHEPHERD_GITHUB_TOKEN` | Optional PAT / GitHub App token with **contents** + **pull requests** write. Merges made with the default `GITHUB_TOKEN` never trigger other workflows, so `main`'s post-merge CI only runs when this is set. |
+
+Knobs (`MAX_AUTO_MERGE`, `MERGE_METHOD`, wait times, Codex model/effort/version) are the `env:`
+block at the top of the workflow. Label a PR `shepherd:skip` to keep the bot off it. Every step is
+runnable locally against a real repo for debugging, e.g.
+`GH_REPO=owner/repo DRY_RUN=1 bun scripts/dependabot-shepherd/main.ts discover`.
+
 ## Deploying
 
 ### Railway (default)

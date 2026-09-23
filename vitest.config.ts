@@ -23,7 +23,8 @@ export default mergeConfig(
           test: {
             name: 'server',
             environment: 'node',
-            include: ['src/**/*.{test,spec}.{js,ts}'],
+            // scripts/** covers the pure logic behind CLI scripts (e.g. the Dependabot shepherd).
+            include: ['src/**/*.{test,spec}.{js,ts}', 'scripts/**/*.{test,spec}.{js,ts}'],
             exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
           },
         },

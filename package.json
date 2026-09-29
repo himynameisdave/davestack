@@ -56,7 +56,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
     "mode-watcher": "^1.1.0",
-    "oxfmt": "^0.68.0",
+    "oxfmt": "^0.70.0",
     "oxlint": "^1.86.0",
     "oxlint-tsgolint": "^7.0.2003",
     "prisma": "^7.10.0",

@@ -10,18 +10,22 @@
  *
  * Extra args are passed through (e.g. `bun scripts/check.ts --watch`).
  */
-import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const FAILED = 'svelte-check failed';
 const bin = join('node_modules', '.bin', 'svelte-check');
 const args = ['--tsconfig', './tsconfig.json', '--tsgo-experimental-api', ...process.argv.slice(2)];
 
-const run = spawnSync(bin, args, { stdio: ['inherit', 'inherit', 'pipe'], encoding: 'utf8' });
-process.stderr.write(run.stderr);
+const run = Bun.spawnSync([bin, ...args], {
+  stdin: 'inherit',
+  stdout: 'inherit',
+  stderr: 'pipe',
+});
+const stderr = run.stderr.toString();
+process.stderr.write(stderr);
 
-if (run.stderr.includes(FAILED)) {
+if (stderr.includes(FAILED)) {
   console.error(`\n✗ check: svelte-check threw (see above) — treating as failure.`);
   process.exit(1);
 }
-process.exit(run.status ?? 1);
+process.exit(run.exitCode);

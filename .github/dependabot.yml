@@ -9,6 +9,7 @@ updates:
     directory: '/' # Location of package manifests
     schedule:
       interval: 'weekly'
+    open-pull-requests-limit: 10
     groups:
       # Better Auth core + plugins must move together to stay compatible.
       better-auth:
@@ -41,3 +42,4 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+    open-pull-requests-limit: 10

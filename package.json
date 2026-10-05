@@ -39,7 +39,7 @@
     "@himynameisdave/oxlint-config": "~2.0.0",
     "@internationalized/date": "^3.12.4",
     "@lucide/svelte": "^1.38.0",
-    "@playwright/test": "^1.62.1",
+    "@playwright/test": "^1.63.0",
     "@sveltejs/adapter-node": "^5.5.7",
     "@sveltejs/kit": "^2.70.3",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",

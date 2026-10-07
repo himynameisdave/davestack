@@ -1,0 +1,44 @@
+name: Dependabot shepherd
+
+# Reviews open Dependabot PRs with Codex and merges the ones that pass CI and
+# the review policy. Everything else stays open for a human. Driven by the
+# reusable workflow in himynameisdave/depbot-shepherd — see its README for the
+# full configuration reference and merge safeguards.
+#
+# Opt a single PR out by applying the `shepherd:skip` label.
+
+on:
+  schedule:
+    - cron: '23 14 * * *' # Daily at 14:23 UTC
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Review only, without comments, rebases, or merges
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+  statuses: read
+  actions: read
+
+jobs:
+  shepherd:
+    uses: himynameisdave/depbot-shepherd/.github/workflows/shepherd.yml@main
+    with:
+      # Scheduled runs merge; manual runs default to dry-run.
+      dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}
+      max-auto-merge: minor
+      # Balanced: release notes + repo usage + CI are enough evidence to merge
+      # routine patch/minor bumps. Hard safeguards (CI green, mergeable, no
+      # major bumps, high-risk/low-confidence blocks) still always apply.
+      review-policy: balanced
+      # `model` / `reasoning-effort` are intentionally omitted: the upstream
+      # defaults are the cost-effective choice and are pinned there explicitly.
+    secrets:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      # Fine-grained PAT so rebases re-trigger CI and merges trigger downstream
+      # workflows. Without it the shepherd can't validate a rebased head.
+      SHEPHERD_GITHUB_TOKEN: ${{ secrets.SHEPHERD_GITHUB_TOKEN }}

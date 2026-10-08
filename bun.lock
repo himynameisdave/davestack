@@ -16,7 +16,7 @@
       },
       "devDependencies": {
         "@himynameisdave/oxfmt-config": "~1.0.0",
-        "@himynameisdave/oxlint-config": "~2.0.0",
+        "@himynameisdave/oxlint-config": "~2.1.0",
         "@internationalized/date": "^3.12.4",
         "@lucide/svelte": "^1.38.0",
         "@playwright/test": "^1.62.1",
@@ -98,7 +98,7 @@
 
     "@himynameisdave/oxfmt-config": ["@himynameisdave/oxfmt-config@1.0.0", "", { "peerDependencies": { "oxfmt": ">=0.65.0 <1" } }, "sha512-xHhR+QEJwZ8GZ4u+tSimQBXO5syiv90fw0y0WTFuIcLTNOrmEfCc3ZOdvUdw6nu9sEbTZ60J4bDp/G56RQ087Q=="],
 
-    "@himynameisdave/oxlint-config": ["@himynameisdave/oxlint-config@2.0.0", "", { "dependencies": { "eslint-plugin-bunisms": "0.1.0" }, "peerDependencies": { "oxlint": ">=1.85.0 <2", "oxlint-tsgolint": ">=7.0.2001" }, "optionalPeers": ["oxlint-tsgolint"] }, "sha512-PaR1pmHKAZ2yeeMUypBYZbjBE14FpENpgt7IlaUmSpo9yhxL6eGo3hevavB1h+qez6Na+jFzygEOuaItMo7r6g=="],
+    "@himynameisdave/oxlint-config": ["@himynameisdave/oxlint-config@2.1.0", "", { "dependencies": { "eslint-plugin-bunisms": "0.10.0" }, "peerDependencies": { "oxlint": ">=1.85.0 <2", "oxlint-tsgolint": ">=7.0.2001" }, "optionalPeers": ["oxlint-tsgolint"] }, "sha512-J0PewtxUivvwo3lVS78T1kJSbHIHOobK/PTFq7Pruir2VwnYqZfOKwbopvRNevokIkUVdrmz0CRIArehIVsTzw=="],
 
     "@internationalized/date": ["@internationalized/date@3.12.4", "", { "dependencies": { "@swc/helpers": "^0.5.0" } }, "sha512-M1dEn4c1U1HsSlaVR8upZtSqvXrTkHDfv18H01uCSJyjVLDxnBR38v/fMxecmlwXKR4i9HeZcmgQAPE6A+aGJQ=="],
 
@@ -672,7 +672,7 @@
 
     "es-module-lexer": ["es-module-lexer@2.3.1", "", {}, "sha512-shc1dbU90Yl/xq1QrC7QRtfcwURZuVRfPhZbDoldJ1cn1gzDvBaBWlv0eFolj5+0znnPJz5TXLxsN77X/12KTA=="],
 
-    "eslint-plugin-bunisms": ["eslint-plugin-bunisms@0.1.0", "", { "peerDependencies": { "eslint": ">=9.0.0 <11" }, "optionalPeers": ["eslint"] }, "sha512-eLYaDHeQnp+M0pjS0qqU0FdcvGqxNSHX2M4r914NdRsNfHYRce1pUETA3sP8UBkaLgfBpVbhYtjXUjCn1a6zWQ=="],
+    "eslint-plugin-bunisms": ["eslint-plugin-bunisms@0.10.0", "", { "peerDependencies": { "eslint": ">=9.0.0 <11" }, "optionalPeers": ["eslint"] }, "sha512-duyNkTo/etaTLIrHWDxAheNZ2w3N5Ivy21+5wXjj5KkmI9jafyT+R+UehczB7YeGzMsRaHy5A4cPGtlRWqPgBw=="],
 
     "esm-env": ["esm-env@1.2.2", "", {}, "sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA=="],
 

@@ -1,15 +1,21 @@
 <script lang="ts">
   import { toast } from 'svelte-sonner';
 
+  import { authClient } from '#lib/client/auth.js';
+  import { Badge } from '#lib/components/ui/badge/index.js';
+  import { Button } from '#lib/components/ui/button/index.js';
+  import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+  } from '#lib/components/ui/card/index.js';
+  import { Input } from '#lib/components/ui/input/index.js';
+  import { Label } from '#lib/components/ui/label/index.js';
+  import { logger } from '#lib/log.js';
   import { enhance } from '$app/forms';
-  import { invalidateAll } from '$app/navigation';
-  import { authClient } from '$lib/client/auth';
-  import { Badge } from '$lib/components/ui/badge';
-  import { Button } from '$lib/components/ui/button';
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
-  import { Input } from '$lib/components/ui/input';
-  import { Label } from '$lib/components/ui/label';
-  import { logger } from '$lib/log';
+  import { refreshAll } from '$app/navigation';
 
   let { data } = $props();
 
@@ -56,7 +62,7 @@
     newPasskeyName = '';
     addingPasskey = false;
     toast.success('Passkey added');
-    await invalidateAll();
+    await refreshAll();
   }
 
   function startRename(id: string, currentName: string | null) {

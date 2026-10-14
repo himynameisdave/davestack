@@ -1,8 +1,3 @@
-/// <reference types="@sveltejs/kit" />
-/// <reference no-default-lib="true"/>
-/// <reference lib="esnext" />
-/// <reference lib="webworker" />
-
 // Deliberately minimal PWA service worker. SvelteKit auto-registers this file.
 //
 // It precaches the immutable, hashed build assets so a returning visit paints
@@ -12,17 +7,20 @@
 // requests. Those always hit the network. This keeps the worker safe for the
 // Playwright e2e suite (which runs against the preview server, service worker
 // and all) — there is no cached HTML or session state to serve stale. Only the
-// `build` assets, which are content-hashed and immutable, are ever served from
-// cache. If you want offline navigation, add it here knowingly.
+// `immutable` assets, which are content-hashed, are ever served from cache. If
+// you want offline navigation, add it here knowingly.
 
-import { build, files, version } from '$service-worker';
+import { version } from '$app/env';
+import { assets, immutable } from '$app/manifest';
+import { self as sw } from '$app/service-worker';
 
-const sw = globalThis as unknown as ServiceWorkerGlobalScope;
 const CACHE_NAME = `davestack-cache-${version}`;
 
 // Content-hashed build output + static files: safe to serve cache-first because
-// a new deploy changes the hash (and therefore the URL).
-const PRECACHE = [...build, ...files];
+// a new deploy changes the hash (and therefore the URL). Manifest paths are
+// relative to the base path, where this worker lives, so resolve them against
+// its URL to get the absolute pathnames `fetch` compares.
+const PRECACHE = [...immutable, ...assets].map((file) => new URL(file.path, sw.location.href).pathname);
 const PRECACHE_SET = new Set(PRECACHE);
 
 sw.addEventListener('install', (event) => {

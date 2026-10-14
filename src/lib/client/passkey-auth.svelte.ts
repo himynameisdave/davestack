@@ -1,6 +1,6 @@
 import { PASSKEY_ERROR_CODES } from '@better-auth/passkey/client';
 
-import { logger } from '$lib/log';
+import { logger } from '#lib/log.js';
 
 import { authClient } from './auth';
 

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { authClient } from '$lib/client/auth';
-  import { Button } from '$lib/components/ui/button';
-  import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+  import { authClient } from '#lib/client/auth.js';
+  import { Button } from '#lib/components/ui/button/index.js';
+  import * as DropdownMenu from '#lib/components/ui/dropdown-menu/index.js';
 
   let { data, children } = $props();
 

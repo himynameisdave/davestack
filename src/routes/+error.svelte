@@ -1,6 +1,6 @@
 <script lang="ts">
+  import { Button } from '#lib/components/ui/button/index.js';
   import { page } from '$app/state';
-  import { Button } from '$lib/components/ui/button';
 </script>
 
 <main class="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-4 px-6 text-center">

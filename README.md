@@ -223,7 +223,8 @@ Lightweight [Umami](https://umami.is) analytics, off by default. The tracking sc
 `PUBLIC_UMAMI_WEBSITE_ID` is set **and** `NODE_ENV=production` **and** the route isn't under
 `/admin` — so it never runs in dev or e2e. Use the typed `track(event, data?)` helper from
 [`src/lib/analytics.ts`](./src/lib/analytics.ts); it no-ops when Umami isn't loaded. Env is read via
-`$env/dynamic/public` so Railway runtime config wins over build-time baking.
+`$app/env/public` (declared dynamic in [`src/env.ts`](./src/env.ts)) so Railway runtime config wins
+over build-time baking.
 
 ## Testing
 
@@ -322,7 +323,7 @@ Set these in the Railway service:
 ### Netlify
 
 Netlify works too, but requires swapping `@sveltejs/adapter-node` for
-[`@sveltejs/adapter-netlify`](https://svelte.dev/docs/kit/adapter-netlify) in `svelte.config.js` and
+[`@sveltejs/adapter-netlify`](https://svelte.dev/docs/kit/adapter-netlify) in `vite.config.ts` and
 provisioning Postgres separately (Neon, Supabase, etc.). The Dockerfile is Railway-specific and
 unused there.
 
@@ -331,7 +332,7 @@ unused there.
 The template ships a **light** PWA: a web manifest
 ([`static/manifest.webmanifest`](./static/manifest.webmanifest)), maskable app icons, apple-touch and
 theme-color meta in [`src/app.html`](./src/app.html), and a **minimal service worker**
-([`src/service-worker.ts`](./src/service-worker.ts)) that SvelteKit auto-registers. The worker only
+([`src/service-worker/index.ts`](./src/service-worker/index.ts)) that SvelteKit auto-registers. The worker only
 precaches immutable, hashed build assets and cleans up old caches — it deliberately does **not**
 intercept navigations, API calls, or auth, so there's no offline/stale-state surprise (and it keeps
 the e2e suite green). Add richer offline behavior there if you want it. `bun run setup` rewrites the
@@ -341,8 +342,9 @@ manifest name to your project.
 
 ```
 src/
+├── env.ts                   # public env vars, read via $app/env/public
 ├── hooks.server.ts          # session + security headers + rate limit + handleError
-├── service-worker.ts        # minimal PWA precache (auto-registered by SvelteKit)
+├── service-worker/          # minimal PWA precache (auto-registered by SvelteKit)
 ├── lib/
 │   ├── analytics.ts         # typed track() (no-ops without Umami)
 │   ├── client/              # browser-only: auth client, passkey rune module

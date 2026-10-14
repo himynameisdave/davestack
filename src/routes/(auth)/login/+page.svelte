@@ -1,13 +1,19 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
 
+  import { authClient } from '#lib/client/auth.js';
+  import { createPasskeyAuth } from '#lib/client/passkey-auth.svelte.js';
+  import { Button } from '#lib/components/ui/button/index.js';
+  import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+  } from '#lib/components/ui/card/index.js';
+  import { Input } from '#lib/components/ui/input/index.js';
+  import { Label } from '#lib/components/ui/label/index.js';
   import { enhance } from '$app/forms';
-  import { authClient } from '$lib/client/auth';
-  import { createPasskeyAuth } from '$lib/client/passkey-auth.svelte';
-  import { Button } from '$lib/components/ui/button';
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
-  import { Input } from '$lib/components/ui/input';
-  import { Label } from '$lib/components/ui/label';
 
   let { data, form } = $props();
 

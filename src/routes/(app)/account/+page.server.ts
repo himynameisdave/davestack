@@ -1,8 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 
-import { renamePasskeySchema } from '$lib/schemas/auth';
-import { prisma } from '$lib/server/db';
+import { renamePasskeySchema } from '#lib/schemas/auth.js';
+import { prisma } from '#lib/server/db.js';
 
 import type { Actions, PageServerLoad } from './$types';
 

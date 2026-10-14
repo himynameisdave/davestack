@@ -1,5 +1,5 @@
-import { prisma } from '$lib/server/db';
-import { env } from '$lib/server/env';
+import { prisma } from '#lib/server/db.js';
+import { env } from '#lib/server/env.js';
 
 import type { PageServerLoad } from './$types';
 

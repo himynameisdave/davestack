@@ -1,12 +1,12 @@
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 
-import { building } from '$app/environment';
-import { logger } from '$lib/log';
-import { auth } from '$lib/server/auth';
-import { assertProductionReady } from '$lib/server/env';
-import { checkRateLimit } from '$lib/server/rate-limit';
+import { logger } from '#lib/log.js';
+import { auth } from '#lib/server/auth/index.js';
+import { assertProductionReady } from '#lib/server/env.js';
+import { checkRateLimit } from '#lib/server/rate-limit.js';
+import { building } from '$app/env';
 
-import type { Handle, HandleServerError } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit/hooks';
 
 // Fail fast at runtime boot if production is misconfigured. Guarded by `!building`
 // so it never fires during `vite build` (which has no real secrets).
@@ -49,14 +49,18 @@ export const handle: Handle = async ({ event, resolve }) => {
   return response;
 };
 
-// Log the real error server-side with a correlation id; hand the client a
-// generic message (plus the id, so a user can quote it to support) rather than
-// leaking internals.
-export const handleError: HandleServerError = ({ error, event, status, message }) => {
+// Every error lands here. `error(...)` bodies (kind 'app') are already safe and
+// deliberate, so pass them through unlogged. Everything else is logged with a
+// correlation id. Framework errors (404, 405, …) keep their safe status + message;
+// unknown errors get a generic message (plus the id, so a user can quote it to
+// support) rather than leaking internals.
+export const handleError: HandleServerError = ({ kind, error, event }) => {
+  if (kind === 'app') {
+    return error;
+  }
   const errorId = crypto.randomUUID();
-  logger.error(`[error ${errorId}] ${event.request.method} ${event.url.pathname} → ${status}`, error);
-  return {
-    message: status < 500 ? message : 'Something went wrong on our end. Please try again.',
-    errorId,
-  };
+  logger.error(`[error ${errorId}] ${event.request.method} ${event.url.pathname} (${kind})`, error);
+  return kind === 'unknown'
+    ? { message: 'Something went wrong on our end. Please try again.', errorId }
+    : { errorId };
 };

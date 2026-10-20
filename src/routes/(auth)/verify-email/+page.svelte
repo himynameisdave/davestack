@@ -1,8 +1,14 @@
 <script lang="ts">
+  import { authClient } from '#lib/client/auth.js';
+  import { Button } from '#lib/components/ui/button/index.js';
+  import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+  } from '#lib/components/ui/card/index.js';
   import { page } from '$app/state';
-  import { authClient } from '$lib/client/auth';
-  import { Button } from '$lib/components/ui/button';
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 
   const email = $derived(page.url.searchParams.get('email') ?? '');
 

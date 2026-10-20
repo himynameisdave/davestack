@@ -1,11 +1,11 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { APIError } from 'better-auth/api';
 
-import { safeNext } from '$lib/safe-next';
-import { loginSchema } from '$lib/schemas/auth';
-import { auth } from '$lib/server/auth';
-import { features } from '$lib/server/env';
-import { field } from '$lib/server/form';
+import { safeNext } from '#lib/safe-next.js';
+import { loginSchema } from '#lib/schemas/auth.js';
+import { auth } from '#lib/server/auth/index.js';
+import { features } from '#lib/server/env.js';
+import { field } from '#lib/server/form.js';
 
 import type { Actions, PageServerLoad } from './$types';
 

@@ -51,7 +51,7 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 
 - Root `typescript` is pinned to **^6** for one reason: `svelte-kit sync` imports the TypeScript
   **JS compiler API**, which the Go-native TS 7 package no longer ships. Kit declares
-  `typescript: "^5.3.3 || ^6.0.0"` as an _optional_ peer and loads it via a bare
+  `typescript: "^6.0.0"` as an _optional_ peer and loads it via a bare
   `try { await import('typescript') } catch {}` — a failed import is swallowed, `write_all_types`
   early-returns, and **no `$types.d.ts` is emitted at all**. Kit itself says nothing, but the
   breakage is not silent: `check` then fails with `Cannot find module './$types'` on every route
@@ -83,6 +83,16 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 - Use `$state` / `$props` / `$derived` / `$effect`. **No `export let`**, no `$:` reactive
   statements, no legacy stores (`writable`/`readable`). Props: `let { data, children } = $props();`.
 
+### SvelteKit 3
+
+- Kit config lives in `vite.config.ts` as `sveltekit({ ... })` options. There is no `svelte.config.js`.
+- Import app code via **`#lib/...`** (the `imports` field in `package.json`), never `$lib` (removed in
+  Kit 3). Include the file extension: `#lib/server/db.js`, `#lib/components/ui/button/index.js`.
+- `$app/env` (not `$app/environment`), `$app/state` (not `$app/stores`), `refreshAll` (not
+  `invalidateAll`).
+- The service worker is its own TS project (`src/service-worker/tsconfig.json`); `check` runs a
+  second svelte-check pass for it.
+
 ### Validation — zod is first-class
 
 - **All** env, form, and action input is validated with zod. Never hand-roll validation.
@@ -92,8 +102,10 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 
 ### Environment
 
-- **All env goes through `src/lib/server/env.ts`** (zod-validated at boot). Never read
+- **All server env goes through `src/lib/server/env.ts`** (zod-validated at boot). Never read
   `process.env` ad hoc in app code.
+- Browser-safe env (`PUBLIC_UMAMI_*`) is declared in `src/env.ts` with `defineEnvVars` and imported
+  from `$app/env/public`. Never put secrets there.
 - Import the derived helpers: `features` (`.google` / `.resend` / `.umami` presence booleans) and
   `isTestMode`. Production hardening lives in `assertProductionReady()` (called from
   `hooks.server.ts` behind `!building`).

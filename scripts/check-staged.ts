@@ -14,7 +14,6 @@
  * args (e.g. by hand) it reads the staged list itself, so `bun scripts/check-staged.ts`
  * works standalone too.
  */
-import { execSync } from 'node:child_process';
 import { readFileSync, statSync } from 'node:fs';
 import { relative } from 'node:path';
 
@@ -47,8 +46,11 @@ function stagedFiles(): string[] {
     // oxlint-disable-next-line typescript/prefer-nullish-coalescing -- see comment above
     return args.map((f) => relative(CWD, f) || f);
   }
-  const out = execSync('git diff --cached --name-only --diff-filter=ACM', { encoding: 'utf8' });
-  return out.split('\n').filter(Boolean);
+  const result = Bun.spawnSync(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM']);
+  if (!result.success) {
+    throw new Error(`git diff --cached failed: ${result.stderr.toString()}`);
+  }
+  return result.stdout.toString().split('\n').filter(Boolean);
 }
 
 function readText(file: string): string | null {

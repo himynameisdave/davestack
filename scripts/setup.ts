@@ -14,7 +14,6 @@
  * It is idempotent and safe to re-run: already-renamed branding is left alone and
  * an existing `.env.local` is only touched with your confirmation.
  */
-import { execSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -148,7 +147,10 @@ function ensureEnvSecret(overwrite: boolean): void {
 function run(cmd: string, label: string): boolean {
   try {
     log(`\n▶ ${label}`);
-    execSync(cmd, { cwd: ROOT, stdio: 'inherit' });
+    const result = Bun.spawnSync(cmd.split(' '), { cwd: ROOT, stdio: ['inherit', 'inherit', 'inherit'] });
+    if (!result.success) {
+      throw new Error(`exit ${result.exitCode}`);
+    }
     return true;
   } catch {
     log(`  ✗ "${cmd}" failed — run it yourself once the prerequisite is ready.`);

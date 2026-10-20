@@ -35,6 +35,7 @@ export default async function globalSetup(): Promise<void> {
   // prisma-client generator reads. Doing it here keeps a *fresh clone*'s first
   // `bun run test:e2e` working (global setup runs before the webServer build).
   const run = (command: string) =>
+    // oxlint-disable-next-line bun/prefer-bun-shell -- Playwright loads global setup under Node, where the Bun global does not exist
     execSync(command, { stdio: 'pipe', env: { ...process.env, DATABASE_URL: databaseUrl } });
   run('bunx svelte-kit sync');
   run('bunx prisma db push --force-reset');

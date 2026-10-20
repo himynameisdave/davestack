@@ -5,7 +5,9 @@ import { defineConfig } from 'prisma/config';
 // Safe in production: both files are gitignored, dotenv silently skips missing
 // files, and platform-provided env vars (e.g. Railway/Neon) take precedence over
 // anything dotenv would set.
+// oxlint-disable-next-line bun/no-dotenv -- the Prisma CLI runs under Node (prisma bin shebang), which does not auto-load env files
 dotenv.config({ path: '.env.local' });
+// oxlint-disable-next-line bun/no-dotenv -- same: Node-run CLI, so this fallback load is required
 dotenv.config();
 
 // Fallback to the local Docker Compose database so a fresh clone can run

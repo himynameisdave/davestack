@@ -1,8 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { APIError } from 'better-auth/api';
 
-import { resetPasswordSchema } from '$lib/schemas/auth';
-import { auth } from '$lib/server/auth';
+import { resetPasswordSchema } from '#lib/schemas/auth.js';
+import { auth } from '#lib/server/auth/index.js';
 
 import type { Actions, PageServerLoad } from './$types';
 

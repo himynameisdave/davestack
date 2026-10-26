@@ -6,7 +6,7 @@
 // and e2e (the script is never injected), in the admin area, and before the
 // script has hydrated. Call sites therefore never need to guard.
 
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 
 type EventData = Readonly<Record<string, string | number | boolean>>;
 

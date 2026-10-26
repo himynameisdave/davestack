@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-import { logger } from '$lib/log';
+import { logger } from '#lib/log.js';
 
 import { env, features, isTestMode } from '../env';
 import { magicLinkTemplate } from './templates/magic-link';

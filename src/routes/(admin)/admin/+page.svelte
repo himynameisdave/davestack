@@ -1,11 +1,24 @@
 <script lang="ts">
-  import { Badge } from '$lib/components/ui/badge';
+  import { Badge } from '#lib/components/ui/badge/index.js';
   // Read-only admin dashboard. This is a WINDOW, not a control panel: strictly
   // NO forms, NO actions, NO edit/delete/impersonate controls. It only observes
   // data. If you need to mutate something, build that surface elsewhere and keep
   // this one observe-only.
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
-  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
+  import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+  } from '#lib/components/ui/card/index.js';
+  import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '#lib/components/ui/table/index.js';
 
   let { data } = $props();
 

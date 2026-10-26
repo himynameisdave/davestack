@@ -35,6 +35,7 @@ for (const tsconfig of tsconfigs) {
     console.error(`\n✗ check: svelte-check threw (see above) — treating as failure.`);
     process.exit(1);
   }
-  exitCode ||= run.exitCode;
+  // A signal-killed run (e.g. OOM) has a null exitCode — count it as a failure, not a pass.
+  exitCode ||= run.success ? 0 : (run.exitCode ?? 1);
 }
 process.exit(exitCode);

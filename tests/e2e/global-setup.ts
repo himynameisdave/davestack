@@ -31,7 +31,8 @@ export default async function globalSetup(): Promise<void> {
     throw new Error('DATABASE_URL is not set — is .env.test loaded?');
   }
 
-  // `svelte-kit sync` writes .svelte-kit/tsconfig.json, which Prisma 7's
+  // `svelte-kit sync` writes node_modules/$app/tsconfig.json (extended by the root
+  // tsconfig), which Prisma 7's
   // prisma-client generator reads. Doing it here keeps a *fresh clone*'s first
   // `bun run test:e2e` working (global setup runs before the webServer build).
   const run = (command: string) =>

@@ -14,19 +14,19 @@ secrets only for the features you actually turn on.
 
 ## Stack
 
-| Concern       | Choice                                                       |
-| ------------- | ------------------------------------------------------------ |
-| Runtime / PM  | [Bun](https://bun.sh) (never npm/npx/yarn)                   |
-| Framework     | SvelteKit + Svelte 5 (runes only)                            |
-| Language      | TypeScript 6 (pinned; type-checked on TS 7 / tsgo)           |
-| Styling       | Tailwind CSS v4 + [shadcn-svelte](https://shadcn-svelte.com) |
-| ORM / DB      | Prisma 7 + PostgreSQL                                        |
-| Auth          | [Better Auth](https://better-auth.com)                       |
-| Email         | [Resend](https://resend.com)                                 |
-| Analytics     | [Umami](https://umami.is) Cloud                              |
-| Lint / format | [oxlint](https://oxc.rs) + `bun fmt` (oxfmt config, strict)  |
-| Tests         | Vitest (unit) + Playwright (e2e)                             |
-| Deploy        | Railway (adapter-node + Dockerfile); Netlify documented too  |
+| Concern       | Choice                                                                                                                                                                             |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime / PM  | [Bun](https://bun.sh) (never npm/npx/yarn)                                                                                                                                         |
+| Framework     | SvelteKit + Svelte 5 (runes only)                                                                                                                                                  |
+| Language      | TypeScript 6 (pinned; type-checked on TS 7 / tsgo)                                                                                                                                 |
+| Styling       | Tailwind CSS v4 + [shadcn-svelte](https://shadcn-svelte.com)                                                                                                                       |
+| ORM / DB      | Prisma 7 + PostgreSQL                                                                                                                                                              |
+| Auth          | [Better Auth](https://better-auth.com)                                                                                                                                             |
+| Email         | [Resend](https://resend.com)                                                                                                                                                       |
+| Analytics     | [Umami](https://umami.is) Cloud                                                                                                                                                    |
+| Lint / format | [oxlint-config](https://github.com/himynameisdave/oxlint-config) + [oxfmt-config](https://github.com/himynameisdave/oxfmt-config), run by [`bun fmt`](https://bun.com/docs/format) |
+| Tests         | Vitest (unit) + Playwright (e2e)                                                                                                                                                   |
+| Deploy        | Railway (adapter-node + Dockerfile); Netlify documented too                                                                                                                        |
 
 ## Quick start
 
@@ -266,7 +266,7 @@ Any change that touches auth or adds/changes a route ships with a Playwright spe
 ## Code quality: git hooks & CI
 
 Lint and format are **oxlint + oxfmt** (not ESLint/Prettier). Lint rules come from
-[`@himynameisdave/oxlint-config`](https://github.com/himynameisdave/oxlint-config), extended in
+[oxlint-config](https://github.com/himynameisdave/oxlint-config), extended in
 `oxlint.config.ts` with a handful of justified project-local deltas. Format rules come from
 [`@himynameisdave/oxfmt-config`](https://github.com/himynameisdave/oxfmt-config), spread in
 `oxfmt.config.ts` (oxfmt has no `extends`). Formatting runs on [`bun fmt`](https://bun.com/docs/format),

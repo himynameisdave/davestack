@@ -30,7 +30,7 @@ secrets only for the features you actually turn on.
 
 ## Quick start
 
-Requires [Bun](https://bun.sh) ≥ 1.4 and Docker (for local Postgres).
+Requires [Bun](https://bun.sh) ≥ 1.4.4 and Docker (for local Postgres).
 
 ```bash
 bun install                 # installs deps (and git hooks via the prepare step)

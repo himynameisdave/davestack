@@ -13,8 +13,8 @@
     "db:seed": "svelte-kit sync && prisma generate && prisma db seed",
     "db:studio": "prisma studio",
     "dev": "svelte-kit sync && prisma generate && vite dev",
-    "format": "oxfmt .",
-    "format:check": "oxfmt --check .",
+    "format": "bun fmt",
+    "format:check": "bun fmt --check",
     "lint": "oxlint -c oxlint.config.ts --deny-warnings --type-aware --tsconfig ./tsconfig.json",
     "lint:fix": "oxlint -c oxlint.config.ts --fix --deny-warnings --type-aware --tsconfig ./tsconfig.json",
     "prepare": "husky",
@@ -72,7 +72,7 @@
     "vitest": "^5.0.5"
   },
   "lint-staged": {
-    "*.{ts,js,svelte,css,html,json,yaml,yml,md}": "oxfmt --write",
+    "*.{ts,js,svelte,css,html,json,yaml,yml,md}": "bun fmt",
     "*.{ts,js,svelte}": "oxlint -c oxlint.config.ts --deny-warnings",
     "*": "bun scripts/check-staged.ts"
   },

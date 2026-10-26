@@ -24,7 +24,7 @@ secrets only for the features you actually turn on.
 | Auth          | [Better Auth](https://better-auth.com)                       |
 | Email         | [Resend](https://resend.com)                                 |
 | Analytics     | [Umami](https://umami.is) Cloud                              |
-| Lint / format | [oxlint](https://oxc.rs) + [oxfmt](https://oxc.rs) (strict)  |
+| Lint / format | [oxlint](https://oxc.rs) + `bun fmt` (oxfmt config, strict)  |
 | Tests         | Vitest (unit) + Playwright (e2e)                             |
 | Deploy        | Railway (adapter-node + Dockerfile); Netlify documented too  |
 
@@ -269,12 +269,15 @@ Lint and format are **oxlint + oxfmt** (not ESLint/Prettier). Lint rules come fr
 [`@himynameisdave/oxlint-config`](https://github.com/himynameisdave/oxlint-config), extended in
 `oxlint.config.ts` with a handful of justified project-local deltas. Format rules come from
 [`@himynameisdave/oxfmt-config`](https://github.com/himynameisdave/oxfmt-config), spread in
-`oxfmt.config.ts` (oxfmt has no `extends`). oxfmt owns everything including `.svelte`, `.md`, and
-`.json`; indentation is **2 spaces**, single quotes, printWidth 109 (`oxfmt.config.ts`).
+`oxfmt.config.ts` (oxfmt has no `extends`). Formatting runs on [`bun fmt`](https://bun.com/docs/format),
+Bun's built-in formatter, which reads `oxfmt.config.ts` as-is and prints oxfmt-identical output
+~5× faster. It owns everything including `.svelte`, `.md`, and `.json`; indentation is **2 spaces**,
+single quotes, printWidth 109 (`oxfmt.config.ts`). The `oxfmt` package stays installed: the config
+file imports it, the shared config peer-depends on it, and editor oxc extensions use its LSP.
 
 Git hooks are installed by `bun install` (the `prepare` step runs Husky):
 
-- **pre-commit** — oxfmt on staged files, oxlint with zero tolerated warnings, plus a garbage
+- **pre-commit** — `bun fmt` on staged files, oxlint with zero tolerated warnings, plus a garbage
   blocker (`scripts/check-staged.ts`) that rejects `.only`/`.skip`, `debugger`, conflict markers,
   stray `console.log`, and accidental `.env*` files.
 - **commit-msg** — enforces the **emoji-commit** format.
@@ -376,7 +379,7 @@ Route groups: `(marketing)` public · `(auth)` for signed-out flows (redirect aw
 | `bun run check`        | Type-check (svelte-check on tsgo / TS 7)         |
 | `bun run lint`         | oxlint (zero warnings tolerated)                 |
 | `bun run lint:fix`     | oxlint with autofix                              |
-| `bun run format`       | Format with oxfmt                                |
+| `bun run format`       | Format with `bun fmt` (reads `oxfmt.config.ts`)  |
 | `bun run format:check` | Verify formatting                                |
 | `bun run test`         | Unit tests (Vitest)                              |
 | `bun run test:e2e`     | End-to-end tests (Playwright)                    |

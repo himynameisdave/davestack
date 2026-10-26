@@ -34,14 +34,21 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 - Scripts live in `package.json`. The real ones: `dev`, `build`, `preview`, `check`, `lint`,
   `lint:fix`, `format`, `format:check`, `test`, `test:e2e`, `test:e2e:ui`, `db:push`, `db:migrate`,
   `db:studio`, `db:seed`, `db:reset`.
-- **Lint/format is oxlint + oxfmt**, not ESLint/Prettier. `bun run lint` runs
+- **Lint/format is oxlint + oxfmt-style formatting**, not ESLint/Prettier. `bun run lint` runs
   `oxlint -c oxlint.config.ts --deny-warnings --type-aware`; `bun run format` / `format:check` run
-  oxfmt. oxfmt owns everything incl. `.svelte`, `.md`, `.json`. Indentation is **spaces** (2),
-  single quotes, printWidth 109 (`oxfmt.config.ts`).
+  **`bun fmt`** / `bun fmt --check` — Bun's built-in formatter, which reads `oxfmt.config.ts`
+  directly and prints oxfmt-identical output (~5× faster). lint-staged runs `bun fmt` too. It owns
+  everything incl. `.svelte`, `.md`, `.json`. Indentation is **spaces** (2), single quotes,
+  printWidth 109 (`oxfmt.config.ts`). Never add a `fmt` script to `package.json` — `bun fmt` would
+  run it instead of the formatter.
+- **Keep the `oxfmt` devDependency.** `oxfmt.config.ts` imports `defineConfig` from it, the shared
+  config peer-depends on it, Bun uses its presence to pick oxfmt-style (not Prettier-style) output,
+  and editor oxc extensions need its LSP (`bun fmt` has none). Use `bun fmt --doctor` to see how
+  Bun reads the config.
 - **Format rules come from `@himynameisdave/oxfmt-config`** (spread in `oxfmt.config.ts` — oxfmt has
   no `extends`). Project-local deltas only: `ignorePatterns` for the generated Prisma client and the
   Tailwind v4 `stylesheet` path. Don't restate options the shared config already decides. `oxfmt`
-  itself is pinned `^0.65.0` — the shared config's peer floor.
+  itself is pinned `^0.74.0` — the shared config's peer floor.
 - **Lint rules come from `@himynameisdave/oxlint-config`** (extended in `oxlint.config.ts`).
   Don't re-enable rules the shared config decides; project-local deltas live in
   `oxlint.config.ts` and each carries a justification comment (rule-pair conflicts,

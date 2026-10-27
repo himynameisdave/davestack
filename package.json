@@ -61,7 +61,7 @@
     "oxlint-tsgolint": "^7.0.2004",
     "prisma": "^7.10.1",
     "svelte": "^5.57.2",
-    "svelte-check": "^4.7.6",
+    "svelte-check": "^4.7.7",
     "svelte-sonner": "^1.2.1",
     "tailwind-merge": "^3.7.0",
     "tailwind-variants": "^3.3.1",

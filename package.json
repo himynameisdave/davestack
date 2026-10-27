@@ -52,7 +52,7 @@
     "bits-ui": "^2.20.2",
     "clsx": "^2.1.1",
     "dotenv": "^18.0.9",
-    "happy-dom": "^20.14.0",
+    "happy-dom": "^21.0.4",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "mode-watcher": "^1.1.0",

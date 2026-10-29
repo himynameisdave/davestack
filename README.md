@@ -1,4 +1,6 @@
 # davestack
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fhimynameisdave%2Fdavestack.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fhimynameisdave%2Fdavestack?ref=badge_shield)
+
 
 A batteries-included [SvelteKit](https://svelte.dev/docs/kit) template for spinning up new web
 apps in minutes — and for coding agents to work in productively. It ships with authentication
@@ -403,3 +405,6 @@ points there). The `.claude/` directory adds:
 ## License
 
 MIT — see [LICENSE](./LICENSE).
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fhimynameisdave%2Fdavestack.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fhimynameisdave%2Fdavestack?ref=badge_large)

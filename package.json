@@ -30,7 +30,7 @@
     "@prisma/client": "^7.10.1",
     "better-auth": "^1.7.2",
     "pg": "^8.23.1",
-    "resend": "^6.34.1",
+    "resend": "^6.37.0",
     "sveltekit-rate-limiter": "^0.8.0",
     "zod": "^4.6.7"
   },

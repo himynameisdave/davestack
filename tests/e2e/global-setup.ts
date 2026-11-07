@@ -32,8 +32,7 @@ export default async function globalSetup(): Promise<void> {
   }
 
   // `svelte-kit sync` writes node_modules/$app/tsconfig.json (extended by the root
-  // tsconfig), which Prisma 7's
-  // prisma-client generator reads. Doing it here keeps a *fresh clone*'s first
+  // tsconfig), which Prisma 7's prisma-client generator reads. Doing it here keeps a *fresh clone*'s first
   // `bun run test:e2e` working (global setup runs before the webServer build).
   const run = (command: string) =>
     // oxlint-disable-next-line bun/prefer-bun-shell -- Playwright loads global setup under Node, where the Bun global does not exist

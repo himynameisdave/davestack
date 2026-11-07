@@ -15,10 +15,12 @@ import { PrismaClient } from '../../src/generated/prisma/client';
 //   extractLink(email)             → pull the action URL out of an email's text
 //   clearMailbox(request)          → empty the test mailbox
 
-// Fixtures talk to the same test DB the app does. Falls back to the .env.test
-// value so it works even if a worker didn't inherit the loaded env.
-const DATABASE_URL =
-  process.env.DATABASE_URL ?? 'postgresql://davestack:davestack@localhost:5433/davestack_test?schema=public';
+// Fixtures talk to the same throwaway test DB the app does. Workers inherit
+// DATABASE_URL from `bun run test:e2e` (scripts/test-e2e.ts) or the CI job env.
+const { DATABASE_URL } = process.env;
+if (!DATABASE_URL) {
+  throw new Error('DATABASE_URL is not set — run e2e via `bun run test:e2e`.');
+}
 
 const adapter = new PrismaPg({ connectionString: DATABASE_URL });
 const prisma = new PrismaClient({ adapter });

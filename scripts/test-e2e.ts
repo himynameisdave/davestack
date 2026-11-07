@@ -118,15 +118,20 @@ const teardown = () => {
   removed = true;
   docker('rm', '-f', container);
 };
-// On the first signal, forward it to Playwright and let it shut down (closing its webServer), then
-// fall through to the teardown below. Forwarding matters when only this process is signalled (a
-// harness killing its command); for a terminal Ctrl-C, Playwright gets it from the process group
-// as well. A second signal, or one before Playwright started, tears down and exits at once.
+// On the first signal, ask Playwright to stop with SIGINT, whatever signal we got. SIGINT is the
+// only one Playwright handles gracefully: SIGTERM/SIGHUP kill it outright and leave its webServer
+// (`vite preview`) listening on :4173, which breaks the next run. Then fall through to the teardown
+// below once it exits. Forwarding matters when only this process is signalled (a harness killing
+// its command); for a terminal Ctrl-C, Playwright gets it from the process group as well. If
+// Playwright hasn't exited after a grace period, SIGKILL it. A second signal, or one before
+// Playwright started, tears down and exits at once.
+const SHUTDOWN_GRACE_MS = 15_000;
 let interrupted = false;
-const onSignal = (signal: NodeJS.Signals) => {
+const onSignal = () => {
   if (child && !interrupted) {
     interrupted = true;
-    child.kill(signal);
+    child.kill('SIGINT');
+    setTimeout(() => child?.kill('SIGKILL'), SHUTDOWN_GRACE_MS).unref();
     return;
   }
   teardown();

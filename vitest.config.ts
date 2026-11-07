@@ -8,7 +8,7 @@ import viteConfig from './vite.config';
 // Split into two projects because SvelteKit's vite plugin picks the server-side
 // Svelte runtime unless `resolve.conditions` includes 'browser' — component tests
 // need that (and a DOM), plain logic tests don't and must keep node's conditions
-// (server-only imports like $env/dynamic/private, nodemailer, etc. depend on it).
+// (server-only imports like $app/env/private, nodemailer, etc. depend on it).
 export default mergeConfig(
   viteConfig,
   defineConfig({

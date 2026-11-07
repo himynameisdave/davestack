@@ -1,9 +1,9 @@
 import { fail } from '@sveltejs/kit';
 import { APIError } from 'better-auth/api';
 
-import { signupSchema } from '$lib/schemas/auth';
-import { auth } from '$lib/server/auth';
-import { field } from '$lib/server/form';
+import { signupSchema } from '#lib/schemas/auth.js';
+import { auth } from '#lib/server/auth/index.js';
+import { field } from '#lib/server/form.js';
 
 import type { Actions } from './$types';
 

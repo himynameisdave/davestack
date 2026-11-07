@@ -1,6 +1,6 @@
 // The single sanctioned console seam for app code. This is NOT server-only —
 // it must be importable from both server code and browser code (e.g.
-// `$lib/client/passkey-auth.svelte.ts` runs in the browser), so it imports
+// `#lib/client/passkey-auth.svelte.ts` runs in the browser), so it imports
 // nothing server-only.
 //
 // App code (everything under `src/**`) logs through `logger`, never through

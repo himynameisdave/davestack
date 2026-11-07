@@ -1,7 +1,7 @@
-import { error, json } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 
-import { testMailbox } from '$lib/server/email';
-import { isTestMode } from '$lib/server/env';
+import { testMailbox } from '#lib/server/email/index.js';
+import { isTestMode } from '#lib/server/env.js';
 
 import type { RequestHandler } from './$types';
 
@@ -21,7 +21,7 @@ export const GET: RequestHandler = ({ url }) => {
 
   // Newest first so a poller can read [0] without knowing the length.
   // toReversed() returns a copy, leaving the shared array in insertion order.
-  return json(matches.toReversed());
+  return Response.json(matches.toReversed());
 };
 
 // DELETE /api/test/mailbox → clear the outbox (reset between e2e specs).
@@ -31,5 +31,5 @@ export const DELETE: RequestHandler = () => {
   }
 
   testMailbox.length = 0;
-  return json({ cleared: true });
+  return Response.json({ cleared: true });
 };

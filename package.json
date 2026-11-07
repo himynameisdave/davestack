@@ -29,10 +29,10 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@better-auth/passkey": "^1.7.2",
+    "@better-auth/passkey": "^1.7.18",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
-    "better-auth": "^1.7.2",
+    "better-auth": "^1.7.18",
     "pg": "^8.23.1",
     "resend": "^6.37.0",
     "sveltekit-rate-limiter": "^0.8.0",

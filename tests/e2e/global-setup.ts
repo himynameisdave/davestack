@@ -6,8 +6,9 @@ import dotenv from 'dotenv';
 
 // Playwright global setup. Runs once, before the webServer starts:
 //   1. reset the test DB (:5433) to the current schema and (re)generate the client
-//      (--force-reset: a required column added later, e.g. Account.issuer, can't be
-//      pushed over existing rows, and the DB is wiped in step 2 anyway)
+//      (--force-reset: some schema changes — adding a required column, dropping a
+//      column that holds data — can't be pushed over existing rows without it, and
+//      the DB is wiped in step 2 anyway)
 //   2. wipe every table
 //   3. seed a deterministic admin + regular user, each with a working
 //      email+password login (Better Auth's own hasher + a credential Account)
@@ -69,7 +70,6 @@ export default async function globalSetup(): Promise<void> {
             id: `${seed.id}-credential`,
             accountId: seed.id,
             providerId: 'credential',
-            issuer: 'local:credential',
             userId: seed.id,
             password: passwordHash,
           },

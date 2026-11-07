@@ -2,8 +2,19 @@ import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 
 // Load the committed test env FIRST so both this config and the webServer it
-// spawns see the test DB (:5433), TEST_MODE, and the auth secret/URL.
+// spawns see TEST_MODE and the auth secret/URL.
 dotenv.config({ path: '.env.test' });
+
+// The test DB is always disposable: `bun run test:e2e` (scripts/test-e2e.ts)
+// starts a throwaway Postgres container and injects DATABASE_URL; CI injects its
+// postgres service. Fail fast (before the webServer builds) when invoked any
+// other way, so global setup's schema push + table wipe can't hit a real DB.
+if (!process.env.CI && process.env.E2E_EPHEMERAL_DB !== '1') {
+  throw new Error(
+    'Run e2e via `bun run test:e2e` (or `bun run test:e2e:ui`), not `playwright test` directly: '
+      + 'the wrapper starts and tears down the throwaway test database.',
+  );
+}
 
 const PORT = 4173;
 const BASE_URL = process.env.BETTER_AUTH_URL ?? `http://localhost:${PORT}`;
@@ -37,10 +48,12 @@ export default defineConfig({
     // Verified to serve the built app on 4173 (see the testing phase notes).
     command: 'bun run build && bun run preview',
     port: PORT,
-    reuseExistingServer: !process.env.CI,
+    // Never reuse: every run gets a new throwaway DB, and a server left over from
+    // an earlier run would still point at that run's (now deleted) database.
+    reuseExistingServer: false,
     timeout: 180_000,
     // Pass the test env explicitly. `...process.env` keeps PATH etc. for the
-    // build; the named six guarantee the server boots against the test DB with
+    // build; the named six guarantee the server boots against the throwaway DB with
     // a BETTER_AUTH_URL that matches baseURL (passkey origin checks depend on it).
     env: {
       ...process.env,

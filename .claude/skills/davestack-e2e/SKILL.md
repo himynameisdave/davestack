@@ -10,24 +10,29 @@ description: >-
 # davestack e2e house style
 
 Knowledge for writing Playwright specs in this repo. Specs live in `tests/e2e/`, run on **Chromium
-only**, against the **test DB on `:5433`** with `TEST_MODE=1`. Reference implementation: the five
+only**, against a **throwaway Postgres** (fresh per run) with `TEST_MODE=1`. Reference implementation: the five
 existing specs (`auth-password`, `auth-magic-link`, `auth-passkey`, `auth-guards`, `admin`).
 
 ## Harness setup (already wired — don't rebuild)
 
 - **Config:** `playwright.config.ts`. `dotenv` loads `.env.test` first, so the config and the
-  webServer both see the test DB, `TEST_MODE`, and `BETTER_AUTH_URL`. webServer =
+  webServer both see `TEST_MODE` and `BETTER_AUTH_URL`; `DATABASE_URL` is injected by the runner
+  (below). The config throws unless invoked via the runner or in CI. webServer =
   `bun run build && bun run preview` on `:4173` (adapter-node SSR preview). `BETTER_AUTH_URL` must
   match `baseURL` or passkey origin checks fail — the config already guarantees this.
 - **`workers: 1` — keep it.** The test mailbox is a single in-memory array on the server and every
   spec shares one Postgres DB, so specs run **serially** for determinism. Don't add parallelism
   without per-worker DB isolation.
-- **Global setup:** `tests/e2e/global-setup.ts` runs once before the server: `svelte-kit sync` →
+- **Global setup:** `tests/e2e/global-setup.ts` runs once before the specs: `svelte-kit sync` →
   `prisma db push` → wipe all tables → seed two stable users (`admin@example.test` and
   `user@example.test`, password `password123`, admin flag set). Specs generally make their **own**
   throwaway users rather than lean on the seed.
-- **Run:** `bun run test:e2e` (or `bun run test:e2e:ui`). Needs Docker Postgres up
-  (`docker compose up -d`).
+- **Run:** `bun run test:e2e` (or `bun run test:e2e:ui`; extra args pass through, e.g.
+  `bun run test:e2e -g passkey`). Needs only the Docker daemon: `scripts/test-e2e.ts` starts a
+  throwaway `postgres:17` container (random port, tmpfs), injects `DATABASE_URL`, runs Playwright,
+  then removes the container. In CI it skips Docker and uses the job's `postgres` service. The DB
+  is always empty at start, so it's a plain `db push`. **Never use `--force-reset`** (Prisma blocks
+  it for agents) and never run `playwright test` directly.
 
 ## Fixtures — `tests/e2e/fixtures.ts`
 

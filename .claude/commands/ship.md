@@ -11,7 +11,7 @@ fix if any gate fails.
 bun run lint && bun run check && bun run test && bun run test:e2e
 ```
 
-Requires Docker Postgres up (`docker compose up -d`). If anything fails, fix it — do not open a PR
+`test:e2e` needs the Docker daemon (it starts and removes its own throwaway Postgres). If anything fails, fix it — do not open a PR
 on red.
 
 ## 2. Confirm e2e coverage

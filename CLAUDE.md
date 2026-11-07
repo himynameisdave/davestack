@@ -173,8 +173,13 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 bun run lint && bun run check && bun run test && bun run test:e2e
 ```
 
-Requires Docker Postgres up (dev `:5432`, test `:5433`) — `docker compose up -d`. `test:e2e`
-builds + previews on `:4173` against the test DB.
+`test` needs nothing running. `test:e2e` needs only the **Docker daemon**: it runs through
+`scripts/test-e2e.ts`, which starts a throwaway `postgres:17` container (random port, tmpfs), runs
+Playwright against it (build + preview on `:4173`), and removes the container afterwards. Each run
+starts on an empty DB, so global setup does a plain `prisma db push`. **Never add
+`--force-reset`** (Prisma blocks it for agents). Always go through `bun run test:e2e` /
+`test:e2e:ui`: running `playwright test` directly fails fast by design. In CI (`CI` set) the wrapper
+skips Docker and uses the job's fresh `postgres` service container.
 
 ### Unit & component tests — Vitest
 

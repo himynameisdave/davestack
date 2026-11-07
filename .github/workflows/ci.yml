@@ -95,8 +95,9 @@ jobs:
           --health-retries 5
     env:
       # Point the app + Playwright global-setup at the service container. This
-      # overrides the workflow-level DATABASE_URL and the :5433 value in
-      # .env.test (dotenv does not override an already-set env var).
+      # overrides the workflow-level DATABASE_URL. With CI set, scripts/test-e2e.ts
+      # runs Playwright directly (no throwaway Docker DB): this service is already
+      # fresh per job.
       NODE_ENV: test
       TEST_MODE: '1'
       DATABASE_URL: postgresql://davestack:davestack@localhost:5432/davestack_test?schema=public

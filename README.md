@@ -252,9 +252,13 @@ bun run lint && bun run check && bun run test && bun run test:e2e
   browser/e2e suite already proves. See
   [`src/lib/components/ui/input/input.svelte.test.ts`](./src/lib/components/ui/input/input.svelte.test.ts)
   for the pattern.
-- **e2e** (Playwright) builds the app and previews it on `:4173` against the **test database**
-  (`db-test` on `:5433`, config in [`.env.test`](./.env.test)) with `TEST_MODE=1`. Global setup
-  pushes the schema, truncates, and seeds. Fixtures in
+- **e2e** (Playwright) builds the app and previews it on `:4173` against a **throwaway database**
+  with `TEST_MODE=1` (other test env in [`.env.test`](./.env.test)). Locally,
+  [`scripts/test-e2e.ts`](./scripts/test-e2e.ts) starts a fresh `postgres:17` container (random
+  port, tmpfs) for each run and removes it afterwards, so all you need is the Docker daemon. In
+  CI it uses the job's `postgres` service container instead. Global setup pushes the schema,
+  truncates, and seeds. Always run it via `bun run test:e2e` / `test:e2e:ui`, not
+  `playwright test` directly. Fixtures in
   [`tests/e2e/fixtures.ts`](./tests/e2e/fixtures.ts) provide `createUser`, `loginAs`, the in-memory
   mailbox pollers, and `withVirtualAuthenticator`.
 - **Passkey e2e** uses a **CDP WebAuthn virtual authenticator**

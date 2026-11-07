@@ -160,6 +160,13 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 - `{EMOJI} {short imperative}`, ≤ 72 chars. E.g. `🔐 add passkey management to account page`.
   Multi-line body only for large changes. The commit-msg hook enforces emoji-first.
 
+### Pull requests — never open a second PR
+
+- Asked to rebase, fix, or update an existing PR? Push to **that PR's branch** (force-push with
+  `--force-with-lease` after a rebase). **Never** open a new/duplicate PR for work that belongs to an
+  existing one.
+- If pushing to that branch is blocked, stop and ask — don't route around it with another branch/PR.
+
 ### The self-verify loop (run before you call a change done)
 
 ```

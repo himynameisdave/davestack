@@ -42,7 +42,7 @@
     "@himynameisdave/oxfmt-config": "~1.1.0",
     "@himynameisdave/oxlint-config": "~2.3.0",
     "@internationalized/date": "^3.12.4",
-    "@lucide/svelte": "^1.66.0",
+    "@lucide/svelte": "^1.70.0",
     "@playwright/test": "^1.64.1",
     "@sveltejs/adapter-node": "^6.0.1",
     "@sveltejs/kit": "^3.1.1",

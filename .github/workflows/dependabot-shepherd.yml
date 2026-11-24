@@ -28,12 +28,8 @@ jobs:
   shepherd:
     uses: himynameisdave/depbot-shepherd/.github/workflows/shepherd.yml@main
     with:
-      # Scheduled runs merge; manual runs default to dry-run.
       dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}
       max-auto-merge: minor
-      # Balanced: release notes + repo usage + CI are enough evidence to merge
-      # routine patch/minor bumps. Hard safeguards (CI green, mergeable, no
-      # major bumps, high-risk/low-confidence blocks) still always apply.
       review-policy: balanced
       # `model` / `reasoning-effort` are intentionally omitted: the upstream
       # defaults are the cost-effective choice and are pinned there explicitly.

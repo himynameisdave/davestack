@@ -38,8 +38,7 @@
 
     let result;
     try {
-      // No authenticatorAttachment: allow platform authenticators AND roaming
-      // security keys.
+      // Omitting authenticatorAttachment lets users choose built-in or roaming credentials.
       result = await authClient.passkey.addPasskey({ name });
     } catch (error) {
       logger.error('[account] addPasskey threw:', error);
@@ -77,7 +76,6 @@
     <p class="mt-1 text-muted-foreground">Manage your profile and passkeys.</p>
   </div>
 
-  <!-- Profile -->
   <Card>
     <CardHeader>
       <CardTitle>Profile</CardTitle>
@@ -109,7 +107,6 @@
     </CardContent>
   </Card>
 
-  <!-- Passkeys -->
   <Card>
     <CardHeader>
       <CardTitle>Passkeys</CardTitle>

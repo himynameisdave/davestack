@@ -21,8 +21,7 @@ export const actions: Actions = {
         headers: request.headers,
       });
     } catch (error) {
-      // Swallow APIErrors so we never reveal whether an email is registered
-      // (user-enumeration guard). Real bugs still surface.
+      // A uniform response keeps account registration private.
       if (!(error instanceof APIError)) {
         throw error;
       }

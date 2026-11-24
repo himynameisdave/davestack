@@ -3,7 +3,6 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../../generated/prisma/client';
 import { env } from './env';
 
-// Prisma 7 uses driver adapters. PrismaPg talks to Postgres over `pg`.
 const adapter = new PrismaPg({ connectionString: env.DATABASE_URL });
 
 // Reuse a single client across HMR reloads in dev to avoid exhausting connections.

@@ -2,11 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { deriveFeatures, envSchema, env, features, isTestMode } from './env';
 
-// Unit tests for the zod env layer. We exercise the schema and the feature
-// derivation as pure functions (constructed inputs, never process.env) so they
-// are deterministic regardless of the shell the suite runs in.
-
-// oxlint-disable-next-line vitest/prefer-describe-function-title -- Vitest requires a string title for a schema object
+// oxlint-disable-next-line vitest/prefer-describe-function-title -- envSchema is an object, so Vitest needs a string title
 describe('envSchema', () => {
   it('parses an empty object by applying local-dev defaults', () => {
     const parsed = envSchema.parse({});
@@ -14,7 +10,6 @@ describe('envSchema', () => {
     expect(parsed.DATABASE_URL).toMatch(/^postgresql:\/\//u);
     expect(parsed.BETTER_AUTH_SECRET.length).toBeGreaterThan(0);
     expect(parsed.BETTER_AUTH_URL).toMatch(/^http/u);
-    // Optional integrations are absent by default.
     expect(parsed.GOOGLE_CLIENT_ID).toBeUndefined();
     expect(parsed.RESEND_API_KEY).toBeUndefined();
     expect(parsed.PUBLIC_UMAMI_WEBSITE_ID).toBeUndefined();

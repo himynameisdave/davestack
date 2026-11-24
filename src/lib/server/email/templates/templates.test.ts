@@ -32,7 +32,6 @@ describe(buildEmailLayout, () => {
     expect(html).toContain('<p data-marker>inner</p>');
     expect(html).toContain('davestack');
     expect(html).toContain(`&copy; ${YEAR} davestack`);
-    // Rebranded: no smallreads theming leaked through.
     expect(html).not.toContain('smallreads');
   });
 });
@@ -44,7 +43,6 @@ const templates = [
 ] as const;
 
 describe('action templates', () => {
-  // A url with a query `&` so escaping is observable.
   const url = 'https://example.com/action?token=abc123&next=/home';
 
   describe.each(templates)('$name', ({ build }) => {
@@ -64,7 +62,7 @@ describe('action templates', () => {
     it('escapes the url in html but keeps it raw in text', () => {
       expect(message.html).toContain(`href="${escapeHtml(url)}"`);
       expect(message.html).toContain('token=abc123&amp;next=/home');
-      expect(message.html).not.toContain('token=abc123&next'); // raw & must not survive
+      expect(message.html).not.toContain('token=abc123&next');
       expect(message.text).toContain(url);
     });
   });

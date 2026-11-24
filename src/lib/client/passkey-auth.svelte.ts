@@ -4,18 +4,7 @@ import { logger } from '#lib/log.js';
 
 import { authClient } from './auth';
 
-/**
- * Reusable passkey sign-in state machine (Svelte 5 runes). Handles:
- *
- * - Explicit "Sign in with a passkey" clicks
- * - Conditional-UI / autofill where the browser supports it (silent, no error toast when the user dismisses
- *   the sheet)
- * - Graceful degradation where WebAuthn or conditional mediation is unavailable
- * - The Google button, so the login page has one place for "other" sign-in.
- *
- * `redirect` may be a static string or a getter (so callers can pass a $derived
- * value that tracks the current `next` query param).
- */
+// A redirect getter lets the caller use the latest destination when sign-in completes.
 export function createPasskeyAuth(redirect: string | (() => string)) {
   const resolveRedirect = (): string => (typeof redirect === 'function' ? redirect() : redirect);
   let passkeyLoading = $state(false);

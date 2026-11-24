@@ -3,11 +3,6 @@ import { env } from '#lib/server/env.js';
 
 import type { PageServerLoad } from './$types';
 
-// ─── Model count cards — THE EXTENSION POINT ──────────────────────────────
-// To add a model card, append one entry here: a stable `key`, a display `label`,
-// and a `count` thunk returning a Promise<number>. The dashboard renders one stat
-// card per entry automatically — nothing else to touch. Keep these to cheap
-// aggregate COUNT()s and app-agnostic so the template stays generic.
 const MODEL_CARDS = [
   { key: 'users', label: 'Users', count: async () => prisma.user.count() },
   { key: 'sessions', label: 'Sessions', count: async () => prisma.session.count() },
@@ -16,13 +11,7 @@ const MODEL_CARDS = [
   { key: 'verifications', label: 'Verifications', count: async () => prisma.verification.count() },
 ] as const;
 
-// Better Auth records the sign-in method as data, not a dedicated column:
-//   - email + password → an Account row with providerId 'credential'
-//   - OAuth (Google, …) → an Account row keyed by the provider id
-//   - passkey           → at least one Passkey row
-// We derive the method chips from those rows. NOTE: a magic-link-only user leaves
-// NEITHER an Account NOR a Passkey behind, so they correctly show no chip — magic
-// link isn't separately detectable from stored data.
+// Magic-link-only users have neither a provider account nor a passkey to label.
 const CREDENTIAL_PROVIDER = 'credential';
 
 function titleCase(value: string): string {
@@ -37,7 +26,7 @@ function deriveMethods(providerIds: readonly string[], passkeyCount: number): st
   return methods;
 }
 
-// DB host ONLY (host:port) — never expose the full DATABASE_URL, user, or password.
+// The full connection URL contains credentials, so only display its host.
 function dbHostFromUrl(url: string): string {
   try {
     return new URL(url).host || 'unknown';
@@ -61,7 +50,6 @@ export const load: PageServerLoad = async () => {
         emailVerified: true,
         isAdmin: true,
         createdAt: true,
-        // Fetch method-defining rows alongside the user — one round trip, no N+1.
         accounts: { select: { providerId: true } },
         _count: { select: { passkeys: true } },
       },

@@ -40,8 +40,8 @@ Model to add: **$ARGUMENTS** (if empty, ask for the model name and its fields fi
 ## Access & validation reminders
 
 - Any query goes through the `prisma` singleton from `#lib/server/db.js`.
-- Any create/update form validates input with a **zod schema in `src/lib/schemas/`** — never hand-
-  roll validation. Use `parseForm(request, schema)` from `#lib/server/form.js`.
+- For create/update forms, define a zod schema in `src/lib/schemas/` and call
+  `parseForm(request, schema)` from `#lib/server/form.js`.
 - Scope mutations to `locals.user.id` (server-side) so one user can't touch another's rows.
 
 ## Verify

@@ -14,23 +14,11 @@ export type OutboundEmail = {
   text: string;
 };
 
-// In-memory capture used by the test harness. The test-only /api/test/mailbox
-// endpoint (added with the test suite) reads this back so e2e specs can extract
-// verification / magic-link tokens. Never populated outside TEST_MODE.
+// The Playwright mailbox endpoint reads this buffer to retrieve auth links.
 export const testMailbox: OutboundEmail[] = [];
 
 const DEFAULT_FROM = 'davestack <onboarding@resend.dev>';
 
-/**
- * Transport selection:
- *
- * - TEST_MODE → capture into testMailbox (asserted by e2e), never sent
- * - Resend + prod → real send via Resend
- * - Otherwise (dev) → pretty-print to the console so links are clickable locally
- *
- * This is the seam the email phase builds on: it swaps the plain-text bodies
- * below for branded templates but keeps these sender signatures stable.
- */
 export async function sendEmail(message: Readonly<OutboundEmail>): Promise<void> {
   if (isTestMode) {
     testMailbox.push(message);
@@ -52,14 +40,11 @@ export async function sendEmail(message: Readonly<OutboundEmail>): Promise<void>
     return;
   }
 
-  // The console IS the local-dev mailbox when Resend is not configured.
+  // Print the link so local verification and password reset work without an email provider.
   const indentedText = message.text.replaceAll('\n', '\n   ');
   logger.info(`\n📧 [email] to=${message.to}\n   subject: ${message.subject}\n   ${indentedText}\n`);
 }
 
-// Senders keep these exact signatures — the auth email hooks depend on them.
-// Each builds its message from a branded template (which escapes interpolated
-// values) and defers to sendEmail() for transport selection.
 export async function sendVerificationEmail(to: string, url: string): Promise<void> {
   await sendEmail({ to, ...verifyEmailTemplate(url) });
 }

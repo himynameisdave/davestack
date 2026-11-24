@@ -1,10 +1,3 @@
-// Prisma schema — Better Auth tables only (User/Session/Account/Verification/Passkey)
-// plus the `isAdmin` flag. Add your app's models below the marked section.
-//
-// Never edit the generated client in src/generated/prisma — change this file and migrate:
-//   bun run db:migrate    (creates a migration in dev)
-//   bun run db:push       (pushes without a migration; handy for prototyping)
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -90,5 +83,3 @@ model Verification {
 }
 
 // ─── App tables ───────────────────────────────────────────────────────
-// Add project-specific models here. When you do, remember the davestack loop:
-// migrate → add an admin dashboard card → add an e2e spec. See /new-model.

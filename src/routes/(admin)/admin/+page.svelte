@@ -1,9 +1,5 @@
 <script lang="ts">
   import { Badge } from '#lib/components/ui/badge/index.js';
-  // Read-only admin dashboard. This is a WINDOW, not a control panel: strictly
-  // NO forms, NO actions, NO edit/delete/impersonate controls. It only observes
-  // data. If you need to mutate something, build that surface elsewhere and keep
-  // this one observe-only.
   import {
     Card,
     CardContent,
@@ -34,7 +30,6 @@
     <p class="mt-1 text-muted-foreground">A read-only overview of your application's data.</p>
   </div>
 
-  <!-- Model counts (extension point lives in +page.server.ts: MODEL_CARDS) -->
   <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
     {#each data.modelCards as card (card.key)}
       <Card>
@@ -47,7 +42,6 @@
   </div>
 
   <div class="grid gap-4 md:grid-cols-2">
-    <!-- Sessions summary -->
     <Card>
       <CardHeader>
         <CardTitle>Sessions</CardTitle>
@@ -65,7 +59,6 @@
       </CardContent>
     </Card>
 
-    <!-- App metadata -->
     <Card>
       <CardHeader>
         <CardTitle>Application</CardTitle>
@@ -86,7 +79,6 @@
     </Card>
   </div>
 
-  <!-- Recent signups -->
   <Card>
     <CardHeader>
       <CardTitle>Recent signups</CardTitle>
@@ -148,7 +140,6 @@
     </CardContent>
   </Card>
 
-  <!-- Recent sessions -->
   {#if data.sessions.recent.length > 0}
     <Card>
       <CardHeader>

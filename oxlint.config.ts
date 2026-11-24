@@ -34,7 +34,8 @@ export default defineConfig({
   },
   overrides: [
     {
-      // App code reads validated env and uses Svelte runes for reactive state.
+      // App code reads validated env, parses form actions through parseForm, and uses Svelte runes
+      // for reactive state.
       files: ['src/**'],
       rules: {
         'eslint/no-restricted-properties': [
@@ -43,6 +44,11 @@ export default defineConfig({
             object: 'process',
             property: 'env',
             message: 'Declare the variable in src/lib/server/env.ts and import env from #lib/server/env.js.',
+          },
+          {
+            object: 'request',
+            property: 'formData',
+            message: 'Use parseForm(request, schema) from #lib/server/form.js.',
           },
         ],
         'eslint/no-restricted-imports': [
@@ -62,12 +68,35 @@ export default defineConfig({
     {
       // The env schema is the single entry point for raw environment variables in app code.
       files: ['src/lib/server/env.ts'],
-      rules: { 'eslint/no-restricted-properties': 'off' },
+      rules: {
+        'eslint/no-restricted-properties': [
+          'error',
+          {
+            object: 'request',
+            property: 'formData',
+            message: 'Use parseForm(request, schema) from #lib/server/form.js.',
+          },
+        ],
+      },
     },
     {
       // Keep the admin dashboard read-only. Other pages can still export form actions.
       files: ['src/routes/(admin)/admin/+page.server.ts'],
       rules: { 'eslint/no-restricted-exports': ['error', { restrictedNamedExports: ['actions'] }] },
+    },
+    {
+      // The shared helper reads the request body for form actions.
+      files: ['src/lib/server/form.ts'],
+      rules: {
+        'eslint/no-restricted-properties': [
+          'error',
+          {
+            object: 'process',
+            property: 'env',
+            message: 'Declare the variable in src/lib/server/env.ts and import env from #lib/server/env.js.',
+          },
+        ],
+      },
     },
     {
       // CLI entry points (setup wizard, git hooks, DB seed): console IS their user interface and

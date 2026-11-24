@@ -3,6 +3,7 @@ import { APIError } from 'better-auth/api';
 
 import { resetPasswordSchema } from '#lib/schemas/auth.js';
 import { auth } from '#lib/server/auth/index.js';
+import { formError, parseForm } from '#lib/server/form.js';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -16,14 +17,10 @@ export const load: PageServerLoad = ({ url }) =>
 
 export const actions: Actions = {
   default: async ({ request }) => {
-    const data = await request.formData();
-    const parsed = resetPasswordSchema.safeParse({
-      token: data.get('token'),
-      password: data.get('password'),
-    });
+    const { parsed } = await parseForm(request, resetPasswordSchema);
 
     if (!parsed.success) {
-      return fail(400, { error: parsed.error.issues[0]?.message ?? 'Invalid input' });
+      return fail(400, { error: formError(parsed.error) });
     }
 
     try {

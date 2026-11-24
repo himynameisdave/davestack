@@ -98,9 +98,10 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 ### Validation — zod is first-class
 
 - **All** env, form, and action input is validated with zod. Never hand-roll validation.
-- Form/action schemas live in `src/lib/schemas/` (e.g. `src/lib/schemas/auth.ts`). In an action:
-  `const parsed = schema.safeParse({...}); if (!parsed.success) return fail(400, {...});`.
-- `src/lib/server/form.ts` `field(data, name)` reads a FormData value as a clean string for zod.
+- Form/action schemas live in `src/lib/schemas/` (e.g. `src/lib/schemas/auth.ts`). Use
+  `parseForm(request, schema)` from `#lib/server/form.js` and validate with `parsed.success`.
+- Pass `formError(parsed.error)` to `fail()` on validation errors. Pick the fields from `values`
+  that the page needs to refill, leaving credentials and tokens out of the response.
 
 ### Environment
 

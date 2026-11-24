@@ -35,7 +35,7 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
   `lint:fix`, `format`, `format:check`, `test`, `test:e2e`, `test:e2e:ui`, `db:push`, `db:migrate`,
   `db:studio`, `db:seed`, `db:reset`.
 - **Lint/format is oxlint + oxfmt-style formatting**, not ESLint/Prettier. `bun run lint` runs
-  `oxlint -c oxlint.config.ts --deny-warnings --type-aware`; `bun run format` / `format:check` run
+  type-aware Oxlint using `oxlint.config.ts`. `bun run format` / `format:check` run
   **`bun fmt`** / `bun fmt --check` — Bun's built-in formatter, which reads `oxfmt.config.ts`
   directly and prints oxfmt-identical output (~5× faster). lint-staged runs `bun fmt` too. It owns
   everything incl. `.svelte`, `.md`, `.json`. Indentation is **spaces** (2), single quotes,
@@ -85,11 +85,6 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
   `rm -rf .svelte-kit && bun run check` — a `Cannot find module './$types'` storm means sync
   degraded, so repin to 6 rather than "fixing" the imports. Trap-test before believing a green run.
 
-### Svelte 5 — runes only
-
-- Use `$state` / `$props` / `$derived` / `$effect`. **No `export let`**, no `$:` reactive
-  statements, no legacy stores (`writable`/`readable`). Props: `let { data, children } = $props();`.
-
 ### SvelteKit 3
 
 - Kit config lives in `vite.config.ts` as `sveltekit({ ... })` options. There is no `svelte.config.js`.
@@ -109,8 +104,6 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 
 ### Environment
 
-- **All server env goes through `src/lib/server/env.ts`** (zod-validated at boot). Never read
-  `process.env` ad hoc in app code.
 - Browser-safe env (`PUBLIC_UMAMI_*`) is declared in `src/env.ts` with `defineEnvVars` and imported
   from `$app/env/public`. Never put secrets there.
 - Import the derived helpers: `features` (`.google` / `.resend` / `.umami` presence booleans) and
@@ -151,8 +144,8 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 ### Extension points
 
 - **Admin dashboard `MODEL_CARDS`** in `src/routes/(admin)/admin/+page.server.ts` — append
-  `{ key, label, count: () => prisma.<model>.count() }` to add a stat card. It's read-only: NO
-  forms/actions/mutations on the admin dashboard.
+  `{ key, label, count: () => prisma.<model>.count() }` to add a stat card. Keep dashboard loads
+  read-only and leave mutation controls off the dashboard.
 - **Modular auth files** in `src/lib/server/auth/` — add/remove a login method as one file.
 
 ### Commits — emoji format (NOT conventional commits)

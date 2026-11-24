@@ -20,5 +20,7 @@ test.describe('admin area', () => {
     await expect(page.getByRole('heading', { name: 'Admin' })).toBeVisible();
     // The "Users" model-count stat card is always present.
     await expect(page.getByText('Users', { exact: true })).toBeVisible();
+    const gitSha = process.env.RAILWAY_GIT_COMMIT_SHA ?? 'unknown';
+    await expect(page.getByRole('definition').filter({ hasText: gitSha })).toHaveText(gitSha);
   });
 });

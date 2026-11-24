@@ -34,6 +34,9 @@ export const envSchema = z.object({
   PUBLIC_UMAMI_WEBSITE_ID: z.string().min(1).optional(),
   PUBLIC_UMAMI_SRC: z.string().min(1).optional(),
 
+  // Injected by Railway for the admin dashboard's deployment metadata.
+  RAILWAY_GIT_COMMIT_SHA: z.string().optional(),
+
   // Test harness flag (Playwright/Vitest). Enables the in-memory mailbox etc.
   TEST_MODE: z.string().optional(),
 });

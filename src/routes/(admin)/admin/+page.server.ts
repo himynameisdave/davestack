@@ -116,7 +116,7 @@ export const load: PageServerLoad = async () => {
     meta: {
       nodeEnv: env.NODE_ENV,
       // Railway injects the deployed commit SHA; locally it's simply absent.
-      gitSha: process.env.RAILWAY_GIT_COMMIT_SHA ?? 'unknown',
+      gitSha: env.RAILWAY_GIT_COMMIT_SHA ?? 'unknown',
       dbHost: dbHostFromUrl(env.DATABASE_URL),
       version: __APP_VERSION__,
     },

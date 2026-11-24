@@ -6,11 +6,6 @@ import type { RequestEvent } from '@sveltejs/kit';
 
 export type TierName = 'auth' | 'form' | 'general';
 
-/**
- * Maps a request to a rate-limit tier by pathname + method. Returns null for
- * ordinary page loads (GET), which are not rate limited. Extend with your own
- * tiers (e.g. 'search', 'write') as the app grows.
- */
 export function resolveLimiterKey(pathname: string, method: string): TierName | null {
   if (pathname.startsWith('/api/auth/')) {
     return 'auth';
@@ -33,8 +28,7 @@ export const limiters: Record<TierName, RetryAfterRateLimiter> = {
 export async function checkRateLimit(
   event: RequestEvent,
 ): Promise<{ limited: boolean; retryAfter?: number }> {
-  // Never throttle the test suite — e2e drives auth endpoints deterministically
-  // and would otherwise trip the limiter and go flaky.
+  // Browser specs share one client IP and would exhaust the auth tier together.
   if (isTestMode) {
     return { limited: false };
   }

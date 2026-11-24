@@ -1,7 +1,5 @@
 import { buildActionEmail, type EmailTemplate } from './layout';
 
-// Sign-up email verification. `url` is the Better-Auth-generated confirmation
-// link handed to us by the `sendVerificationEmail` hook.
 export function verifyEmailTemplate(url: string): EmailTemplate {
   return buildActionEmail({
     subject: 'Verify your email',

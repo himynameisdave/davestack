@@ -1,12 +1,6 @@
 import { z } from 'zod';
 
-// Single source of truth for environment configuration. Validated once at boot
-// (imported by hooks.server.ts) so the app fails fast with a clear message rather
-// than crashing deep in a request. Reads process.env directly (not $env/*) so the
-// same module works inside SvelteKit AND in standalone bun scripts (prisma/seed.ts).
-//
-// Local-dev defaults let a fresh clone boot with zero config. Production hardens:
-// booting with the dev secret or the local DB URL is a hard failure.
+// The same environment loader runs in SvelteKit and standalone Prisma scripts.
 
 const DEV_AUTH_SECRET = 'dev-secret-change-me-before-deploying';
 const LOCAL_DATABASE_URL = 'postgresql://davestack:davestack@localhost:5432/davestack?schema=public';
@@ -15,18 +9,13 @@ const LOCAL_AUTH_URL = 'http://localhost:5173';
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
-  // Required (defaulted for local dev)
   DATABASE_URL: z.string().min(1).default(LOCAL_DATABASE_URL),
   DIRECT_DATABASE_URL: z.string().min(1).optional(),
   BETTER_AUTH_SECRET: z.string().min(1).default(DEV_AUTH_SECRET),
   BETTER_AUTH_URL: z.url().default(LOCAL_AUTH_URL),
 
-  // Passkeys — RP ID defaults to the BETTER_AUTH_URL hostname; override only for
-  // multi-subdomain setups (see README "Passkeys across environments").
   PASSKEY_RP_ID: z.string().min(1).optional(),
 
-  // Optional integrations. Absence is a supported state — the app degrades, it
-  // does not crash. `features` below turns presence into booleans for call sites.
   GOOGLE_CLIENT_ID: z.string().min(1).optional(),
   GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
   RESEND_API_KEY: z.string().min(1).optional(),
@@ -37,11 +26,9 @@ export const envSchema = z.object({
   // Injected by Railway for the admin dashboard's deployment metadata.
   RAILWAY_GIT_COMMIT_SHA: z.string().optional(),
 
-  // Test harness flag (Playwright/Vitest). Enables the in-memory mailbox etc.
   TEST_MODE: z.string().optional(),
 });
 
-// The validated shape. Exported so tests (and callers) can reason about it.
 export type Env = z.infer<typeof envSchema>;
 
 function loadEnv() {
@@ -58,10 +45,7 @@ function loadEnv() {
 
 export const env = loadEnv();
 
-// Production hardening. Kept OUT of loadEnv() so it doesn't fire during
-// `vite build` (SvelteKit's analyse step imports server modules with
-// NODE_ENV=production and no real secrets — the app must build without them).
-// Called once at runtime boot from hooks.server.ts, guarded by `!building`.
+// Validate production settings at runtime. Vite imports this module during builds without secrets.
 export function assertProductionReady(): void {
   if (env.NODE_ENV !== 'production') {
     return;
@@ -76,10 +60,6 @@ export function assertProductionReady(): void {
   }
 }
 
-// Presence flags for optional integrations. Import `features` instead of
-// re-checking env vars at call sites, so "is Google configured?" lives in
-// exactly one place. Split out as a pure function so it can be unit-tested
-// against a constructed env without touching process.env.
 export function deriveFeatures(source: Readonly<Env>) {
   return {
     google: Boolean(source.GOOGLE_CLIENT_ID && source.GOOGLE_CLIENT_SECRET),

@@ -4,19 +4,7 @@ import { hashPassword } from 'better-auth/crypto';
 
 import { PrismaClient } from '../../src/generated/prisma/client';
 
-// Reusable e2e helpers. These are the building blocks every spec composes, and
-// the /new-route + davestack-e2e docs (Phase 10) point here — so keep the
-// signatures stable and the behaviour boring.
-//
-//   createUser(opts?)              → make a throwaway user (User + credential Account)
-//   loginAs(page, creds)           → sign the browser in via the real auth API
-//   withVirtualAuthenticator(page) → attach a CDP WebAuthn virtual authenticator
-//   getLatestEmail(request, to)    → poll the test mailbox for the newest email
-//   extractLink(email)             → pull the action URL out of an email's text
-//   clearMailbox(request)          → empty the test mailbox
-
-// Fixtures talk to the same throwaway test DB the app does. Workers inherit
-// DATABASE_URL from `bun run test:e2e` (scripts/test-e2e.ts) or the CI job env.
+// Workers inherit DATABASE_URL from `bun run test:e2e` or the CI job env.
 const { DATABASE_URL } = process.env;
 if (!DATABASE_URL) {
   throw new Error('DATABASE_URL is not set — run e2e via `bun run test:e2e`.');
@@ -34,12 +22,6 @@ export type CreatedUser = {
   isAdmin: boolean;
 };
 
-/**
- * Insert a fresh user + credential Account directly (bypasses signup). Defaults
- * to a unique email and a verified account so it can log in immediately with a
- * password. Every call gets a distinct email, so serial/parallel specs never
- * collide.
- */
 export async function createUser(
   options: Readonly<{
     email?: string;
@@ -70,13 +52,7 @@ export async function createUser(
   return { id, email, password, isAdmin };
 }
 
-/**
- * Log the browser in by POSTing to the real email sign-in endpoint. We use the
- * API (not a forged cookie) because `page.request` shares the browser context's
- * cookie jar: the Set-Cookie from the response lands in the context, so every
- * subsequent `page.goto` is authenticated. It exercises the true auth path and
- * needs no HMAC cookie-signing helper to stay in sync with Better Auth.
- */
+// page.request shares the browser's cookie jar, so the real login authenticates later navigations.
 export async function loginAs(
   page: Page,
   credentials: Readonly<{ email: string; password: string }>,
@@ -90,19 +66,7 @@ export async function loginAs(
   ).toBe(true);
 }
 
-/**
- * Attach a CDP WebAuthn virtual authenticator to the page. This is the correct
- * way to test passkeys end-to-end — it makes navigator.credentials create/get
- * ceremonies succeed without mocking. Chromium only (CDP feature).
- *
- * `hasResidentKey` + `hasUserVerification` + `isUserVerified` +
- * `automaticPresenceSimulation` make it a discoverable credential that "just
- * works", enabling passwordless (usernameless) sign-in.
- *
- * Call `cleanup()` in afterEach (or ignore it — the authenticator dies with the
- * page). Credentials persist across navigations within the same page, which is
- * what lets a spec register a passkey and then sign in with it.
- */
+// Resident credentials support usernameless sign-in. Keep the same page so the credential survives navigation.
 export async function withVirtualAuthenticator(
   page: Page,
 ): Promise<{ authenticatorId: string; cleanup: () => Promise<void> }> {
@@ -138,11 +102,6 @@ export type CapturedEmail = {
   text: string;
 };
 
-/**
- * Poll GET /api/test/mailbox?to=<to> until an email shows up, returning the
- * newest one. Email sending is awaited inside the auth actions, but we poll
- * anyway so timing is never a source of flake.
- */
 export async function getLatestEmail(request: APIRequestContext, to: string): Promise<CapturedEmail> {
   // oxlint-disable eslint/no-await-in-loop -- polling: each probe must complete before the next
   for (let attempt = 0; attempt < 40; attempt++) {
@@ -170,7 +129,6 @@ export function extractLink(email: Readonly<CapturedEmail>): string {
   return match[0];
 }
 
-/** Empty the test mailbox (reset between flows that assert email counts). */
 export async function clearMailbox(request: APIRequestContext): Promise<void> {
   await request.delete('/api/test/mailbox');
 }

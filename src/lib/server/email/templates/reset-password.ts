@@ -1,7 +1,5 @@
 import { buildActionEmail, type EmailTemplate } from './layout';
 
-// Password reset. `url` is the Better-Auth-generated reset link handed to us by
-// the `sendResetPassword` hook.
 export function resetPasswordTemplate(url: string): EmailTemplate {
   return buildActionEmail({
     subject: 'Reset your password',

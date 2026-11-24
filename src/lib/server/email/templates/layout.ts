@@ -1,7 +1,5 @@
 import { escapeHtml } from './escape';
 
-// A rendered email: the three fields Better Auth's hooks / our senders pass
-// straight to the transport. `to` is added by the sender, not the template.
 export type EmailTemplate = {
   subject: string;
   html: string;
@@ -20,9 +18,7 @@ const COLOR = {
   muted: '#a8a29e', // stone-400 — footer, disclaimer
 } as const;
 
-// Table-based, inline-styled HTML shell. No external assets or web fonts so it
-// renders identically in every client. Rebranded from smallreads' layout with
-// all book/literary theming and hardcoded colors removed.
+// Inline styles and table layout improve compatibility with email clients.
 export function buildEmailLayout(content: string): string {
   const year = new Date().getFullYear();
   return `<!doctype html>
@@ -71,11 +67,6 @@ type ActionEmailInput = {
   note: string;
 };
 
-// Shared composer for our "click this button" emails (verify / magic-link /
-// reset). Every value that lands in HTML is escaped: the url is the only truly
-// dynamic input today (Better-Auth-generated), but escaping the copy too keeps
-// this safe-by-default if a caller ever interpolates user-controlled text. The
-// plain-text alternative uses the raw url so it stays clickable in text clients.
 export function buildActionEmail(input: Readonly<ActionEmailInput>): EmailTemplate {
   const heading = escapeHtml(input.heading);
   const intro = escapeHtml(input.intro);

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { extractLink, getLatestEmail } from './fixtures';
+import { createUser, extractLink, getLatestEmail } from './fixtures';
 
 test('signup validation preserves name and email and keeps the password out of the response', async ({ page }) => {
   const name = 'New User';
@@ -36,8 +36,6 @@ test('signup → verify email → password login → /home', async ({ page }) =>
     };
   });
 
-  // 1. Sign up. requireEmailVerification is on, so this does NOT log us in — it
-  //    creates an unverified account and sends a verification email.
   await page.goto('/signup');
   await page.getByLabel('Name').fill('New User');
   await page.getByLabel('Email').fill(email);
@@ -53,12 +51,11 @@ test('signup → verify email → password login → /home', async ({ page }) =>
     .poll(async () => page.evaluate(() => sessionStorage.getItem('signup-events')))
     .toBe(JSON.stringify([{ event: 'signup_completed', data: { method: 'password' } }]));
 
-  // 2. Read the verification link from the mailbox and visit it.
   const verifyEmail = await getLatestEmail(page.request, email);
   expect(verifyEmail.subject).toBe('Verify your email');
   await page.goto(extractLink(verifyEmail));
 
-  // 3. Now log in with the password (autoSignInAfterVerification is off).
+  // Verification leaves the browser signed out so this exercises password login.
   await page.goto('/login');
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill(password);
@@ -66,4 +63,31 @@ test('signup → verify email → password login → /home', async ({ page }) =>
 
   await expect(page).toHaveURL(/\/home$/u);
   await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
+});
+
+test('password reset shows the same confirmation for registered and unregistered emails', async ({ page }) => {
+  const user = await createUser();
+
+  const requestReset = async (email: string) => {
+    await page.goto('/forgot-password');
+    await page.getByLabel('Email').fill(email);
+    await page.getByRole('button', { name: 'Send reset link' }).click();
+    await expect(page.getByText('Check your email')).toBeVisible();
+    await expect(page.getByText('If an account exists for')).toBeVisible();
+  };
+
+  await requestReset(`unknown-${crypto.randomUUID()}@example.test`);
+  await requestReset(user.email);
+
+  const resetEmail = await getLatestEmail(page.request, user.email);
+  await page.goto(extractLink(resetEmail));
+  const password = 'new-password123';
+  await page.getByLabel('New password').fill(password);
+  await page.getByRole('button', { name: 'Update password' }).click();
+  await expect(page).toHaveURL(/\/login\?reset=success$/u);
+
+  await page.getByLabel('Email').fill(user.email);
+  await page.getByLabel('Password').fill(password);
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await expect(page).toHaveURL(/\/home$/u);
 });

@@ -17,8 +17,6 @@ export const actions: Actions = {
     }
 
     try {
-      // requireEmailVerification is on, so this creates the (unverified) user and
-      // sends a verification email — it does NOT sign them in yet.
       await auth.api.signUpEmail({
         body: {
           name: parsed.data.name,

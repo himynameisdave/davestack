@@ -25,8 +25,6 @@ type Violation = { file: string; line: number; message: string };
 
 const CWD = process.cwd();
 
-// Directories where console.log is allowed (server logging, scripts, seeds, tests), plus
-// src/lib/log.ts — the single sanctioned console seam every other app file logs through.
 const CONSOLE_ALLOWED = [
   /^src\/lib\/log\.ts$/u,
   /^src\/lib\/server\//u,
@@ -35,7 +33,6 @@ const CONSOLE_ALLOWED = [
   /^tests\//u,
 ];
 
-// .env files that ARE allowed to be committed.
 const ENV_ALLOWED = new Set(['.env.example', '.env.test']);
 
 const CODE_EXT = /\.(?:[cm]?[jt]s|[jt]sx|svelte)$/u;
@@ -107,11 +104,9 @@ function lintDisableViolations(file: string, text: string): Violation[] {
 const violations: Violation[] = [];
 
 for (const rawFile of stagedFiles()) {
-  // Normalise to a repo-relative POSIX-ish path for matching.
   const file = rawFile.replaceAll('\\', '/');
   const base = basename(file);
 
-  // --- .env* files (path check, no content read needed) ---
   if (ENV_FILE.test(base) && !ENV_ALLOWED.has(base)) {
     violations.push({
       file,
@@ -137,17 +132,14 @@ for (const rawFile of stagedFiles()) {
   for (const [i, line] of lines.entries()) {
     const n = i + 1;
 
-    // Conflict markers — any text file.
     if (/^<{7}(?:\s|$)/u.test(line) || /^={7}$/u.test(line) || /^>{7}(?:\s|$)/u.test(line)) {
       violations.push({ file, line: n, message: 'git conflict marker' });
     }
 
     if (isCode) {
-      // `debugger` statement.
       if (/(?:^|[\s;{}])debugger\s*(?:;|$)/u.test(line)) {
         violations.push({ file, line: n, message: '`debugger` statement' });
       }
-      // console.log outside allowed dirs.
       if (!consoleAllowed && /\bconsole\.log\s*\(/u.test(line)) {
         violations.push({
           file,
@@ -158,7 +150,6 @@ for (const rawFile of stagedFiles()) {
       }
     }
 
-    // Focused / skipped tests.
     if (isTest && /\.(?:only|skip)\s*\(/u.test(line)) {
       violations.push({ file, line: n, message: 'focused/skipped test (.only / .skip)' });
     }

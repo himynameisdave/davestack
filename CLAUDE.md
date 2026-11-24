@@ -24,6 +24,8 @@ Until this is filled in, treat the app as a generic authenticated SvelteKit star
 
 Terse rules transcribed from how this repo actually works. Follow them exactly.
 
+- Comments explain _why_. Put enforceable rules in a check.
+
 ### Runtime & tooling
 
 - **Bun only.** No `npm` / `npx` / `yarn`. Use `bun run <script>`, `bun install`, `bunx`.
@@ -34,8 +36,8 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 - Scripts live in `package.json`. The real ones: `dev`, `build`, `preview`, `check`, `lint`,
   `lint:fix`, `format`, `format:check`, `test`, `test:e2e`, `test:e2e:ui`, `db:push`, `db:migrate`,
   `db:studio`, `db:seed`, `db:reset`.
-- **Lint/format is oxlint + oxfmt-style formatting**, not ESLint/Prettier. `bun run lint` runs
-  type-aware Oxlint using `oxlint.config.ts`. `bun run format` / `format:check` run
+- **Lint/format uses oxlint + oxfmt-style formatting.** `bun run lint` runs type-aware checks and
+  treats warnings, including unused disables, as errors. `bun run format` / `format:check` run
   **`bun fmt`** / `bun fmt --check` — Bun's built-in formatter, which reads `oxfmt.config.ts`
   directly and prints oxfmt-identical output (~5× faster). lint-staged runs `bun fmt` too. It owns
   everything incl. `.svelte`, `.md`, `.json`. Indentation is **spaces** (2), single quotes,
@@ -51,7 +53,7 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
   itself is pinned `^0.74.0` — the shared config's peer floor.
 - **Lint rules come from `@himynameisdave/oxlint-config`** (extended in `oxlint.config.ts`).
   Don't re-enable rules the shared config decides; project-local deltas live in
-  `oxlint.config.ts` and each carries a justification comment (rule-pair conflicts,
+  `oxlint.config.ts`. Explain why each exception exists (rule-pair conflicts,
   Prisma/SvelteKit allowlists, CLI-script console/exit, Playwright-vs-vitest override).
 
 ### TypeScript — split toolchain (TS 6 for Svelte tooling, TS 7 / tsgo for checking)
@@ -126,7 +128,7 @@ Terse rules transcribed from how this repo actually works. Follow them exactly.
 - Assembled in `src/lib/server/auth/index.ts`. **One method per file** in `src/lib/server/auth/`:
   `email-password.ts`, `magic-link.ts`, `google.ts` (env-conditional), `passkey.ts`.
 - **Removing a method = delete its file + drop its import/reference in `index.ts`** (and the client
-  plugin in `src/lib/client/auth.ts` for magic-link/passkey). Each file's header documents this.
+  plugin in `src/lib/client/auth.ts` for magic-link/passkey). See the README for each method's steps.
 - **Email senders in `src/lib/server/email/` have STABLE signatures** auth depends on:
   `sendVerificationEmail(to, url)`, `sendMagicLinkEmail(to, url)`, `sendResetPasswordEmail(to, url)`.
   Don't change their shape.

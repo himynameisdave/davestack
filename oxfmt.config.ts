@@ -3,7 +3,6 @@ import { defineConfig } from 'oxfmt';
 
 export default defineConfig({
   ...svelte,
-  // Prisma client is generated into src/generated and never hand-edited.
   ignorePatterns: ['src/generated/**'],
   sortTailwindcss: {
     ...svelte.sortTailwindcss,

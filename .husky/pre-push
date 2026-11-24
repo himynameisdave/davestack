@@ -1,3 +1,2 @@
-# Deeper gate before code leaves the machine: full type-aware check + unit tests.
-# Playwright/e2e is intentionally excluded here (too slow for every push) — CI runs it.
+# CI runs the slower browser suite after push.
 bun run check && bun run test

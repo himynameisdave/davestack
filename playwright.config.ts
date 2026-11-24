@@ -1,8 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 
-// Load the committed test env FIRST so both this config and the webServer it
-// spawns see TEST_MODE and the auth secret/URL.
+// Load the test environment before deriving settings for the runner and preview server.
 dotenv.config({ path: '.env.test' });
 
 // The test DB is always disposable: `bun run test:e2e` (scripts/test-e2e.ts)
@@ -24,10 +23,7 @@ export default defineConfig({
   globalSetup: './tests/e2e/global-setup.ts',
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  // workers: 1 — the test mailbox is a single in-memory array on the server and
-  // all specs share one Postgres DB. A template favours deterministic, easy-to-
-  // read runs over raw speed, so we execute serially rather than isolate per
-  // worker. Bump this (and add per-worker DB isolation) only if the suite grows.
+  // Workers share one database and one in-memory mailbox.
   workers: 1,
   reporter: process.env.CI ? [['html'], ['github']] : 'html',
   use: {
@@ -36,25 +32,19 @@ export default defineConfig({
   },
   projects: [
     {
-      // Chromium only: the passkey specs drive a CDP WebAuthn *virtual
-      // authenticator* (WebAuthn.addVirtualAuthenticator), which is a
-      // Chrome DevTools Protocol feature — Firefox/WebKit have no equivalent.
+      // The passkey specs use Chromium's CDP virtual authenticator.
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
   ],
   webServer: {
-    // adapter-node build, then SvelteKit's `vite preview` SSR server on :4173.
-    // Verified to serve the built app on 4173 (see the testing phase notes).
     command: 'bun run build && bun run preview',
     port: PORT,
     // Never reuse: every run gets a new throwaway DB, and a server left over from
     // an earlier run would still point at that run's (now deleted) database.
     reuseExistingServer: false,
     timeout: 180_000,
-    // Pass the test env explicitly. `...process.env` keeps PATH etc. for the
-    // build; the named six guarantee the server boots against the throwaway DB with
-    // a BETTER_AUTH_URL that matches baseURL (passkey origin checks depend on it).
+    // The preview server needs the same database and WebAuthn origin as the runner.
     env: {
       ...process.env,
       NODE_ENV: process.env.NODE_ENV ?? 'test',

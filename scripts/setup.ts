@@ -1,19 +1,4 @@
 #!/usr/bin/env bun
-/**
- * Interactive first-run setup for a fresh clone of the davestack template.
- *
- * Run it once, right after `bun install`, with `bun run setup`. It:
- *
- * 1. Asks for your project name and rewrites the template's branding (package.json name, the <title>, the PWA
- *    manifest, the visible app name);
- * 2. Creates `.env.local` with a freshly generated BETTER_AUTH_SECRET (never clobbers an existing one without
- *    asking);
- * 3. Brings up the local Postgres, pushes the schema, and seeds it;
- * 4. Checks that the git hooks were installed by `bun install`'s prepare step.
- *
- * It is idempotent and safe to re-run: already-renamed branding is left alone and
- * an existing `.env.local` is only touched with your confirmation.
- */
 import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -41,7 +26,6 @@ async function confirm(question: string): Promise<boolean> {
   return answer === 'y' || answer === 'yes';
 }
 
-// A package.json `name` must be lowercase, url-safe, no leading dot/underscore.
 function slugify(name: string): string {
   return (
     name
@@ -60,7 +44,6 @@ function write(path: string, content: string): void {
   writeFileSync(join(ROOT, path), content);
 }
 
-// Replace the exact display string in a file, only if present (keeps re-runs safe).
 function replaceInFile(path: string, from: string, to: string): boolean {
   const full = join(ROOT, path);
   if (!existsSync(full)) {
@@ -74,7 +57,6 @@ function replaceInFile(path: string, from: string, to: string): boolean {
   return true;
 }
 
-// The Svelte files that render the visible "davestack" wordmark as text.
 const BRAND_FILES = [
   'src/routes/(marketing)/+page.svelte',
   'src/routes/(auth)/login/+page.svelte',
@@ -89,7 +71,6 @@ const BRAND_FILES = [
 function rebrand(displayName: string): void {
   const slug = slugify(displayName);
 
-  // package.json name (slug form).
   const pkg = JSON.parse(read('package.json')) as { name: string };
   if (pkg.name !== slug) {
     pkg.name = slug;
@@ -97,7 +78,6 @@ function rebrand(displayName: string): void {
     log(`  · package.json name → "${slug}"`);
   }
 
-  // Visible wordmark in the UI.
   let uiHits = 0;
   for (const file of BRAND_FILES) {
     if (replaceInFile(file, '>davestack<', `>${displayName}<`)) {
@@ -108,7 +88,6 @@ function rebrand(displayName: string): void {
     log(`  · app wordmark → "${displayName}" (${uiHits} file(s))`);
   }
 
-  // <title> + apple web-app title in app.html.
   const titleHit = replaceInFile(
     'src/app.html',
     '<title>davestack</title>',
@@ -119,7 +98,6 @@ function rebrand(displayName: string): void {
     log(`  · document <title> → "${displayName}"`);
   }
 
-  // PWA manifest name + short_name.
   const manifestPath = 'static/manifest.webmanifest';
   if (existsSync(join(ROOT, manifestPath))) {
     const manifest = JSON.parse(read(manifestPath)) as Record<string, unknown>;
@@ -137,7 +115,6 @@ function ensureEnvSecret(overwrite: boolean): void {
     return;
   }
   const secret = randomBytes(32).toString('base64');
-  // Start from the documented .env.example so every knob is present + commented.
   const base = existsSync(join(ROOT, '.env.example')) ? read('.env.example') : 'BETTER_AUTH_SECRET=\n';
   const withSecret = base.replace(/^BETTER_AUTH_SECRET=.*$/mu, `BETTER_AUTH_SECRET="${secret}"`);
   write('.env.local', withSecret);

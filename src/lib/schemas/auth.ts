@@ -1,8 +1,5 @@
 import { z } from 'zod';
 
-// Every auth form action validates its input against one of these. zod is the
-// single validation layer — never hand-roll checks in an action.
-
 export const loginSchema = z.object({
   email: z.email('Enter a valid email address'),
   password: z.string().min(1, 'Password is required'),

@@ -2,13 +2,7 @@ import { hashPassword } from 'better-auth/crypto';
 
 import { prisma } from '../src/lib/server/db';
 
-// Seed: one admin + one regular user, both with a working email+password login.
-// Idempotent (delete-by-email then recreate) so it is safe to re-run.
-//
-// We hash with Better Auth's own `hashPassword` (the default emailAndPassword
-// hasher) and write the credential Account directly, rather than calling
-// auth.api.signUpEmail — that pulls the SvelteKit-only `$app/server` module,
-// which does not resolve in a standalone `bun` script.
+// Direct writes keep seeding independent of Better Auth's SvelteKit-only imports.
 
 const SEED_PASSWORD = 'password123';
 

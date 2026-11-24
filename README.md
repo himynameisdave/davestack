@@ -137,7 +137,7 @@ Each method is isolated so removing one is a small diff:
 | Passkeys       | `auth/passkey.ts`        | `passkeyPlugin` from `plugins`          | drop `passkeyClient()`            |
 
 Then remove the corresponding UI on the login / account pages, and (for passkeys) the `Passkey`
-model from `prisma/schema.prisma` + a migration. Each method file's header repeats this recipe.
+model from `prisma/schema.prisma` + a migration.
 
 ### Enabling Google OAuth
 

@@ -83,7 +83,6 @@
           </div>
         {:else}
           <div class="space-y-4">
-            <!-- Passkey: fastest path, up top -->
             <Button
               type="button"
               class="w-full"
@@ -107,7 +106,6 @@
               </span>
             </div>
 
-            <!-- Password -->
             <form
               method="POST"
               class="space-y-4"
@@ -160,7 +158,6 @@
               </Button>
             </form>
 
-            <!-- Magic link + Google -->
             <div class="space-y-2">
               <Button
                 type="button"

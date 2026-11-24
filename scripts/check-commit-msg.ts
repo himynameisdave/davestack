@@ -1,23 +1,4 @@
 #!/usr/bin/env bun
-/**
- * Commit-msg hook. Enforces davestack's emoji-commit convention with zero deps
- * (no commitlint). The subject line must be:
- *
- * ```
- * {emoji} {short imperative description}
- * ```
- *
- * I.e. start with a single emoji grapheme, then one space, then a non-empty
- * description. Subject must be <= 72 characters. The body (lines after the
- * subject) is never inspected.
- *
- * Exceptions (passed through unchecked):
- *
- * - Merge commits ("Merge ...")
- * - Revert commits ("Revert ...")
- * - Release commits ("🔖 Release vX.Y.Z") ← made by release.yml
- * - Fixup!/squash! commits (rebase autosquash)
- */
 import { readFileSync } from 'node:fs';
 
 const MAX_SUBJECT = 72;
@@ -50,7 +31,6 @@ function fail(reason: string): never {
   process.exit(1);
 }
 
-// --- Allowed pass-throughs ---
 if (
   subject.startsWith('Merge ')
   || subject.startsWith('Revert ')
@@ -83,7 +63,6 @@ if (!emojiLike.test(first)) {
   fail('must start with an emoji');
 }
 
-// After the emoji grapheme there must be a single space, then a description.
 const rest = subject.slice(first.length);
 if (!rest.startsWith(' ')) {
   fail('emoji must be followed by a space');

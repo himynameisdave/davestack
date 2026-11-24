@@ -1,10 +1,7 @@
 import dotenv from 'dotenv';
 import { defineConfig } from 'prisma/config';
 
-// Load .env.local first (Vite convention for local dev), then .env as fallback.
-// Safe in production: both files are gitignored, dotenv silently skips missing
-// files, and platform-provided env vars (e.g. Railway/Neon) take precedence over
-// anything dotenv would set.
+// Follow Vite's file precedence while letting deployment environment values take priority.
 dotenv.config({ path: '.env.local' });
 // oxlint-disable-next-line bun/no-dotenv -- the Prisma CLI runs under Node and needs this to load .env
 dotenv.config();

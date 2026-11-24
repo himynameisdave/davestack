@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-// oxlint-disable-next-line typescript/prefer-readonly-parameter-types -- clsx accepts a recursive, mutable ClassValue type
+// oxlint-disable-next-line typescript/prefer-readonly-parameter-types -- clsx's ClassValue is recursive
 export function cn(...inputs: readonly ClassValue[]) {
   return twMerge(clsx(inputs));
 }

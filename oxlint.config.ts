@@ -34,6 +34,42 @@ export default defineConfig({
   },
   overrides: [
     {
+      // App code reads validated env and uses Svelte runes for reactive state.
+      files: ['src/**'],
+      rules: {
+        'eslint/no-restricted-properties': [
+          'error',
+          {
+            object: 'process',
+            property: 'env',
+            message: 'Declare the variable in src/lib/server/env.ts and import env from #lib/server/env.js.',
+          },
+        ],
+        'eslint/no-restricted-imports': [
+          'error',
+          { name: 'svelte/store', message: 'Use $state in a .svelte.ts module for shared reactive state.' },
+        ],
+        'eslint/no-restricted-globals': [
+          'error',
+          {
+            name: '$effect',
+            message:
+              'Use $derived for computed state or an event handler for side effects. If an effect is essential, add a file-specific override in oxlint.config.ts.',
+          },
+        ],
+      },
+    },
+    {
+      // The env schema is the single entry point for raw environment variables in app code.
+      files: ['src/lib/server/env.ts'],
+      rules: { 'eslint/no-restricted-properties': 'off' },
+    },
+    {
+      // Keep the admin dashboard read-only. Other pages can still export form actions.
+      files: ['src/routes/(admin)/admin/+page.server.ts'],
+      rules: { 'eslint/no-restricted-exports': ['error', { restrictedNamedExports: ['actions'] }] },
+    },
+    {
       // CLI entry points (setup wizard, git hooks, DB seed): console IS their user interface and
       // process.exit their exit-status contract, exactly like a shell script.
       files: ['scripts/**', 'prisma/seed.ts'],

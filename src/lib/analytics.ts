@@ -12,7 +12,6 @@ type EventData = Readonly<Record<string, string | number | boolean>>;
 
 declare global {
   // The Umami script attaches itself as a page global when it loads.
-  // oxlint-disable-next-line eslint/no-var -- `declare var` is the only way to type a browser global on globalThis
   var umami: { track: (event: string, data?: EventData) => void } | undefined;
 }
 

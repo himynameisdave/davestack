@@ -8,6 +8,7 @@
  * - `debugger` statements
  * - Git conflict markers (<<<<<<<, =======, >>>>>>>)
  * - `console.log` outside src/lib/log.ts, src/lib/server/**, scripts/**, tests/**
+ * - Lint disable directives without a `-- <reason>` description
  * - Any staged .env* file EXCEPT .env.example / .env.test
  *
  * File list: lint-staged passes staged filenames as argv. When invoked with no
@@ -16,6 +17,9 @@
  */
 import { readFileSync, statSync } from 'node:fs';
 import { relative } from 'node:path';
+
+import { parse as parseSvelte } from 'svelte/compiler';
+import { parseSync } from 'vite';
 
 type Violation = { file: string; line: number; message: string };
 
@@ -34,16 +38,16 @@ const CONSOLE_ALLOWED = [
 // .env files that ARE allowed to be committed.
 const ENV_ALLOWED = new Set(['.env.example', '.env.test']);
 
-const CODE_EXT = /\.(?:ts|tsx|js|jsx|mjs|cjs|svelte)$/u;
+const CODE_EXT = /\.(?:[cm]?[jt]s|[jt]sx|svelte)$/u;
 const TEST_FILE = /\.(?:spec|test)\.(?:ts|tsx|js|jsx|mjs|cjs)$/u;
 const ENV_FILE = /^\.env(?:$|\.)/u;
+const LINT_DISABLE = /^\s*(?:oxlint|eslint)-disable(?:-next-line|-line)?(?=\s|$)/u;
 
 function stagedFiles(): string[] {
   const args = process.argv.slice(2);
   if (args.length > 0) {
     // `relative()` returns `''` (falsy, not nullish) when `f === CWD`; `||` is the correct
     // fallback here — `??` would not catch that case.
-    // oxlint-disable-next-line typescript/prefer-nullish-coalescing -- see comment above
     return args.map((f) => relative(CWD, f) || f);
   }
   const result = Bun.spawnSync(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM']);
@@ -66,6 +70,38 @@ function readText(file: string): string | null {
 
 function basename(file: string): string {
   return file.split('/').pop() ?? file;
+}
+
+function lintDisableViolations(file: string, text: string): Violation[] {
+  const isSvelte = file.endsWith('.svelte');
+  const filename = isSvelte ? `${file}.ts` : file;
+  let sources = [{ start: 0, end: text.length }];
+  if (isSvelte) {
+    const { instance, module } = parseSvelte(text, { modern: true });
+    sources = [instance?.content, module?.content].filter((script) => script !== undefined);
+  }
+
+  const missingReasons: Violation[] = [];
+  for (const { start, end } of sources) {
+    const { comments } = parseSync(filename, text.slice(start, end));
+    for (const comment of comments) {
+      if (!LINT_DISABLE.test(comment.value)) {
+        continue;
+      }
+      const reason = comment.value
+        .split(/\s--+\s/u, 2)[1]
+        ?.replaceAll(/^\s*\*/gmu, '')
+        .trim();
+      if (!reason) {
+        missingReasons.push({
+          file,
+          line: text.slice(0, start + comment.start).split('\n').length,
+          message: 'lint disable directive needs `-- <reason>` explaining why the exception is necessary',
+        });
+      }
+    }
+  }
+  return missingReasons;
 }
 
 const violations: Violation[] = [];
@@ -93,6 +129,10 @@ for (const rawFile of stagedFiles()) {
   const isCode = CODE_EXT.test(file);
   const isTest = TEST_FILE.test(file);
   const consoleAllowed = CONSOLE_ALLOWED.some((re) => re.test(file));
+
+  if (isCode && text.includes('lint-disable')) {
+    violations.push(...lintDisableViolations(file, text));
+  }
 
   for (const [i, line] of lines.entries()) {
     const n = i + 1;

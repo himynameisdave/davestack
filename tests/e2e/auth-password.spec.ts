@@ -2,6 +2,27 @@ import { expect, test } from '@playwright/test';
 
 import { extractLink, getLatestEmail } from './fixtures';
 
+test('signup validation preserves name and email and keeps the password out of the response', async ({ page }) => {
+  const name = 'New User';
+  const email = 'signup-validation@example.test';
+  const password = 'abc!789';
+
+  await page.goto('/signup');
+  await page.getByLabel('Name').fill(name);
+  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Password').fill(password);
+
+  const [response] = await Promise.all([
+    page.waitForResponse((result) => result.request().method() === 'POST' && result.url().endsWith('/signup')),
+    page.getByRole('button', { name: 'Create account' }).click(),
+  ]);
+
+  expect(await response.text()).not.toContain(password);
+  await expect(page.getByText('Password must be at least 8 characters')).toBeVisible();
+  await expect(page.getByLabel('Name')).toHaveValue(name);
+  await expect(page.getByLabel('Email')).toHaveValue(email);
+});
+
 test('signup → verify email → password login → /home', async ({ page }) => {
   const email = `signup-${crypto.randomUUID().slice(0, 8)}@example.test`;
   const password = 'password123';

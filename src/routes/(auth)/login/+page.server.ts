@@ -5,7 +5,7 @@ import { safeNext } from '#lib/safe-next.js';
 import { loginSchema } from '#lib/schemas/auth.js';
 import { auth } from '#lib/server/auth/index.js';
 import { features } from '#lib/server/env.js';
-import { field } from '#lib/server/form.js';
+import { formError, parseForm } from '#lib/server/form.js';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -16,12 +16,11 @@ export const load: PageServerLoad = ({ url }) => ({
 
 export const actions: Actions = {
   default: async ({ request, url }) => {
-    const data = await request.formData();
-    const email = field(data, 'email');
-    const parsed = loginSchema.safeParse({ email, password: field(data, 'password') });
+    const { values, parsed } = await parseForm(request, loginSchema);
+    const { email } = values;
 
     if (!parsed.success) {
-      return fail(400, { email, error: parsed.error.issues[0]?.message ?? 'Invalid input' });
+      return fail(400, { email, error: formError(parsed.error) });
     }
 
     try {

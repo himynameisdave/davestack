@@ -3,11 +3,12 @@ import { z } from 'zod';
 
 import { renamePasskeySchema } from '#lib/schemas/auth.js';
 import { prisma } from '#lib/server/db.js';
+import { formError, parseForm } from '#lib/server/form.js';
 
 import type { Actions, PageServerLoad } from './$types';
 
 const profileSchema = z.object({ name: z.string().min(1, 'Name is required').max(100) });
-const revokeSchema = z.object({ id: z.string().min(1) });
+const revokeSchema = z.object({ id: z.string().min(1, 'Invalid passkey') });
 
 export const load: PageServerLoad = async ({ locals }) => {
   if (!locals.user) {
@@ -29,10 +30,9 @@ export const actions: Actions = {
       redirect(303, '/login');
     }
 
-    const data = await request.formData();
-    const parsed = profileSchema.safeParse({ name: data.get('name') });
+    const { parsed } = await parseForm(request, profileSchema);
     if (!parsed.success) {
-      return fail(400, { action: 'updateProfile', error: parsed.error.issues[0]?.message });
+      return fail(400, { action: 'updateProfile', error: formError(parsed.error) });
     }
 
     await prisma.user.update({ where: { id: locals.user.id }, data: { name: parsed.data.name } });
@@ -47,10 +47,9 @@ export const actions: Actions = {
       redirect(303, '/login');
     }
 
-    const data = await request.formData();
-    const parsed = renamePasskeySchema.safeParse({ id: data.get('id'), name: data.get('name') });
+    const { parsed } = await parseForm(request, renamePasskeySchema);
     if (!parsed.success) {
-      return fail(400, { action: 'renamePasskey', error: parsed.error.issues[0]?.message });
+      return fail(400, { action: 'renamePasskey', error: formError(parsed.error) });
     }
 
     const result = await prisma.passkey.updateMany({
@@ -68,10 +67,9 @@ export const actions: Actions = {
       redirect(303, '/login');
     }
 
-    const data = await request.formData();
-    const parsed = revokeSchema.safeParse({ id: data.get('id') });
+    const { parsed } = await parseForm(request, revokeSchema);
     if (!parsed.success) {
-      return fail(400, { action: 'revokePasskey', error: 'Invalid passkey' });
+      return fail(400, { action: 'revokePasskey', error: formError(parsed.error) });
     }
 
     await prisma.passkey.deleteMany({ where: { id: parsed.data.id, userId: locals.user.id } });

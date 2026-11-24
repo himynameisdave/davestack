@@ -3,18 +3,16 @@ import { APIError } from 'better-auth/api';
 
 import { forgotPasswordSchema } from '#lib/schemas/auth.js';
 import { auth } from '#lib/server/auth/index.js';
-import { field } from '#lib/server/form.js';
+import { formError, parseForm } from '#lib/server/form.js';
 
 import type { Actions } from './$types';
 
 export const actions: Actions = {
   default: async ({ request }) => {
-    const data = await request.formData();
-    const email = field(data, 'email');
-    const parsed = forgotPasswordSchema.safeParse({ email });
+    const { values, parsed } = await parseForm(request, forgotPasswordSchema);
 
     if (!parsed.success) {
-      return fail(400, { email, error: parsed.error.issues[0]?.message ?? 'Invalid input' });
+      return fail(400, { email: values.email, error: formError(parsed.error) });
     }
 
     try {

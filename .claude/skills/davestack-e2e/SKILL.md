@@ -10,8 +10,8 @@ description: >-
 # davestack e2e house style
 
 Knowledge for writing Playwright specs in this repo. Specs live in `tests/e2e/`, run on **Chromium
-only**, against a **throwaway Postgres** (fresh per run) with `TEST_MODE=1`. Reference implementation: the five
-existing specs (`auth-password`, `auth-magic-link`, `auth-passkey`, `auth-guards`, `admin`).
+only**, against a **throwaway Postgres** (fresh per run) with `TEST_MODE=1`. See the existing specs
+in `tests/e2e/` for examples.
 
 ## Harness setup (already wired — don't rebuild)
 
@@ -109,6 +109,6 @@ before a flow that asserts email counts.
 - Prefer **role/label selectors** (`getByRole`, `getByLabel`, `getByText`) over CSS, matching the
   existing specs.
 - Assert **behaviour** (redirects, guard results, visible outcomes), not implementation.
-- For guarded routes, assert the guard: `(app)` → logged-out redirects to `/login`; `(admin)` →
-  non-admin gets 404, admin gets 200.
+- Add new pages to `tests/e2e/feature-map.ts`. The map drives the shared guard spec. Add separate
+  cases for page-specific behavior such as ownership checks.
 - Run `bun run test:e2e` twice locally — a second green run confirms no state leakage.

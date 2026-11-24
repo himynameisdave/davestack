@@ -1,11 +1,11 @@
 ---
-description: Scaffold a new route in the correct group with its guard and an e2e spec
+description: Scaffold a new route in the correct group and add a feature map entry
 ---
 
-Scaffold a new route. The invariant: **right route group → correct guard → nav wiring (if user-
-facing) → e2e spec**. A route that changes what's reachable ships with a spec.
+Scaffold a new route in the appropriate group, wire up navigation if needed, and register the page
+in the feature map.
 
-Route to add: **$ARGUMENTS** (if empty, ask for the path and whether it's public, authed, or admin).
+Route to add: **$ARGUMENTS** (if empty, ask for the path and access level).
 
 ## 1. Pick the route group — `src/routes/`
 
@@ -20,11 +20,8 @@ Route to add: **$ARGUMENTS** (if empty, ask for the path and whether it's public
 
 ## 2. Guard
 
-- If your page belongs to `(app)` or `(admin)`, the **group layout guard already protects it** — do
-  not re-implement it. Only add a `+page.server.ts` check if the page needs finer-grained access
-  (e.g. ownership of a specific record), and do it **server-side** (`locals.user` / `locals.session`),
-  never in client code.
-- Public/auth pages need no guard.
+- Use the existing layout guards for `(auth)`, `(app)`, and `(admin)` pages. For finer-grained
+  access such as record ownership, check `locals.user` or `locals.session` in `+page.server.ts`.
 
 ## 3. Nav wiring (if user-facing)
 
@@ -32,15 +29,12 @@ Route to add: **$ARGUMENTS** (if empty, ask for the path and whether it's public
   page should be reachable from the UI. The Admin link there is already gated on `data.user.isAdmin`
   — follow that pattern for any role-gated link.
 
-## 4. e2e spec — required
+## 4. Feature map
 
-- Add a spec under `tests/e2e/` that asserts the route's **guard behaviour**, not just that it
-  renders:
-  - `(app)` route → logged-out visit redirects to `/login` (see `tests/e2e/auth-guards.spec.ts`).
-  - `(admin)` route → non-admin/logged-out gets 404, admin gets 200 (see
-    `tests/e2e/admin.spec.ts`).
-- Use `tests/e2e/fixtures.ts`: `createUser` / `createUser({ isAdmin: true })` + `loginAs`. See the
-  `davestack-e2e` skill for the house style.
+- Add an entry to `tests/e2e/feature-map.ts` with the page's URL path, access level
+  (`public`, `guest`, `user`, or `admin`), and a short description of what users do there. The
+  map drives the access checks in `tests/e2e/auth-guards.spec.ts`.
+- Add a Playwright spec for page-specific behavior such as form submissions or ownership checks.
 
 ## Conventions
 
@@ -53,4 +47,4 @@ Route to add: **$ARGUMENTS** (if empty, ask for the path and whether it's public
 bun run lint && bun run check && bun run test && bun run test:e2e
 ```
 
-Commit with emoji format, e.g. `✨ add <route> page with guard and e2e`.
+Commit with emoji format, e.g. `✨ add <route> page`.

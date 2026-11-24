@@ -29,10 +29,10 @@
     "test:e2e:ui": "bun scripts/test-e2e.ts --ui"
   },
   "dependencies": {
-    "@better-auth/passkey": "^1.7.25",
+    "@better-auth/passkey": "^1.7.27",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
-    "better-auth": "^1.7.25",
+    "better-auth": "^1.7.27",
     "pg": "^8.23.1",
     "resend": "^6.39.0",
     "sveltekit-rate-limiter": "^0.8.0",

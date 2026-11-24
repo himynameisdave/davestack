@@ -194,9 +194,9 @@ skips Docker and uses the job's fresh `postgres` service container.
 
 ### e2e is required
 
-- **Any change that touches auth or adds/changes a route ships with a Playwright spec.** New model →
-  extend/add a spec. New guarded route → spec that asserts the guard. No exceptions for
-  auth-affecting or route-adding changes.
+- Add every new page to [the feature map](tests/e2e/feature-map.ts). CI checks page coverage and
+  access rules from the map.
+- Add or extend Playwright specs for auth flows and page-specific or model-specific behavior.
 
 ### e2e fixtures — `tests/e2e/fixtures.ts`
 
@@ -212,5 +212,5 @@ The building blocks every spec composes (see the `davestack-e2e` skill for the f
 ### Slash commands
 
 - `/new-model` — scaffold a Prisma model end-to-end (schema → migration → admin card → e2e).
-- `/new-route` — scaffold a route in the right group with its guard + e2e.
+- `/new-route` — scaffold a route in the right group and add a feature map entry.
 - `/ship` — pre-PR flow: self-verify loop → confirm e2e exists → emoji commit → `gh pr create`.
